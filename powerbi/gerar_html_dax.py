@@ -305,6 +305,12 @@ def serie(tabela: str, coluna: str, series: list[tuple[str, str, str]],
         "VAR _N   = MAXX(_T, [@i]) - _Ini",
         f'VAR _RotIni = MINX(_T, {tabela}[{coluna}]) & ""',
         f'VAR _RotFim = MAXX(_T, {tabela}[{coluna}]) & ""',
+        # marca do meio: o rótulo cujo índice está mais perto do centro do
+        # intervalo. Duas pontas dizem onde a série começa e acaba; a do meio
+        # dá a escala, e é o quanto cabe sem virar parede de números.
+        "VAR _Centro = _Ini + DIVIDE(_N, 2)",
+        f'VAR _RotMeio ='
+        f' MINX(TOPN(1, _T, ABS([@i] - _Centro), ASC), {tabela}[{coluna}]) & ""',
     ]
     # o teto é o MAIOR VALOR de qualquer série, não a soma delas — somar
     # comprimia o desenho à metade da altura quando havia duas linhas
@@ -383,6 +389,7 @@ def serie(tabela: str, coluna: str, series: list[tuple[str, str, str]],
     corpo += [
         f'  & {s("</svg>")}',
         f'  & {s(f"<div style={A}{eixo}{A}><span>")} & _RotIni'
+        f' & {s("</span><span>")} & _RotMeio'
         f' & {s("</span><span>")} & _RotFim & {s("</span></div></div>")}',
     ]
     return corpo
@@ -836,8 +843,11 @@ def navegador(pagina: str) -> dict:
             "visual": {
                 "visualType": "pageNavigator",
                 "objects": {
+                    # `cellPadding` é o preenchimento de CADA célula, então o vão
+                    # entre dois botões vale o dobro: 8 aqui dá os 15 que o
+                    # resto do painel usa. Com 15 o vão saía 30.
                     "layout": [{"properties": {"orientation": lit("0D"),
-                                               "cellPadding": lit("15D")}}],
+                                               "cellPadding": lit("8D")}}],
                     "shape": [{"properties": {"roundEdge": lit("6D")},
                                "selector": {"id": "default"}}],
                     "fill": [{"properties": {

@@ -268,6 +268,8 @@ table _Medidas
 			VAR _N   = MAXX(_T, [@i]) - _Ini
 			VAR _RotIni = MINX(_T, dim_data[ano_mes]) & ""
 			VAR _RotFim = MAXX(_T, dim_data[ano_mes]) & ""
+			VAR _Centro = _Ini + DIVIDE(_N, 2)
+			VAR _RotMeio = MINX(TOPN(1, _T, ABS([@i] - _Centro), ASC), dim_data[ano_mes]) & ""
 			VAR _Max = MAX(MAXX(_T, [@v1]), MAXX(_T, [@v2]))
 			VAR _Min = 0
 			VAR _Fim1 = MAXX(TOPN(1, FILTER(_T, NOT ISBLANK([@v1])), [@i], DESC), [@v1])
@@ -296,7 +298,7 @@ table _Medidas
 			  & "<polyline fill=""none"" stroke=""#2D9CDB"" stroke-width=""1.6"" vector-effect=""non-scaling-stroke"" stroke-linejoin=""round"" stroke-linecap=""round"" points=""" & _P1 & """></polyline>"
 			  & "<polyline fill=""none"" stroke=""#D9772A"" stroke-width=""1.6"" vector-effect=""non-scaling-stroke"" stroke-linejoin=""round"" stroke-linecap=""round"" points=""" & _P2 & """></polyline>"
 			  & "</svg>"
-			  & "<div style=""display:flex;justify-content:space-between;font-size:10px;color:#6F8299;margin-top:4px;""><span>" & _RotIni & "</span><span>" & _RotFim & "</span></div></div>"
+			  & "<div style=""display:flex;justify-content:space-between;font-size:10px;color:#6F8299;margin-top:4px;""><span>" & _RotIni & "</span><span>" & _RotMeio & "</span><span>" & _RotFim & "</span></div></div>"
 		displayFolder: 0 HTML
 		lineageTag: 00852169-6575-0cbc-b5a7-624ab13095ef
 
@@ -525,6 +527,8 @@ table _Medidas
 			VAR _N   = MAXX(_T, [@i]) - _Ini
 			VAR _RotIni = MINX(_T, dim_data[ano_mes]) & ""
 			VAR _RotFim = MAXX(_T, dim_data[ano_mes]) & ""
+			VAR _Centro = _Ini + DIVIDE(_N, 2)
+			VAR _RotMeio = MINX(TOPN(1, _T, ABS([@i] - _Centro), ASC), dim_data[ano_mes]) & ""
 			VAR _Teto = MAXX(_T, [@v1])
 			VAR _Piso = MINX(_T, [@v1])
 			VAR _Folga = (_Teto - _Piso) * 0.12
@@ -546,7 +550,7 @@ table _Medidas
 			  & "<defs><lineargradient id=""lhg"" x1=""0"" y1=""0"" x2=""0"" y2=""1""><stop offset=""0%"" stop-color=""#2D9CDB"" stop-opacity="".45""></stop><stop offset=""100%"" stop-color=""#2D9CDB"" stop-opacity=""0""></stop></lineargradient></defs>"
 			  & "<polyline fill=""none"" stroke=""#2D9CDB"" stroke-width=""1.6"" vector-effect=""non-scaling-stroke"" stroke-linejoin=""round"" stroke-linecap=""round"" points=""" & _P1 & """></polyline>"
 			  & "</svg>"
-			  & "<div style=""display:flex;justify-content:space-between;font-size:10px;color:#6F8299;margin-top:4px;""><span>" & _RotIni & "</span><span>" & _RotFim & "</span></div></div>"
+			  & "<div style=""display:flex;justify-content:space-between;font-size:10px;color:#6F8299;margin-top:4px;""><span>" & _RotIni & "</span><span>" & _RotMeio & "</span><span>" & _RotFim & "</span></div></div>"
 		displayFolder: 0 HTML
 		lineageTag: 3a8a01ad-3c02-b88d-79de-92bdcef23fd1
 
@@ -811,6 +815,8 @@ table _Medidas
 			VAR _N   = MAXX(_T, [@i]) - _Ini
 			VAR _RotIni = MINX(_T, dim_data[ano]) & ""
 			VAR _RotFim = MAXX(_T, dim_data[ano]) & ""
+			VAR _Centro = _Ini + DIVIDE(_N, 2)
+			VAR _RotMeio = MINX(TOPN(1, _T, ABS([@i] - _Centro), ASC), dim_data[ano]) & ""
 			VAR _Max = MAXX(_T, [@v1])
 			VAR _Min = 0
 			VAR _Fim1 = MAXX(TOPN(1, FILTER(_T, NOT ISBLANK([@v1])), [@i], DESC), [@v1])
@@ -830,7 +836,7 @@ table _Medidas
 			  & "<polygon fill=""url(#lhg)"" points=""0,100 " & _P1 & " " & _N & ",100""></polygon>"
 			  & "<polyline fill=""none"" stroke=""#8B7AE8"" stroke-width=""1.6"" vector-effect=""non-scaling-stroke"" stroke-linejoin=""round"" stroke-linecap=""round"" points=""" & _P1 & """></polyline>"
 			  & "</svg>"
-			  & "<div style=""display:flex;justify-content:space-between;font-size:10px;color:#6F8299;margin-top:4px;""><span>" & _RotIni & "</span><span>" & _RotFim & "</span></div></div>"
+			  & "<div style=""display:flex;justify-content:space-between;font-size:10px;color:#6F8299;margin-top:4px;""><span>" & _RotIni & "</span><span>" & _RotMeio & "</span><span>" & _RotFim & "</span></div></div>"
 		displayFolder: 0 HTML
 		lineageTag: 612c4980-0a05-f75e-ba0f-d7cb7bc51abf
 
@@ -855,6 +861,8 @@ table _Medidas
 			VAR _N   = MAXX(_T, [@i]) - _Ini
 			VAR _RotIni = MINX(_T, fct_previsao_bussola[ano_mes]) & ""
 			VAR _RotFim = MAXX(_T, fct_previsao_bussola[ano_mes]) & ""
+			VAR _Centro = _Ini + DIVIDE(_N, 2)
+			VAR _RotMeio = MINX(TOPN(1, _T, ABS([@i] - _Centro), ASC), fct_previsao_bussola[ano_mes]) & ""
 			VAR _Max = MAX(MAXX(_T, [@v1]), MAXX(_T, [@v2]))
 			VAR _Min = 0
 			VAR _Fim1 = MAXX(TOPN(1, FILTER(_T, NOT ISBLANK([@v1])), [@i], DESC), [@v1])
@@ -883,7 +891,7 @@ table _Medidas
 			  & "<polyline fill=""none"" stroke=""#2D9CDB"" stroke-width=""1.6"" vector-effect=""non-scaling-stroke"" stroke-linejoin=""round"" stroke-linecap=""round"" points=""" & _P1 & """></polyline>"
 			  & "<polyline fill=""none"" stroke=""#D9772A"" stroke-width=""1.6"" vector-effect=""non-scaling-stroke"" stroke-linejoin=""round"" stroke-linecap=""round"" points=""" & _P2 & """></polyline>"
 			  & "</svg>"
-			  & "<div style=""display:flex;justify-content:space-between;font-size:10px;color:#6F8299;margin-top:4px;""><span>" & _RotIni & "</span><span>" & _RotFim & "</span></div></div>"
+			  & "<div style=""display:flex;justify-content:space-between;font-size:10px;color:#6F8299;margin-top:4px;""><span>" & _RotIni & "</span><span>" & _RotMeio & "</span><span>" & _RotFim & "</span></div></div>"
 		displayFolder: 0 HTML
 		lineageTag: 85a1c971-a6f0-71a4-2ed5-472a533d44ec
 
