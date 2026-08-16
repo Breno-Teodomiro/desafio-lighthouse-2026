@@ -3,7 +3,7 @@
   "name": "6af16ededbeedda3f420",
   "position": {
     "x": 826,
-    "y": 272,
+    "y": 306,
     "z": 100,
     "height": 250,
     "width": 422,
@@ -49,6 +49,23 @@
             }
           ]
         }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "_Medidas"
+                  }
+                },
+                "Property": "Receita Bruta"
+              }
+            },
+            "direction": "Descending"
+          }
+        ]
       }
     },
     "objects": {

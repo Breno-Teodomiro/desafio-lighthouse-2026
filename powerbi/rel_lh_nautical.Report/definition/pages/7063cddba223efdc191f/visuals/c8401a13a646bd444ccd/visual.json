@@ -3,7 +3,7 @@
   "name": "c8401a13a646bd444ccd",
   "position": {
     "x": 960,
-    "y": 258,
+    "y": 292,
     "z": 100,
     "height": 250,
     "width": 288,
@@ -49,6 +49,23 @@
             }
           ]
         }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "_Medidas"
+                  }
+                },
+                "Property": "Ticket Médio"
+              }
+            },
+            "direction": "Descending"
+          }
+        ]
       }
     },
     "objects": {

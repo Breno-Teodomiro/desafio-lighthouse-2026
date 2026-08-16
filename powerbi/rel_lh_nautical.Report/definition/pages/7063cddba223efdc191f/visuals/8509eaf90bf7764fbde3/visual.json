@@ -3,9 +3,9 @@
   "name": "8509eaf90bf7764fbde3",
   "position": {
     "x": 686,
-    "y": 388,
+    "y": 292,
     "z": 100,
-    "height": 120,
+    "height": 250,
     "width": 260,
     "tabOrder": 100
   },
@@ -49,6 +49,23 @@
             }
           ]
         }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "_Medidas"
+                  }
+                },
+                "Property": "Itens Vendidos"
+              }
+            },
+            "direction": "Descending"
+          }
+        ]
       }
     },
     "objects": {

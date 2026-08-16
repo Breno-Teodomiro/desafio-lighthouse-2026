@@ -3,10 +3,10 @@
   "name": "1a55c405f1614ca47061",
   "position": {
     "x": 32,
-    "y": 534,
+    "y": 568,
     "z": 100,
-    "height": 158,
-    "width": 380,
+    "height": 134,
+    "width": 592,
     "tabOrder": 100
   },
   "visual": {
@@ -49,6 +49,23 @@
             }
           ]
         }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "_Medidas"
+                  }
+                },
+                "Property": "Nº Pedidos"
+              }
+            },
+            "direction": "Descending"
+          }
+        ]
       }
     },
     "objects": {

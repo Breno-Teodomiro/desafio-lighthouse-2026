@@ -225,7 +225,7 @@ def ranking(tabela: str, coluna: str, med: str, fmt: str, n: int, cor: str,
 
 # ═══════════════════════════════════════════════════════ tipo SÉRIE (bloco) ══
 def serie(tabela: str, coluna: str, series: list[tuple[str, str]],
-          altura: int = 96) -> list[str]:
+          altura: int = 96, base_zero: bool = True) -> list[str]:
     """Linha do tempo em SVG. `series` = [(expressão da medida, cor)].
 
     O eixo X é o índice do período e o `preserveAspectRatio=none` estica o
@@ -237,25 +237,45 @@ def serie(tabela: str, coluna: str, series: list[tuple[str, str]],
         "VAR _T =",
         "    ADDCOLUMNS(",
         "        _Base,",
-        f'        "@i", RANKX(_Base, {tabela}[{coluna}],, ASC) - 1,',
+        # Índice do mês a partir do próprio rótulo "AAAA-MM". RANKX sobre
+        # texto não deu ordem estável e a série saiu embaralhada — os pontos
+        # do polyline vinham fora de sequência.
+        f'        "@i", VALUE(LEFT({tabela}[{coluna}], 4)) * 12'
+        f' + VALUE(MID({tabela}[{coluna}], 6, 2)),',
     ]
     for k, (med, _) in enumerate(series, 1):
         corpo.append(f'        "@v{k}", {med},')
     corpo[-1] = corpo[-1].rstrip(",")
     corpo += [
         "    )",
-        "VAR _N   = COUNTROWS(_T) - 1",
-        "VAR _Max = MAXX(_T, "
-        + " + ".join(f"COALESCE([@v{k}], 0)" for k in range(1, len(series) + 1))
-        + ")",
+        "VAR _Ini = MINX(_T, [@i])",
+        "VAR _N   = MAXX(_T, [@i]) - _Ini",
     ]
+    # o teto é o MAIOR VALOR de qualquer série, não a soma delas — somar
+    # comprimia o desenho à metade da altura quando havia duas linhas
+    teto = "MAXX(_T, [@v1])"
+    for k in range(2, len(series) + 1):
+        teto = f"MAX({teto}, MAXX(_T, [@v{k}]))"
+    if base_zero:
+        corpo += [f"VAR _Max = {teto}", "VAR _Min = 0"]
+    else:
+        # Série de variação estreita (margem de 40% a 42%): num eixo que
+        # começa em zero ela vira uma reta. Aqui o eixo é o próprio intervalo
+        # dos dados, com 12% de folga — e sem área preenchida, que sugeriria
+        # uma base em zero que não existe.
+        piso = "MINX(_T, [@v1])"
+        for k in range(2, len(series) + 1):
+            piso = f"MIN({piso}, MINX(_T, [@v{k}]))"
+        corpo += [f"VAR _Teto = {teto}", f"VAR _Piso = {piso}",
+                  "VAR _Folga = (_Teto - _Piso) * 0.12",
+                  "VAR _Max = _Teto + _Folga", "VAR _Min = _Piso - _Folga"]
     for k in range(1, len(series) + 1):
         corpo += [
             f"VAR _P{k} =",
             "    CONCATENATEX(",
             f"        FILTER(_T, NOT ISBLANK([@v{k}])),",
-            f'        FORMAT([@i], "0") & "," & '
-            f'FORMAT({altura} - DIVIDE([@v{k}], _Max) * {altura - 6}, "0.00"),',
+            f'        FORMAT([@i] - _Ini, "0") & "," & '
+            f'FORMAT({altura} - DIVIDE([@v{k}] - _Min, _Max - _Min) * {altura - 6}, "0.00"),',
             '        " ", [@i], ASC',
             "    )",
         ]
@@ -273,9 +293,11 @@ def serie(tabela: str, coluna: str, series: list[tuple[str, str]],
                                                      f"style={A}width:100%;"
                                                      f"height:{altura}px;display:block;{A}>")}',
         f"  & {s(grad)}",
-        f'  & {s(f"<polygon fill={A}url(#lhg){A} points={A}0,{altura} ")}'
-        f' & _P1 & {s(" ")} & _N & {s(f",{altura}{A}></polygon>")}',
     ]
+    if base_zero:
+        corpo.append(
+            f'  & {s(f"<polygon fill={A}url(#lhg){A} points={A}0,{altura} ")}'
+            f' & _P1 & {s(" ")} & _N & {s(f",{altura}{A}></polygon>")}')
     for k, (_, cor) in enumerate(series, 1):
         corpo.append(
             f'  & {s(f"<polyline fill={A}none{A} stroke={A}{cor}{A} "
@@ -300,6 +322,23 @@ DOC_BLOCO = [
     "FORMA BLOCO — devolve o componente inteiro, então o visual recebe uma",
     "linha só e não emite filtro. Recebe filtro normalmente.",
 ]
+
+# Medida pela qual cada lista é ordenada NA TELA. As de ordem natural — dias
+# da semana e anos — ficam de fora de propósito: ali a sequência correta é a
+# da própria coluna, e o `sortByColumn` do modelo já resolve.
+ORDENACAO: dict[str, str] = {
+    "HTML — Linha de Status": "Receita Bruta",
+    "HTML — Linha de Canal": "Nº Pedidos",
+    "HTML — Linha de Categoria": "Margem Líquida R$",
+    "HTML — Linha de Categoria Dupla": "Receita de Itens",
+    "HTML — Linha de Produto": "% Margem Líquida",
+    "HTML — Linha de Cliente": "Ticket Médio",
+    "HTML — Linha de Cliente Dupla": "Ticket Médio",
+    "HTML — Linha de Categoria Itens": "Itens Vendidos",
+    "HTML — Linha de Similar": "Similaridade de Cosseno",
+    "HTML — Linha de Cesta": "Pedidos em Comum",
+}
+
 
 COMPONENTES: list[tuple] = []
 
@@ -355,18 +394,18 @@ add("HTML — Linha de Canal",
     ranking("dim_canal", "canal_exibicao", "[Nº Pedidos]", "#,##0", 2, ROXO, 92),
     ["PEDIDOS POR CANAL."] + DOC_CROSS,
     P1, "E-commerce responde por 70% dos pedidos",
-    (32, 534, 380, 158), ("dim_canal", "canal_exibicao"), ["649f66a46725abff8ec5"])
+    (32, 534, 592, 158), ("dim_canal", "canal_exibicao"), ["649f66a46725abff8ec5"])
 
 add("HTML — Linha de Categoria",
     ranking("dim_produto", "categoria", "[Margem Líquida R$]",
             'R$ #,##0,, " Mi"', 5, LARANJA, 120),
     ["AS CINCO MAIORES CATEGORIAS POR MARGEM LÍQUIDA."] + DOC_CROSS,
     P1, "Margem líquida por categoria — as cinco maiores",
-    (426, 534, 400, 158), ("dim_produto", "categoria"), ["74da21ed1ccad7ce7954"])
+    (656, 534, 592, 158), ("dim_produto", "categoria"), ["74da21ed1ccad7ce7954"])
 
 # ── vendas e margem ─────────────────────────────────────────────────────────
 add("HTML — Faixa de Margem",
-    ["RETURN"] + faixa([
+    faixa([
         ("Receita de Itens",
          'FORMAT([Receita de Itens] / 1000000, "R$ #,##0") & " Mi"',
          s("grão de item — 147.320 linhas"), TEXTO, None),
@@ -415,14 +454,15 @@ add("HTML — Linha de Produto",
     (654, 206, 594, 290), ("dim_produto", "produto"), ["60017aa09e90e8383d05"])
 
 add("HTML — Série de Margem",
-    serie("dim_data", "ano_mes", [("[% Margem Líquida]", AZUL)], 96),
+    serie("dim_data", "ano_mes", [("[% Margem Líquida]", AZUL)], 96,
+          base_zero=False),
     ["MARGEM PERCENTUAL MÊS A MÊS, em SVG."] + DOC_BLOCO,
     P2, "A margem percentual é estável no tempo — o crescimento vem de volume",
     (32, 510, 1216, 182), None, ["adf3da49728681a7a490"])
 
 # ── clientes (Q4) ───────────────────────────────────────────────────────────
 add("HTML — Faixa de Clientes",
-    ["RETURN"] + faixa([
+    faixa([
         ("Clientes", 'FORMAT([Clientes], "#,##0")', s("todos compraram"),
          TEXTO, None),
         ("Ticket Médio", 'FORMAT([Ticket Médio], "R$ #,##0.00")',
@@ -447,7 +487,7 @@ add("HTML — Linha de Cliente",
 
 add("HTML — Linha de Cliente Dupla",
     ranking("dim_cliente", "cliente", "[Ticket Médio]", "R$ #,##0", 10, AZUL, 96,
-            larg_val=62, med2="[Receita Bruta]", fmt2='R$ #,##0,, " Mi"',
+            larg_val=62, med2="[Receita Bruta]", fmt2='R$ #,##0.00,, " Mi"',
             cor2=LARANJA),
     ["TICKET × FATURAMENTO, no mesmo cliente.",
      "",
@@ -457,15 +497,15 @@ add("HTML — Linha de Cliente Dupla",
     (960, 258, 288, 250), ("dim_cliente", "cliente"), ["6b83e06018435b48c816"])
 
 add("HTML — Linha de Categoria Itens",
-    ranking("dim_produto", "categoria", "[Itens Vendidos]", "#,##0", 4, AZUL, 88,
+    ranking("dim_produto", "categoria", "[Itens Vendidos]", "#,##0", 8, AZUL, 88,
             larg_val=62),
     ["CATEGORIAS POR ITENS VENDIDOS."] + DOC_CROSS,
     P3, "Hélices lidera o grupo",
-    (686, 388, 260, 120), ("dim_produto", "categoria"), ["8dd4bd284e6dfc2a6573"])
+    (686, 258, 260, 250), ("dim_produto", "categoria"), ["8dd4bd284e6dfc2a6573"])
 
 # ── sazonalidade (Q5) ───────────────────────────────────────────────────────
 add("HTML — Faixa de Sazonalidade",
-    ["RETURN"] + faixa([
+    faixa([
         ("Média Correta", 'FORMAT([Média de Venda por Dia POS], "R$ #,##0")',
          s("divide pelo calendário inteiro"), AZUL, None),
         ("Média Ingênua",
@@ -532,7 +572,7 @@ add("HTML — Série da Bússola",
     (32, 96, 528, 288), None, ["f283a342495bf78b805d"])
 
 add("HTML — Faixa da Previsão",
-    ["RETURN"] + faixa([
+    faixa([
         ("Realizado", 'FORMAT([Realizado no Trimestre], "#,##0") & " un"',
          s("jan a mar de 2026"), AZUL, None),
         ("Previsto (MM3)", 'FORMAT([Previsão — Média Móvel 3m], "#,##0") & " un"',
@@ -589,14 +629,25 @@ def cor_json(h: str) -> dict:
 
 
 def json_visual(nome_visual: str, medida: str, caixa: tuple,
-                titulo: str | None, gran: tuple | None) -> dict:
+                titulo: str | None, gran: tuple | None,
+                ordenar_por: str | None = None) -> dict:
     x, y, w, h = caixa
     estado = {"content": {"projections": [campo_medida(medida)]}}
     if gran:
         estado["sampling"] = {"projections": [campo_coluna(*gran)]}
+    consulta: dict = {"queryState": estado}
+    if ordenar_por:
+        # Sem isto o visual recebe as linhas na ordem da coluna de `sampling`
+        # — alfabética — e o ranking aparece 3, 2, 1, 5, 4 na tela, com os
+        # números certos e a sequência errada. A ordem de exibição é do
+        # dataset, não do HTML.
+        consulta["sortDefinition"] = {"sort": [{
+            "field": {"Measure": {"Expression": {"SourceRef": {"Entity": "_Medidas"}},
+                                  "Property": ordenar_por}},
+            "direction": "Descending"}]}
     v = {
         "visualType": GUID,
-        "query": {"queryState": estado},
+        "query": consulta,
         "objects": {
             "contentFormatting": [{"properties": {
                 "format": lit("'html'"), "showRawHtml": lit("false"),
@@ -636,6 +687,90 @@ def json_visual(nome_visual: str, medida: str, caixa: tuple,
             "visual": v}
 
 
+
+# ══════════════════════════════════════════════════ navegação e filtros ════
+# Onde ficam os segmentadores de cada página, depois do deslocamento. Filtro
+# no rodapé, abaixo dos gráficos, era o que estava errado: quem usa procura o
+# controle antes de ler, não depois.
+SLICERS = {
+    P1: (948, 58, 300, 76),    # status do pedido
+    P3: (948, 58, 300, 68),    # flag de elite
+}
+
+# Larguras de cabeçalho que precisam encolher para abrir espaço ao lado.
+CABECALHO_ESTREITO = 900
+
+DESLOCAMENTO = 34   # altura da faixa de navegação + respiro
+LIMITE_Y = 702      # canvas de 720 menos uma margem
+
+
+def navegador(pagina: str, largura: int) -> dict:
+    """Botões de página. `pageNavigator` monta a lista sozinho — nada de
+    manter cinco botões e cinco ações sincronizados à mão."""
+    nome = id_curto(f"visual:nav:{pagina}")
+    return {"$schema": "https://developer.microsoft.com/json-schemas/fabric/item/"
+                       "report/definition/visualContainer/2.9.0/schema.json",
+            "name": nome,
+            "position": {"x": 32, "y": 10, "z": 900, "height": 28,
+                         "width": largura, "tabOrder": 1},
+            "visual": {
+                "visualType": "pageNavigator",
+                "objects": {
+                    "layout": [{"properties": {"orientation": lit("0D"),
+                                               "cellPadding": lit("6D")}}],
+                    "shape": [{"properties": {"roundEdge": lit("6D")},
+                               "selector": {"id": "default"}}],
+                    "fill": [{"properties": {
+                        "show": lit("true"), "fillColor": cor_json(CARTAO),
+                        "transparency": lit("0D")}, "selector": {"id": "default"}}],
+                    "text": [{"properties": {
+                        "fontColor": cor_json(SUAVE), "fontSize": lit("9D")},
+                        "selector": {"id": "default"}}],
+                    "outline": [{"properties": {
+                        "show": lit("true"), "lineColor": cor_json(BORDA),
+                        "weight": lit("1D")}, "selector": {"id": "default"}}],
+                },
+                "visualContainerObjects": {
+                    "background": [{"properties": {"show": lit("false")}}],
+                    "visualHeader": [{"properties": {"show": lit("false")}}],
+                },
+            }}
+
+
+def reposicionar() -> None:
+    """Abre a faixa de navegação no topo e tira os filtros do rodapé."""
+    for pagina in (P1, P2, P3, P4, P5):
+        base = PAGES / pagina / "visuals"
+        arquivos = sorted(base.glob("*/visual.json"))
+        for caminho in arquivos:
+            dados = json.loads(caminho.read_text(encoding="utf-8"))
+            tipo = dados["visual"].get("visualType")
+            pos = dados["position"]
+
+            if tipo == "slicer" and pagina in SLICERS:
+                x, y, w, h = SLICERS[pagina]
+                pos.update(x=x, y=y, width=w, height=h)
+            else:
+                pos["y"] += DESLOCAMENTO
+                # o cabeçalho encolhe para o segmentador caber ao lado
+                if (tipo == "textbox" and pos["y"] < 100
+                        and pagina in SLICERS and pos["width"] > CABECALHO_ESTREITO):
+                    pos["width"] = CABECALHO_ESTREITO
+                # quem passou do rodapé cede a altura, em vez de sair da tela
+                if pos["y"] + pos["height"] > LIMITE_Y:
+                    pos["height"] = LIMITE_Y - pos["y"]
+
+            caminho.write_text(json.dumps(dados, ensure_ascii=False, indent=2)
+                               + "\n", encoding="utf-8", newline="\r\n")
+
+        largura = 890 if pagina in SLICERS else 1216
+        nav = navegador(pagina, largura)
+        os.makedirs(base / nav["name"], exist_ok=True)
+        (base / nav["name"] / "visual.json").write_text(
+            json.dumps(nav, ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8", newline="\r\n")
+
+
 def main() -> None:
     with open(TMDL, encoding="utf-8", newline="") as fh:
         texto = fh.read()
@@ -663,15 +798,17 @@ def main() -> None:
         os.makedirs(base / nv, exist_ok=True)
         with open(base / nv / "visual.json", "w", encoding="utf-8",
                   newline="\r\n") as fh:
-            fh.write(json.dumps(json_visual(nv, nome, caixa, titulo, gran),
-                                ensure_ascii=False, indent=2) + "\n")
+            fh.write(json.dumps(
+                json_visual(nv, nome, caixa, titulo, gran, ORDENACAO.get(nome)),
+                ensure_ascii=False, indent=2) + "\n")
 
     # Limpeza determinística, no lugar de uma lista de IDs escrita à mão —
     # que foi de onde vieram três cartões e um HTML órfãos sobrepondo os
     # componentes novos. Textbox e slicer ficam: um é narrativa, o outro é
     # controle, e nenhum dos dois foi substituído por HTML.
     substituidos = {"card", "clusteredBarChart", "clusteredColumnChart",
-                    "barChart", "lineChart", "tableEx", "pivotTable"}
+                    "barChart", "lineChart", "tableEx", "pivotTable",
+                    "pageNavigator"}
     removidos = 0
     for caminho in PAGES.glob("*/visuals/*/visual.json"):
         dados = json.loads(caminho.read_text(encoding="utf-8"))
@@ -682,6 +819,8 @@ def main() -> None:
             removidos += 1
     if removidos:
         print(f"  {removidos} visuais antigos removidos")
+
+    reposicionar()
 
     filtram = sum(1 for c in COMPONENTES if c[6])
     print(f"{len(COMPONENTES)} componentes HTML gravados "

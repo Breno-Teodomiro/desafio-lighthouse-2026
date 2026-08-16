@@ -260,22 +260,24 @@ table _Medidas
 			VAR _T =
 			    ADDCOLUMNS(
 			        _Base,
-			        "@i", RANKX(_Base, dim_data[ano_mes],, ASC) - 1,
+			        "@i", VALUE(LEFT(dim_data[ano_mes], 4)) * 12 + VALUE(MID(dim_data[ano_mes], 6, 2)),
 			        "@v1", [Receita Bruta],
 			        "@v2", [Receita Efetivada]
 			    )
-			VAR _N   = COUNTROWS(_T) - 1
-			VAR _Max = MAXX(_T, COALESCE([@v1], 0) + COALESCE([@v2], 0))
+			VAR _Ini = MINX(_T, [@i])
+			VAR _N   = MAXX(_T, [@i]) - _Ini
+			VAR _Max = MAX(MAXX(_T, [@v1]), MAXX(_T, [@v2]))
+			VAR _Min = 0
 			VAR _P1 =
 			    CONCATENATEX(
 			        FILTER(_T, NOT ISBLANK([@v1])),
-			        FORMAT([@i], "0") & "," & FORMAT(96 - DIVIDE([@v1], _Max) * 90, "0.00"),
+			        FORMAT([@i] - _Ini, "0") & "," & FORMAT(96 - DIVIDE([@v1] - _Min, _Max - _Min) * 90, "0.00"),
 			        " ", [@i], ASC
 			    )
 			VAR _P2 =
 			    CONCATENATEX(
 			        FILTER(_T, NOT ISBLANK([@v2])),
-			        FORMAT([@i], "0") & "," & FORMAT(96 - DIVIDE([@v2], _Max) * 90, "0.00"),
+			        FORMAT([@i] - _Ini, "0") & "," & FORMAT(96 - DIVIDE([@v2] - _Min, _Max - _Min) * 90, "0.00"),
 			        " ", [@i], ASC
 			    )
 			RETURN
@@ -376,7 +378,6 @@ table _Medidas
 	/// FORMA BLOCO — devolve o componente inteiro, então o visual recebe uma
 	/// linha só e não emite filtro. Recebe filtro normalmente.
 	measure 'HTML — Faixa de Margem' =
-			RETURN
 			    "<div style=""display:flex;flex-direction:row;gap:10px;font-family:Segoe UI,-apple-system,Roboto,sans-serif;"">"
 			& "<div style=""flex:1;min-width:0;background:#12203366;border:1px solid #1E2E42;border-radius:14px;padding:14px 16px;"">"
 			& "<div style=""font-size:10px;letter-spacing:.10em;text-transform:uppercase;color:#93A5B8;font-weight:600;white-space:nowrap;"">Receita de Itens</div>"
@@ -483,22 +484,26 @@ table _Medidas
 			VAR _T =
 			    ADDCOLUMNS(
 			        _Base,
-			        "@i", RANKX(_Base, dim_data[ano_mes],, ASC) - 1,
+			        "@i", VALUE(LEFT(dim_data[ano_mes], 4)) * 12 + VALUE(MID(dim_data[ano_mes], 6, 2)),
 			        "@v1", [% Margem Líquida]
 			    )
-			VAR _N   = COUNTROWS(_T) - 1
-			VAR _Max = MAXX(_T, COALESCE([@v1], 0))
+			VAR _Ini = MINX(_T, [@i])
+			VAR _N   = MAXX(_T, [@i]) - _Ini
+			VAR _Teto = MAXX(_T, [@v1])
+			VAR _Piso = MINX(_T, [@v1])
+			VAR _Folga = (_Teto - _Piso) * 0.12
+			VAR _Max = _Teto + _Folga
+			VAR _Min = _Piso - _Folga
 			VAR _P1 =
 			    CONCATENATEX(
 			        FILTER(_T, NOT ISBLANK([@v1])),
-			        FORMAT([@i], "0") & "," & FORMAT(96 - DIVIDE([@v1], _Max) * 90, "0.00"),
+			        FORMAT([@i] - _Ini, "0") & "," & FORMAT(96 - DIVIDE([@v1] - _Min, _Max - _Min) * 90, "0.00"),
 			        " ", [@i], ASC
 			    )
 			RETURN
 			    "<div style=""font-family:Segoe UI,-apple-system,Roboto,sans-serif;"">"
 			  & "<svg viewBox=""0 0 " & _N & " 96"" preserveAspectRatio=""none"" style=""width:100%;height:96px;display:block;"">"
 			  & "<defs><lineargradient id=""lhg"" x1=""0"" y1=""0"" x2=""0"" y2=""1""><stop offset=""0%"" stop-color=""#2D9CDB"" stop-opacity="".45""></stop><stop offset=""100%"" stop-color=""#2D9CDB"" stop-opacity=""0""></stop></lineargradient></defs>"
-			  & "<polygon fill=""url(#lhg)"" points=""0,96 " & _P1 & " " & _N & ",96""></polygon>"
 			  & "<polyline fill=""none"" stroke=""#2D9CDB"" stroke-width=""1.6"" vector-effect=""non-scaling-stroke"" stroke-linejoin=""round"" stroke-linecap=""round"" points=""" & _P1 & """></polyline>"
 			  & "</svg></div>"
 		displayFolder: 0 HTML
@@ -509,7 +514,6 @@ table _Medidas
 	/// FORMA BLOCO — devolve o componente inteiro, então o visual recebe uma
 	/// linha só e não emite filtro. Recebe filtro normalmente.
 	measure 'HTML — Faixa de Clientes' =
-			RETURN
 			    "<div style=""display:flex;flex-direction:row;gap:10px;font-family:Segoe UI,-apple-system,Roboto,sans-serif;"">"
 			& "<div style=""flex:1;min-width:0;background:#12203366;border:1px solid #1E2E42;border-radius:14px;padding:14px 16px;"">"
 			& "<div style=""font-size:10px;letter-spacing:.10em;text-transform:uppercase;color:#93A5B8;font-weight:600;white-space:nowrap;"">Clientes</div>"
@@ -596,7 +600,7 @@ table _Medidas
 			      & FORMAT(DIVIDE(_V2, _Max2) * 100, "0.0")
 			      & "%""></div></div></div>"
 			      & "<div style=""width:62px;text-align:right;font-size:12px;color:#93A5B8;flex:none;line-height:1.35;"">" & FORMAT(_V, "R$ #,##0")
-			      & "<br><span style=""color:#D9772A;"">" & FORMAT(_V2, "R$ #,##0,, "" Mi""") & "</span></div>"
+			      & "<br><span style=""color:#D9772A;"">" & FORMAT(_V2, "R$ #,##0.00,, "" Mi""") & "</span></div>"
 			      & "</div>"
 			    )
 		displayFolder: 0 HTML
@@ -609,9 +613,9 @@ table _Medidas
 	/// selectionId por linha, e clicar filtra a página como um gráfico nativo.
 	measure 'HTML — Linha de Categoria Itens' =
 			VAR _V   = [Itens Vendidos]
-			VAR _Max = MAXX(TOPN(4, ALLSELECTED(dim_produto[categoria]), [Itens Vendidos], DESC), [Itens Vendidos])
+			VAR _Max = MAXX(TOPN(8, ALLSELECTED(dim_produto[categoria]), [Itens Vendidos], DESC), [Itens Vendidos])
 			VAR _Pos = RANKX(ALLSELECTED(dim_produto[categoria]), [Itens Vendidos],, DESC)
-			VAR _Dentro = _Pos <= 4
+			VAR _Dentro = _Pos <= 8
 			RETURN
 			    IF(
 			        _Dentro,
@@ -633,7 +637,6 @@ table _Medidas
 	/// FORMA BLOCO — devolve o componente inteiro, então o visual recebe uma
 	/// linha só e não emite filtro. Recebe filtro normalmente.
 	measure 'HTML — Faixa de Sazonalidade' =
-			RETURN
 			    "<div style=""display:flex;flex-direction:row;gap:10px;font-family:Segoe UI,-apple-system,Roboto,sans-serif;"">"
 			& "<div style=""flex:1;min-width:0;background:#12203366;border:1px solid #1E2E42;border-radius:14px;padding:14px 16px;"">"
 			& "<div style=""font-size:10px;letter-spacing:.10em;text-transform:uppercase;color:#93A5B8;font-weight:600;white-space:nowrap;"">Média Correta</div>"
@@ -762,22 +765,24 @@ table _Medidas
 			VAR _T =
 			    ADDCOLUMNS(
 			        _Base,
-			        "@i", RANKX(_Base, fct_previsao_bussola[ano_mes],, ASC) - 1,
+			        "@i", VALUE(LEFT(fct_previsao_bussola[ano_mes], 4)) * 12 + VALUE(MID(fct_previsao_bussola[ano_mes], 6, 2)),
 			        "@v1", [Unidades Realizadas],
 			        "@v2", [Previsão — Média Móvel 3m]
 			    )
-			VAR _N   = COUNTROWS(_T) - 1
-			VAR _Max = MAXX(_T, COALESCE([@v1], 0) + COALESCE([@v2], 0))
+			VAR _Ini = MINX(_T, [@i])
+			VAR _N   = MAXX(_T, [@i]) - _Ini
+			VAR _Max = MAX(MAXX(_T, [@v1]), MAXX(_T, [@v2]))
+			VAR _Min = 0
 			VAR _P1 =
 			    CONCATENATEX(
 			        FILTER(_T, NOT ISBLANK([@v1])),
-			        FORMAT([@i], "0") & "," & FORMAT(96 - DIVIDE([@v1], _Max) * 90, "0.00"),
+			        FORMAT([@i] - _Ini, "0") & "," & FORMAT(96 - DIVIDE([@v1] - _Min, _Max - _Min) * 90, "0.00"),
 			        " ", [@i], ASC
 			    )
 			VAR _P2 =
 			    CONCATENATEX(
 			        FILTER(_T, NOT ISBLANK([@v2])),
-			        FORMAT([@i], "0") & "," & FORMAT(96 - DIVIDE([@v2], _Max) * 90, "0.00"),
+			        FORMAT([@i] - _Ini, "0") & "," & FORMAT(96 - DIVIDE([@v2] - _Min, _Max - _Min) * 90, "0.00"),
 			        " ", [@i], ASC
 			    )
 			RETURN
@@ -796,7 +801,6 @@ table _Medidas
 	/// FORMA BLOCO — devolve o componente inteiro, então o visual recebe uma
 	/// linha só e não emite filtro. Recebe filtro normalmente.
 	measure 'HTML — Faixa da Previsão' =
-			RETURN
 			    "<div style=""display:flex;flex-direction:column;gap:10px;font-family:Segoe UI,-apple-system,Roboto,sans-serif;"">"
 			& "<div style=""flex:1;min-width:0;background:#12203366;border:1px solid #1E2E42;border-radius:14px;padding:14px 16px;"">"
 			& "<div style=""font-size:10px;letter-spacing:.10em;text-transform:uppercase;color:#93A5B8;font-weight:600;white-space:nowrap;"">Realizado</div>"

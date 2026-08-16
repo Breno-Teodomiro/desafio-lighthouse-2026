@@ -2,11 +2,11 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
   "name": "87cd99b1fbb44e829d7a",
   "position": {
-    "x": 686,
-    "y": 258,
+    "x": 948,
+    "y": 58,
     "z": 100,
-    "height": 116,
-    "width": 260,
+    "height": 68,
+    "width": 300,
     "tabOrder": 100
   },
   "visual": {
@@ -116,7 +116,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Só os 10 de elite'"
+                  "Value": "'Clientes de elite'"
                 }
               }
             },
