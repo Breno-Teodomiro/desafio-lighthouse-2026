@@ -1,17 +1,41 @@
 # ▶ Retomar aqui
 
-**Atualizado:** 16/08/2026 · **Prazo final: 17/08/2026 08h**
+**Entregue em 16/08/2026** · prazo era 17/08 às 08h
 
-> **Vai entregar agora?** Vá direto para **[`ENTREGA.md`](ENTREGA.md)** — tem o
-> mapa campo-a-campo do formulário, as 4 respostas objetivas e o checklist
-> final. Este arquivo é o estado técnico do projeto.
+> Projeto concluído e submetido. Este arquivo guarda o estado técnico e o que
+> foi aprendido; o [`ENTREGA.md`](ENTREGA.md) tem o mapa do formulário, caso
+> seja preciso reconstituir o que foi enviado.
 
 ---
 
-## Estado: as 7 questões estão prontas ✅
+## Estado: ENTREGUE ✅
+
+**Submetido em 16/08/2026**, dentro do prazo de 17/08 às 08h.
 
 | Onda | Escopo | Situação |
 |---|---|---|
+| 0 | Fundação, docs, ADRs | ✅ |
+| 1 | **Q2** schema · **Q3** carga | ✅ |
+| 2 | **Q1** EDA | ✅ |
+| 3 | **Q4** clientes · **Q5** calendário | ✅ |
+| 4 | **Q6** previsão · **Q7** recomendação | ✅ |
+| 5 | silver + gold + **dashboard** | ✅ |
+| 6 | Empacotamento e revisão adversarial | ✅ |
+| 7 | Dashboard em HTML/DAX, 5 páginas | ✅ |
+
+**O que foi enviado:** os 8 arquivos de código, as 4 respostas curtas, os 5
+textos longos, o `.pbix` (9,2 MB), o PDF de 5 páginas, e os links do
+repositório e do dashboard publicado.
+
+**46 conferências adversariais aprovadas** (`make verificar`): cada resposta
+recalculada pela tecnologia **oposta** à do entregável — Q1/Q4/Q5 saíram em
+SQL e foram refeitas em Python sobre os CSVs; Q6/Q7 saíram em pandas/numpy e
+foram refeitas em SQL sobre o banco.
+
+`make check` limpo: gate stdlib da Q2, ruff, mypy e as 20 regras do validador
+PBIP — cada uma testada injetando o defeito que ela deve pegar.
+
+---|---|---|
 | 0 | Fundação, docs, ADRs | ✅ |
 | 1 | **Q2** schema · **Q3** carga | ✅ |
 | 2 | **Q1** EDA | ✅ |
@@ -29,64 +53,21 @@ foram refeitas em SQL sobre o banco.
 
 ---
 
-## ⛔ A única pendência: atualizar o dashboard e exportar o `.pbix`
+## O dashboard, e o que ele custou
 
-O projeto `powerbi/lh_nautical.pbip` é gerado e validado por script. **Não há
-Power BI Desktop nesta máquina (WSL)** — quem abre é o usuário, no Windows.
+Cinco páginas, 21 componentes em HTML gerado por DAX, 13 deles com cross-filter.
+Chegar aqui levou **oito rodadas de abrir-corrigir-reabrir** no Desktop, e cada
+erro virou regra no validador. Os que mais custaram:
 
-**O projeto já ABRE.** A 3ª tentativa passou do parser; o que faltava era a
-carga dos dados, corrigida abaixo. O próximo passo é abrir, clicar em
-**Atualizar** e exportar o `.pbix`.
-
-**Três tentativas, três correções (16/08):**
-
-| Tentativa | Erro do Desktop | Causa |
-|---|---|---|
-| 1ª | `InvalidLineType — Unexpected line type: Empty!` em `relationships.tmdl:9` | `///` no TMDL é **descrição de objeto**, não comentário livre; linha em branco entre o bloco e a declaração aborta o parser |
-| 2ª | `reportVersionAtImport` ausente em `/themeCollection/customTheme` | campo obrigatório do `report.json` |
-| 3ª | Abriu, mas a atualização morreu em `Argumento 'dataType' não pode ser nulo` e todo visual mostrou **"(Em branco)"** | tipos físicos do **Parquet** que o conector não importa — ver abaixo |
-
-### A 3ª: o erro não estava no Power BI, estava no `to_parquet`
-
-O `pandas` **3.0** tornou o dtype `str` nativo do Arrow o padrão, e ele grava
-`large_string` (LargeUtf8) em vez de `string`. Somado a isso,
-`ponto_de_reposicao` — vazia nas 24.000 linhas de origem — não dava ao pyarrow
-evidência nenhuma de tipo e saía como tipo `null`. **Nenhum dos dois tem
-equivalente no motor Mashup**: o conector devolve tipo nulo e o Desktop aborta
-a atualização inteira, sem citar arquivo nem coluna.
-
-Eram **30 colunas** em 13 dos 14 Parquets — 29 `large_string` e 1 `null`.
-Nada disso era visível pelo TMDL: a auditoria de definição dava tudo certo.
-
-Correção em `src/lh_nautical/gold/parquet_compat.py`, agora o único caminho de
-gravação dos dois exportadores. É um *cast* de schema antes de gravar — só
-metadado, os dados não são reescritos.
-
-**Achado extra da mesma auditoria:** `dim_data` ia só até 2026-12-31, o último
-pedido — mas devolução acontece **depois** do pedido, e 27 delas caem em
-janeiro de 2027. Ficariam órfãs, caindo num membro "Em branco" da dimensão e
-sumindo de qualquer visual filtrado por data, **sem erro nenhum**. O
-`build_gold.sql` agora tira o limite do `least`/`greatest` entre pedidos e
-devoluções: 2.557 → **2.584 dias**.
-
-As duas regras viraram as verificações **9 e 10** do `tests/validar_pbip.py`, e
-cada uma foi testada injetando o defeito que deve pegar — as 5 injeções
-(large_string, null, tipo divergente do TMDL, órfão de calendário, lado-1
-duplicado) reprovaram o projeto como esperado.
-
-Cada erro motivou uma **auditoria completa** da camada contra os **5 projetos
-PBIP do usuário que comprovadamente abrem** (`/mnt/c/PROJETOS/*/`), e cada
-auditoria achou problemas adicionais além do reportado. Os mais sérios das
-duas primeiras rodadas:
-
-- **Coluna crua no papel `Y`** de 4 visuais. Nos projetos funcionais, `Y` recebe
-  **sempre** medida. Não era erro de digitação, era padrão errado repetido →
-  virou 6 medidas novas.
-- **Parâmetro com caminho WSL** (`/mnt/c/...`). O Desktop roda no Windows: o
-  projeto **abriria** e falharia só na atualização.
-- **`dataCategory: Time` / `isKey` / `columnChart` / `scatterChart` / `Series`
-  em `lineChart`** — construtos sem nenhuma ocorrência nos projetos funcionais.
-  Todos removidos ou trocados por equivalentes comprovados.
+| O que aparecia | A causa |
+|---|---|
+| `Unexpected line type: Empty!` | `///` no TMDL é descrição de objeto; linha em branco entre o bloco e a declaração aborta o parser |
+| `Argumento 'dataType' não pode ser nulo` | `large_string` e `null` no Parquet — o pandas 3.0 grava LargeUtf8 por padrão, e o conector não mapeia |
+| `Invalid indentation` | a 1ª linha da expressão define o recuo base; recuá-la joga todas as outras abaixo dela |
+| "problema de capacidade ou licença" | era `RETURN` sem `VAR` — erro de sintaxe DAX com a mensagem mais enganosa possível |
+| Todas as barras cheias, séries embaralhadas | o modelo é pt-BR e `FORMAT` devolve vírgula decimal: `width:52,7%` é CSS inválido e `points="3,96,50"` vira seis números soltos |
+| Barras iguais só em alguns rankings | `dim_data[dia_semana]` tem `sortByColumn`, e `ALLSELECTED` de uma coluna não remove a de ordenação |
+| Títulos no meio da página | o reposicionamento somava +34 a cada execução do gerador |
 
 ### ⚠️ O PBIP no disco é o do Desktop, não o do script
 
