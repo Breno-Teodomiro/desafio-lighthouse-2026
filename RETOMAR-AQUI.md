@@ -88,6 +88,18 @@ duas primeiras rodadas:
   em `lineChart`** — construtos sem nenhuma ocorrência nos projetos funcionais.
   Todos removidos ou trocados por equivalentes comprovados.
 
+### ⚠️ O PBIP no disco é o do Desktop, não o do script
+
+A partir de 16/08, **`powerbi/gerar_pbip*.py` deixou de ser a fonte canônica.**
+O Desktop reescreveu os 81 arquivos ao salvar, e as correções seguintes foram
+feitas em cima do que ele gravou. Rodar `make powerbi` agora **desfaz** as
+ordenações, os cartões da Q6 e os títulos corrigidos.
+
+Os geradores foram atualizados junto onde a mudança cabia neles (unidade dos
+cartões, `active`, alturas, `formatString` do ano), mas **não** reproduzem os
+visuais criados depois. Se um dia for preciso regerar do zero, comparar com o
+estado atual antes de sobrescrever.
+
 ### 🔑 O método, se houver uma 4ª tentativa
 
 **Não corrija só o erro reportado.** Audite a camada inteira contra os projetos

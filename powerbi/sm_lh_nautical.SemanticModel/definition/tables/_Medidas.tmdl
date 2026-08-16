@@ -173,6 +173,30 @@ table _Medidas
 		displayFolder: 6 Previsão
 		lineageTag: 0e9d279e-7744-ad69-c8a6-05aac859999a
 
+	/// As 207 unidades efetivamente vendidas no trimestre de teste
+	/// (jan–mar/2026). Recorta pela flag `eh_treino`, e não por datas
+	/// escritas à mão, para que a medida acompanhe a janela do modelo se
+	/// ela mudar.
+	measure 'Realizado no Trimestre' =
+			CALCULATE(
+			    SUM(fct_previsao_bussola[realizado]),
+			    fct_previsao_bussola[eh_treino] = FALSE()
+			)
+		formatString: #,##0
+		displayFolder: 6 Previsão
+		lineageTag: f41e713d-697b-cce9-532e-3019ebfc04bf
+
+	/// O tamanho do erro do baseline: -44%. É o número do título da página,
+	/// e existe como medida para que ele não seja um texto que envelhece.
+	measure 'Erro da Previsão' =
+			DIVIDE(
+			    [Previsão — Média Móvel 3m] - [Realizado no Trimestre],
+			    [Realizado no Trimestre]
+			)
+		formatString: 0.0%
+		displayFolder: 6 Previsão
+		lineageTag: a6851681-dca0-8567-91ed-cce47b1e119e
+
 	/// O baseline que o enunciado pede. Constante em 38,67 no horizonte,
 	/// somando 116 no trimestre contra 207 realizados.
 	measure 'Previsão — Média Móvel 3m' = SUM(fct_previsao_bussola[prev_mm3])

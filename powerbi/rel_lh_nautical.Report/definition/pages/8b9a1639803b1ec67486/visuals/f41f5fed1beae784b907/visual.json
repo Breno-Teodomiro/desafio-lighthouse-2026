@@ -1,5 +1,5 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.11.0/schema.json",
   "name": "f41f5fed1beae784b907",
   "position": {
     "x": 32,
@@ -64,6 +64,23 @@
             }
           ]
         }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "_Medidas"
+                  }
+                },
+                "Property": "Receita de Itens"
+              }
+            },
+            "direction": "Descending"
+          }
+        ]
       }
     },
     "visualContainerObjects": {
@@ -148,7 +165,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Receita e margem não seguem a mesma ordem — categoria que mais vende não é a que mais dá lucro'"
+                  "Value": "'A margem é homogênea entre categorias (37,8% a 41,5%) — o ranking de lucro repete o de receita'"
                 }
               }
             },

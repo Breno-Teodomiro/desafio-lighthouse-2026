@@ -6,7 +6,7 @@
     "y": 96,
     "z": 100,
     "height": 288,
-    "width": 760,
+    "width": 528,
     "tabOrder": 100
   },
   "visual": {
@@ -176,7 +176,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'A média móvel prevê 116 unidades e o real foi 207 — erra 44% porque uma média é um número plano e a série cresce 82% em seis anos'"
+                  "Value": "'A série da Bússola: tendência de alta e um dez/2025 fora da curva — o confronto do trimestre está ao lado'"
                 }
               }
             },
