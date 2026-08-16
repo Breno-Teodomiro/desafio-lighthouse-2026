@@ -81,30 +81,36 @@ Desktop (não regeradas pelo script, para não desfazer o que ele normalizou):
 
 As regras 1 e 2 viraram verificação automática em `tests/validar_pbip.py`.
 
-### Opcional: a faixa de KPIs em HTML
+### Os três visuais em HTML
 
-Existe uma medida pronta, **`HTML — Faixa de KPIs`** (pasta *0 HTML*), que devolve
-os cinco indicadores da capa como um bloco HTML estilizado — número grande em
-peso leve, rótulo em versalete espaçado, barra de proporção e uma linha de
-contexto que o cartão nativo não comporta. Ela reage aos filtros como qualquer
-medida.
+Três visuais do relatório são **HTML gerado por DAX**, no visual
+**HTML Content (lite)** — a edição **certificada**, que é a aceita em
+*Publicar na web*:
 
-Para usá-la:
+| Página | Visual | Medida |
+|---|---|---|
+| Sumário executivo | faixa de KPIs (no lugar dos 5 cartões) | `HTML — Faixa de KPIs` |
+| Vendas e margem | produtos por margem (no lugar da tabela) | `HTML — Top Produtos por Margem` |
+| Previsão e recomendação | similares da Q7 (no lugar do gráfico) | `HTML — Top Similares Q7` |
 
-1. **Inserir → Mais visuais → Do AppSource → "HTML Content (lite)"**.
-   Use o **(lite)**, que é **certificado** — visual certificado é aceito em
-   *Publicar na web*, o não-certificado pode ser bloqueado. O visual fica
-   embutido no `.pbix`, então quem abrir o arquivo não precisa instalar nada.
-2. Arrastar o visual para a capa, no lugar da faixa de cartões.
-3. Colocar `HTML — Faixa de KPIs` no campo de valores.
+**Já estão posicionados no projeto.** O GUID
+`htmlContent443BE3AD55E043BF878BED274D3A6865` está declarado em
+`publicCustomVisuals` no `report.json`, então o Desktop baixa o visual do
+AppSource ao abrir — não há passo manual. Se ele pedir confirmação para
+carregar um visual do marketplace, aceite.
+
+Depois de salvar como `.pbix`, o código do visual fica **embutido no arquivo**:
+quem abrir não precisa instalar nada.
 
 **Não é Tailwind, e não dá para ser.** O visual roda num iframe com apenas
 `allow-scripts`: toda tag `<script>` externa é bloqueada, então nenhum CDN
-carrega — nem Tailwind, nem fonte do Google. Todo estilo é CSS inline, que é
-como a medida está escrita.
+carrega — nem Tailwind, nem fonte do Google. Todo estilo é CSS inline, emitido
+pelo DAX. `overrideInlineStyling` está travado em `false`; se virar `true`, o
+visual pinta a formatação dele por cima e o desenho se perde.
 
-Se preferir não depender de visual externo, **não faça nada**: os cartões
-nativos continuam na página e o relatório está completo sem isso.
+**Plano B, se algum não renderizar:** apagar o visual e recolocar os nativos —
+nenhum número depende deles, só a apresentação. As medidas dos cartões antigos
+continuam todas no modelo.
 
 **Passos:**
 

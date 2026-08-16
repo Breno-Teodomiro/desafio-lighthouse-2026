@@ -173,66 +173,109 @@ table _Medidas
 		displayFolder: 6 Previsão
 		lineageTag: 0e9d279e-7744-ad69-c8a6-05aac859999a
 
-	/// FAIXA DE KPIs EM HTML — para o visual "HTML Content (lite)".
-	/// 
-	/// Devolve os cinco indicadores da capa como um bloco HTML já estilizado:
-	/// número grande em peso leve, rótulo em versalete espaçado e uma linha de
-	/// contexto que o cartão nativo não comporta.
-	/// 
-	/// POR QUE CSS INLINE, E NÃO TAILWIND
-	///   O visual roda num iframe com apenas `allow-scripts`. Toda tag
-	///   <script> externa é bloqueada, então CDN de Tailwind não carrega.
-	///   Todo estilo tem de vir inline, como está aqui.
-	/// 
-	/// A faixa REAGE aos filtros, como qualquer medida — trocar o status no
-	/// segmentador reescreve os cinco números e a barra de proporção.
+	/// FAIXA DE KPIs — para o visual "HTML Content (lite)".
+	///
+	/// Os cinco indicadores da capa num bloco HTML: número em peso 200,
+	/// rótulo em versalete espaçado, barra de proporção na receita efetivada e
+	/// uma linha de contexto por indicador, que o cartão nativo não comporta.
+	///
+	/// REAGE AOS FILTROS como qualquer medida: trocar o status no segmentador
+	/// reescreve os cinco números e a largura da barra.
+	///
+	/// CSS INLINE POR OBRIGAÇÃO, não por gosto — o visual roda num iframe com
+	/// apenas `allow-scripts`, que bloqueia toda tag <script> externa. Nenhum
+	/// CDN carrega ali: nem Tailwind, nem fonte do Google.
 	measure 'HTML — Faixa de KPIs' =
-			VAR _Bruta      = [Receita Bruta]
-			VAR _Efetivada  = [Receita Efetivada]
-			VAR _Pedidos    = [Nº Pedidos]
-			VAR _Ticket     = [Ticket Médio]
-			VAR _Margem     = [% Margem Líquida]
-			VAR _PctEfetiva = DIVIDE(_Efetivada, _Bruta)
-			VAR _Caixa =
-			    "flex:1;background:#0E1826;border:1px solid #1E2E42;border-radius:14px;padding:16px 18px;"
-			VAR _Rotulo =
-			    "font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:#93A5B8;font-weight:600;"
-			VAR _Numero =
-			    "font-size:30px;line-height:1.15;font-weight:300;color:#E8EEF4;margin-top:8px;"
-			VAR _Nota = "font-size:11px;color:#6F8299;margin-top:6px;"
+			VAR _Bruta     = [Receita Bruta]
+			VAR _Efetivada = [Receita Efetivada]
+			VAR _Pct       = DIVIDE(_Efetivada, _Bruta)
 			RETURN
-			    "<div style=""display:flex;gap:12px;font-family:Segoe UI,Segoe UI Light,sans-serif;"">"
-			  & "<div style=""" & _Caixa & """>"
-			  &   "<div style=""" & _Rotulo & """>Receita Bruta</div>"
-			  &   "<div style=""" & _Numero & """>R$ " & FORMAT(_Bruta / 1000000, "#,##0") & " Mi</div>"
-			  &   "<div style=""" & _Nota & """>GMV, todos os status</div>"
-			  & "</div>"
-			  & "<div style=""" & _Caixa & """>"
-			  &   "<div style=""" & _Rotulo & """>Receita Efetivada</div>"
-			  &   "<div style=""" & _Numero & "color:#2D9CDB;"">R$ " & FORMAT(_Efetivada / 1000000, "#,##0") & " Mi</div>"
-			  &   "<div style=""height:4px;background:#16233A;border-radius:2px;margin-top:10px;overflow:hidden;"">"
-			  &     "<div style=""height:4px;width:" & FORMAT(_PctEfetiva, "0") & "%;background:#2D9CDB;""></div>"
-			  &   "</div>"
-			  &   "<div style=""" & _Nota & """>" & FORMAT(_PctEfetiva, "0.0%") & " do GMV virou receita</div>"
-			  & "</div>"
-			  & "<div style=""" & _Caixa & """>"
-			  &   "<div style=""" & _Rotulo & """>Pedidos</div>"
-			  &   "<div style=""" & _Numero & """>" & FORMAT(_Pedidos, "#,##0") & "</div>"
-			  &   "<div style=""" & _Nota & """>2020 a 2026</div>"
-			  & "</div>"
-			  & "<div style=""" & _Caixa & """>"
-			  &   "<div style=""" & _Rotulo & """>Ticket Medio</div>"
-			  &   "<div style=""" & _Numero & """>R$ " & FORMAT(_Ticket, "#,##0.00") & "</div>"
-			  &   "<div style=""" & _Nota & """>resposta da Questao 1</div>"
-			  & "</div>"
-			  & "<div style=""" & _Caixa & """>"
-			  &   "<div style=""" & _Rotulo & """>Margem Liquida</div>"
-			  &   "<div style=""" & _Numero & "color:#D9772A;"">" & FORMAT(_Margem, "0.00%") & "</div>"
-			  &   "<div style=""" & _Nota & """>ja liquida de desconto</div>"
-			  & "</div>"
-			  & "</div>"
+			    "<div style=""display:flex;gap:10px;font-family:Segoe UI,-apple-system,Roboto,sans-serif;"">"
+			& "<div style=""flex:1;min-width:0;background:#12203366;border:1px solid #1E2E42;border-radius:14px;padding:14px 16px;"">"
+			& "<div style=""font-size:10px;letter-spacing:.10em;text-transform:uppercase;color:#93A5B8;font-weight:600;white-space:nowrap;"">Receita Bruta</div>"
+			& "<div style=""font-size:30px;line-height:1.1;font-weight:200;color:#E8EEF4;margin-top:10px;white-space:nowrap;"">" & FORMAT(_Bruta / 1000000, "R$ #,##0") & " Mi" & "</div>"
+			& "<div style=""font-size:11px;color:#6F8299;margin-top:8px;white-space:nowrap;"">" & "GMV — todos os status" & "</div>"
+			& "</div>"
+			& "<div style=""flex:1;min-width:0;background:#12203366;border:1px solid #1E2E42;border-radius:14px;padding:14px 16px;"">"
+			& "<div style=""font-size:10px;letter-spacing:.10em;text-transform:uppercase;color:#93A5B8;font-weight:600;white-space:nowrap;"">Receita Efetivada</div>"
+			& "<div style=""font-size:30px;line-height:1.1;font-weight:200;color:#2D9CDB;margin-top:10px;white-space:nowrap;"">" & FORMAT(_Efetivada / 1000000, "R$ #,##0") & " Mi" & "</div>"
+			& "<div style=""height:3px;background:#16233A;border-radius:2px;margin-top:12px;overflow:hidden;""><div style=""height:3px;border-radius:2px;background:linear-gradient(90deg,#2D9CDB,#8B7AE8);width:" & FORMAT(_Pct * 100, "0") & "%""></div></div>"
+			& "<div style=""font-size:11px;color:#6F8299;margin-top:8px;white-space:nowrap;"">" & FORMAT(_Pct, "0.0%") & " do GMV virou receita" & "</div>"
+			& "</div>"
+			& "<div style=""flex:1;min-width:0;background:#12203366;border:1px solid #1E2E42;border-radius:14px;padding:14px 16px;"">"
+			& "<div style=""font-size:10px;letter-spacing:.10em;text-transform:uppercase;color:#93A5B8;font-weight:600;white-space:nowrap;"">Pedidos</div>"
+			& "<div style=""font-size:30px;line-height:1.1;font-weight:200;color:#E8EEF4;margin-top:10px;white-space:nowrap;"">" & FORMAT([Nº Pedidos], "#,##0") & "</div>"
+			& "<div style=""font-size:11px;color:#6F8299;margin-top:8px;white-space:nowrap;"">" & "2020 a 2026" & "</div>"
+			& "</div>"
+			& "<div style=""flex:1;min-width:0;background:#12203366;border:1px solid #1E2E42;border-radius:14px;padding:14px 16px;"">"
+			& "<div style=""font-size:10px;letter-spacing:.10em;text-transform:uppercase;color:#93A5B8;font-weight:600;white-space:nowrap;"">Ticket Médio</div>"
+			& "<div style=""font-size:30px;line-height:1.1;font-weight:200;color:#E8EEF4;margin-top:10px;white-space:nowrap;"">" & FORMAT([Ticket Médio], "R$ #,##0.00") & "</div>"
+			& "<div style=""font-size:11px;color:#6F8299;margin-top:8px;white-space:nowrap;"">" & "a resposta da Questão 1" & "</div>"
+			& "</div>"
+			& "<div style=""flex:1;min-width:0;background:#12203366;border:1px solid #1E2E42;border-radius:14px;padding:14px 16px;"">"
+			& "<div style=""font-size:10px;letter-spacing:.10em;text-transform:uppercase;color:#93A5B8;font-weight:600;white-space:nowrap;"">Margem Líquida</div>"
+			& "<div style=""font-size:30px;line-height:1.1;font-weight:200;color:#D9772A;margin-top:10px;white-space:nowrap;"">" & FORMAT([% Margem Líquida], "0.00%") & "</div>"
+			& "<div style=""font-size:11px;color:#6F8299;margin-top:8px;white-space:nowrap;"">" & "já líquida de desconto" & "</div>"
+			& "</div>"
+			& "</div>"
 		displayFolder: 0 HTML
-		lineageTag: d07289d9-b0ca-6ad2-cf11-9db741fad1ad
+		lineageTag: 1378e373-12a9-677e-5ca8-395682d3e749
+
+	/// TOP 10 PRODUTOS POR MARGEM — visual HTML.
+	///
+	/// A barra é proporcional ao MAIOR DA LISTA, não a 100%: as margens vão
+	/// de 37% a 53%, e num eixo de 0 a 100 nada se distinguiria. O valor
+	/// absoluto vai no rótulo, então a escala relativa não engana ninguém.
+	measure 'HTML — Top Produtos por Margem' =
+			VAR _Top = TOPN(10, VALUES(dim_produto[produto]), [% Margem Líquida], DESC)
+			VAR _Max = MAXX(_Top, [% Margem Líquida])
+			VAR _Corpo =
+			    CONCATENATEX(
+			        _Top,
+			        VAR _V = [% Margem Líquida]
+			        VAR _P = RANKX(_Top, [% Margem Líquida],, DESC)
+			        VAR _L = DIVIDE(_V, _Max) * 100
+			        RETURN
+			            "<div style=""display:flex;align-items:center;gap:10px;padding:7px 2px;border-bottom:1px solid #1E2E42;"">"
+			          & "<div style=""width:18px;font-size:11px;color:#6F8299;text-align:right;flex:none;"">" & _P & "</div>"
+			          & "<div style=""width:148px;font-size:12px;color:#E8EEF4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:none;"">" & dim_produto[produto] & "</div>"
+			          & "<div style=""flex:1;height:8px;background:#16233A;border-radius:4px;overflow:hidden;min-width:30px;""><div style=""height:8px;border-radius:4px;background:linear-gradient(90deg,#D9772A,#D9772A66);width:" & FORMAT(_L, "0.0") & "%""></div></div>"
+			          & "<div style=""width:78px;text-align:right;font-size:12px;color:#93A5B8;flex:none;"">" & FORMAT(_V, "0.00%") & "</div>"
+			          & "</div>",
+			        "", [% Margem Líquida], DESC
+			    )
+			RETURN
+			    "<div style=""font-family:Segoe UI,-apple-system,Roboto,sans-serif;"">" & _Corpo & "<div style=""font-size:11px;color:#6F8299;margin-top:10px;"">Percentual sobre a receita de itens, líquido do desconto rateado.</div></div>"
+		displayFolder: 0 HTML
+		lineageTag: dd74a122-66f5-b0c8-af13-4cb0fb06bf5b
+
+	/// RANKING DA QUESTÃO 7 — visual HTML.
+	///
+	/// Quatro casas decimais de propósito: o 1º lugar ganha do 2º por
+	/// 0,0003, e arredondar para duas casas empataria os três primeiros —
+	/// que é exatamente o argumento da resposta.
+	measure 'HTML — Top Similares Q7' =
+			VAR _Top = TOPN(10, VALUES(fct_similaridade_produto[produto]), [Similaridade de Cosseno], DESC)
+			VAR _Max = MAXX(_Top, [Similaridade de Cosseno])
+			VAR _Corpo =
+			    CONCATENATEX(
+			        _Top,
+			        VAR _V = [Similaridade de Cosseno]
+			        VAR _P = RANKX(_Top, [Similaridade de Cosseno],, DESC)
+			        VAR _L = DIVIDE(_V, _Max) * 100
+			        RETURN
+			            "<div style=""display:flex;align-items:center;gap:10px;padding:7px 2px;border-bottom:1px solid #1E2E42;"">"
+			          & "<div style=""width:18px;font-size:11px;color:#6F8299;text-align:right;flex:none;"">" & _P & "</div>"
+			          & "<div style=""width:148px;font-size:12px;color:#E8EEF4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:none;"">" & fct_similaridade_produto[produto] & "</div>"
+			          & "<div style=""flex:1;height:8px;background:#16233A;border-radius:4px;overflow:hidden;min-width:30px;""><div style=""height:8px;border-radius:4px;background:linear-gradient(90deg,#2D9CDB,#2D9CDB66);width:" & FORMAT(_L, "0.0") & "%""></div></div>"
+			          & "<div style=""width:78px;text-align:right;font-size:12px;color:#93A5B8;flex:none;"">" & FORMAT(_V, "0.0000") & "</div>"
+			          & "</div>",
+			        "", [Similaridade de Cosseno], DESC
+			    )
+			RETURN
+			    "<div style=""font-family:Segoe UI,-apple-system,Roboto,sans-serif;"">" & _Corpo & "<div style=""font-size:11px;color:#6F8299;margin-top:10px;"">Cosseno sobre a matriz cliente x produto. O 1o ganha do 2o por 0,0003.</div></div>"
+		displayFolder: 0 HTML
+		lineageTag: 3612b27c-4976-6b06-47b1-e1d0f548b189
 
 	/// As 207 unidades efetivamente vendidas no trimestre de teste
 	/// (jan–mar/2026). Recorta pela flag `eh_treino`, e não por datas

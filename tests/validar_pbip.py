@@ -169,6 +169,11 @@ def validar_sintaxe_tmdl(erros: list[str], avisos: list[str]) -> None:
 # A regra que mais pega erro é a do papel `Y`: ele recebe MEDIDA, nunca coluna
 # crua. Um gráfico com coluna em Y é o tipo de coisa que o Desktop rejeita
 # depois de já ter carregado o modelo.
+# GUID do "HTML Content (lite)" — a edição CERTIFICADA, que é a aceita em
+# Publicar na web. Conferido no pbiviz.json da branch `certification` do
+# repositório do autor: as duas edições compartilham o mesmo GUID.
+HTML_CONTENT = "htmlContent443BE3AD55E043BF878BED274D3A6865"
+
 VISUAIS_COMPROVADOS = frozenset({
     "actionButton", "advancedSlicerVisual", "barChart", "card",
     "clusteredBarChart", "clusteredColumnChart", "image", "lineChart",
@@ -188,6 +193,10 @@ PAPEIS_COMPROVADOS: dict[tuple[str, str], set[str]] = {
     ("clusteredColumnChart", "Y"): {"Measure"},
     ("lineChart", "Category"): {"Column"},
     ("lineChart", "Y"): {"Measure"},
+    # HTML Content (lite), certificado. O papel se chama `content` e o
+    # displayName na UI é "Values" — quem procura por "Values" no JSON não
+    # acha nada. Conferido no capabilities.json do visual.
+    (HTML_CONTENT, "content"): {"Measure", "Column"},
 }
 
 
@@ -207,6 +216,16 @@ def validar_report_json(erros: list[str]) -> None:
 
 def validar_visuais(erros: list[str], avisos: list[str]) -> None:
     """Tipo de visual e combinação papel→tipo-de-campo, contra o comprovado."""
+    # Visual do AppSource: o código não vive no projeto, é resolvido na
+    # abertura. O GUID precisa estar em `publicCustomVisuals` do report.json —
+    # sem isso o visual renderiza EM BRANCO, sem erro nenhum, que é a falha
+    # silenciosa mais comum ao copiar um visual entre relatórios.
+    declarados = set(
+        json.loads((RELATORIO / "report.json").read_text(encoding="utf-8"))
+        .get("publicCustomVisuals", [])
+    )
+
+    usados_custom: set[str] = set()
     for caminho in sorted(RELATORIO.rglob("visual.json")):
         dados = json.loads(caminho.read_text(encoding="utf-8"))
         v = dados.get("visual", {})
@@ -214,10 +233,13 @@ def validar_visuais(erros: list[str], avisos: list[str]) -> None:
         rotulo = caminho.parent.name
 
         if tipo not in VISUAIS_COMPROVADOS:
-            erros.append(
-                f"{rotulo}: visualType '{tipo}' sem referência em projeto PBIP "
-                f"funcional conhecido"
-            )
+            if tipo in declarados:
+                usados_custom.add(tipo)
+            else:
+                erros.append(
+                    f"{rotulo}: visualType '{tipo}' não é nativo comprovado nem "
+                    f"está em publicCustomVisuals — renderiza em branco, sem erro"
+                )
 
         if "tabOrder" not in dados.get("position", {}):
             avisos.append(f"{rotulo}: position sem 'tabOrder'")
@@ -399,6 +421,22 @@ def main() -> int:
 
     tabelas, medidas, dax = ler_modelo()
     print(f"Modelo: {len(tabelas)} tabelas, {len(medidas)} medidas")
+
+    # --- 15. nome declarado duas vezes ------------------------------------
+    # Um gerador que insere sem remover o bloco anterior duplica a medida, e
+    # nada reclama: o TMDL carrega, a segunda definição sobrescreve a primeira
+    # em silêncio. Só aparece quando as duas divergem — aí o modelo usa uma e
+    # o autor lê a outra.
+    for arquivo in sorted((MODELO / "tables").glob("*.tmdl")):
+        texto_tab = arquivo.read_text(encoding="utf-8").replace("\r\n", "\n")
+        for especie in ("measure", "column"):
+            nomes = re.findall(rf"^\t{especie} (?:'([^']+)'|(\S+))", texto_tab, re.M)
+            achatados = [a or b for a, b in nomes]
+            for nome in sorted({n for n in achatados if achatados.count(n) > 1}):
+                erros.append(
+                    f"{arquivo.name}: {especie} '{nome}' declarada "
+                    f"{achatados.count(nome)}x — a última sobrescreve as outras"
+                )
 
     # --- 13. fim de linha consistente -------------------------------------
     # Um bloco gravado em LF dentro de um arquivo CRLF faz o parser TMDL ver
