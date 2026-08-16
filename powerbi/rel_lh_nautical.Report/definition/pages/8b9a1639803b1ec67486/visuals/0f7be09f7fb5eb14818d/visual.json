@@ -1,5 +1,5 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.11.0/schema.json",
   "name": "0f7be09f7fb5eb14818d",
   "position": {
     "x": 654,
@@ -27,8 +27,7 @@
                 }
               },
               "queryRef": "dim_produto.produto",
-              "nativeQueryRef": "produto",
-              "active": true
+              "nativeQueryRef": "produto"
             },
             {
               "field": {

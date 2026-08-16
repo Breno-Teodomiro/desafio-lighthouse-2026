@@ -25,6 +25,7 @@
     }
   ],
   "settings": {
-    "useStylableVisualContainerHeader": true
+    "useStylableVisualContainerHeader": true,
+    "useEnhancedTooltips": false
   }
 }

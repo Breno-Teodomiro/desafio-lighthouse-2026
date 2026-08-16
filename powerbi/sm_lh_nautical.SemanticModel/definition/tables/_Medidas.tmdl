@@ -141,7 +141,7 @@ table _Medidas
 		displayFolder: 3 Sazonalidade
 		lineageTag: 515ec3ad-855c-af34-2a3d-2ba8b1110d27
 
-	measure 'Clientes' = DISTINCTCOUNT(fct_pedido[customer_id])
+	measure Clientes = DISTINCTCOUNT(fct_pedido[customer_id])
 		formatString: #,##0
 		displayFolder: 4 Clientes
 		lineageTag: 0b383ed9-b9bb-c5b7-e363-c2078e69d33b
@@ -222,3 +222,4 @@ table _Medidas
 					Fonte = #table(type table [Coluna = text], {})
 				in
 					Fonte
+

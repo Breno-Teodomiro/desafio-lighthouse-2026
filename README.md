@@ -69,7 +69,7 @@ Rastreabilidade completa — premissa, entregável, resposta e gate de conformid
 
 **PostgreSQL** (exigido pelas questões 2 e 3) · **Python 3.12** com `uv` · pandas, numpy, scikit-learn, pyarrow · **Power BI** via PBIP/TMDL · ruff, mypy, pytest
 
-Sem Docker, sem dbt, sem DuckDB — decisões justificadas nos [ADRs](docs/adr/).
+Sem Docker, sem dbt, sem DuckDB — decisões justificadas nos [ADRs](docs/adr/); a de não usar dbt está detalhada na [ADR-008](docs/adr/ADR-008-sem-dbt.md).
 
 ## Como executar
 
@@ -98,7 +98,7 @@ make check      # ruff + mypy + pytest + gate de conformidade
 | [`docs/QUALIDADE_DADOS.md`](docs/QUALIDADE_DADOS.md) | as 22 classes de sujeira, com evidência literal |
 | [`docs/MODELO_DIMENSIONAL.md`](docs/MODELO_DIMENSIONAL.md) | star schema da camada gold |
 | [`docs/DECISOES_ANALITICAS.md`](docs/DECISOES_ANALITICAS.md) | cada ambiguidade do enunciado e a leitura adotada |
-| [`docs/adr/`](docs/adr/) | 7 decisões de arquitetura registradas |
+| [`docs/adr/`](docs/adr/) | 8 decisões de arquitetura registradas |
 
 ---
 

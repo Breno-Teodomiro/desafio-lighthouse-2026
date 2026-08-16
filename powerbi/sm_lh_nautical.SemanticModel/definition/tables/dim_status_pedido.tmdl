@@ -47,3 +47,4 @@ table dim_status_pedido
 					Tabela
 
 	annotation PBI_ResultType = Table
+

@@ -64,3 +64,4 @@ table fct_similaridade_produto
 					Tabela
 
 	annotation PBI_ResultType = Table
+

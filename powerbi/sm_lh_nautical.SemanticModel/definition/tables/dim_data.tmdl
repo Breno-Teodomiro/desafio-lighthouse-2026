@@ -14,8 +14,6 @@ table dim_data
 		summarizeBy: none
 		sourceColumn: data
 
-		annotation UnderlyingDateTimeDataType = Date
-
 	column num_dia_semana
 		dataType: int64
 		isHidden
@@ -33,7 +31,7 @@ table dim_data
 
 	column ano
 		dataType: int64
-		formatString: #,##0
+		formatString: 0
 		lineageTag: ba269b0d-bd87-40ee-1d40-807852caeb18
 		summarizeBy: none
 		sourceColumn: ano
@@ -95,3 +93,4 @@ table dim_data
 					Tabela
 
 	annotation PBI_ResultType = Table
+

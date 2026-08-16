@@ -1,5 +1,5 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.11.0/schema.json",
   "name": "8f7d01e5051f7d48f50a",
   "position": {
     "x": 32,
@@ -27,8 +27,7 @@
                 }
               },
               "queryRef": "dim_cliente.customer_id",
-              "nativeQueryRef": "customer_id",
-              "active": true
+              "nativeQueryRef": "customer_id"
             },
             {
               "field": {

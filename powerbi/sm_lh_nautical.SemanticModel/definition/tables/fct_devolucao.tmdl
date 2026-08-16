@@ -39,8 +39,6 @@ table fct_devolucao
 		summarizeBy: none
 		sourceColumn: data
 
-		annotation UnderlyingDateTimeDataType = Date
-
 	column product_id
 		dataType: int64
 		formatString: #,##0
@@ -90,3 +88,4 @@ table fct_devolucao
 					Tabela
 
 	annotation PBI_ResultType = Table
+

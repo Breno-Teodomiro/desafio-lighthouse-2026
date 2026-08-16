@@ -53,3 +53,4 @@ table fct_estoque_atual
 					Tabela
 
 	annotation PBI_ResultType = Table
+

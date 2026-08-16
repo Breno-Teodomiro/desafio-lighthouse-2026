@@ -171,8 +171,22 @@ def texto_livre(nome: str, x: int, y: int, w: int, h: int,
     }
 
 
+# Medidas cujo cartão é exibido em MILHÕES. O resto vai sem abreviação.
+#
+# A unidade precisa ser explícita porque o padrão do cartão é "Auto", e o Auto
+# arredonda para a unidade mais próxima: Receita Bruta (1,41 bi) e Receita
+# Efetivada (1,20 bi) apareciam AMBAS como "R$ 1 Bi", lado a lado, numa página
+# cujo próprio subtítulo diz "R$ 1,41 bi de GMV". Ticket médio virava
+# "R$ 28,70 Mil" e 48.998 pedidos viravam "49 Mil".
+CARTOES_EM_MILHOES = frozenset({
+    "Receita Bruta", "Receita Efetivada", "Receita de Itens",
+    "Margem Bruta R$", "Margem Líquida R$", "Valor em Estoque",
+})
+
+
 def cartao(nome: str, nome_medida: str, x: int, y: int, w: int = 200, h: int = 92,
            destaque: bool = False) -> dict:
+    unidade = "1000000D" if nome_medida in CARTOES_EM_MILHOES else "1D"
     return visual(
         nome, "card", x, y, w, h,
         query={"Values": {"projections": [medida(nome_medida)]}},
@@ -183,6 +197,7 @@ def cartao(nome: str, nome_medida: str, x: int, y: int, w: int = 200, h: int = 9
                         "fontSize": lit("20D"),
                         "bold": lit("true"),
                         "color": cor(COR_DESTAQUE if destaque else COR_PRIMARIA),
+                        "labelDisplayUnits": lit(unidade),
                     }
                 }
             ],
@@ -201,14 +216,14 @@ def cartao(nome: str, nome_medida: str, x: int, y: int, w: int = 200, h: int = 9
 def pagina_sumario(vid: Callable[[str], str]) -> tuple[str, list[dict]]:
     v = [
         texto_livre(
-            vid("s-tit"), 32, 24, 900, 70,
+            vid("s-tit"), 32, 24, 900, 78,
             [
                 ("LH Nautical — visão executiva", 22, COR_TEXTO, True),
                 ("48.998 pedidos · 2020 a 2026 · R$ 1,41 bi de GMV", 11, COR_SUAVE, False),
             ],
         ),
         texto_livre(
-            vid("s-alerta"), 32, 104, 1216, 46,
+            vid("s-alerta"), 32, 104, 1216, 56,
             [
                 ("Leia antes: R$ 207,1 milhões (14,7% do GMV) são pedidos "
                  "cancelados ou em rascunho, e 8,7% dos pedidos têm data futura. "
@@ -271,7 +286,7 @@ def pagina_sumario(vid: Callable[[str], str]) -> tuple[str, list[dict]]:
 def pagina_margem(vid: Callable[[str], str]) -> tuple[str, list[dict]]:
     v = [
         texto_livre(
-            vid("m-tit"), 32, 24, 900, 60,
+            vid("m-tit"), 32, 24, 900, 72,
             [("Vendas e margem", 20, COR_TEXTO, True),
              ("Grão de item — 147.320 linhas. O desconto do pedido chega aqui "
               "rateado pela participação de cada linha.", 10, COR_SUAVE, False)],
@@ -295,8 +310,13 @@ def pagina_margem(vid: Callable[[str], str]) -> tuple[str, list[dict]]:
         visual(
             vid("m-prod"), "tableEx", 654, 206, 594, 290,
             query={
+                # Sem `ativo=True`: em `tableEx`, marcar uma projeção como
+                # ativa faz o visual tratar o conjunto como hierarquia e
+                # exibir só ela — a tabela veio com uma coluna e nenhuma
+                # linha. Nas 84 projeções de `tableEx` dos projetos de
+                # referência, `active` não aparece nenhuma vez.
                 "Values": {"projections": [
-                    coluna("dim_produto", "produto", ativo=True),
+                    coluna("dim_produto", "produto"),
                     coluna("dim_produto", "categoria"),
                     medida("Itens Vendidos"),
                     medida("Receita de Itens"),
@@ -321,14 +341,14 @@ def pagina_margem(vid: Callable[[str], str]) -> tuple[str, list[dict]]:
 def pagina_clientes(vid: Callable[[str], str]) -> tuple[str, list[dict]]:
     v = [
         texto_livre(
-            vid("c-tit"), 32, 24, 1100, 60,
+            vid("c-tit"), 32, 24, 1100, 68,
             [("Clientes de elite — Questão 4", 20, COR_TEXTO, True),
              ("Ticket médio alto e compra em muitas categorias. "
               "O ranking usa ticket médio, com desempate por customer_id.",
               10, COR_SUAVE, False)],
         ),
         texto_livre(
-            vid("c-critica"), 32, 92, 1216, 44,
+            vid("c-critica"), 32, 92, 1216, 54,
             [("O filtro de diversidade não filtra: só existem 14 categorias na "
               "loja, e 1.971 de 2.000 clientes (98,5%) compraram de 13 ou mais. "
               "Na prática, o ranking é ordenado só pelo ticket médio.",
@@ -342,8 +362,8 @@ def pagina_clientes(vid: Callable[[str], str]) -> tuple[str, list[dict]]:
         visual(
             vid("c-top10"), "tableEx", 32, 258, 640, 250,
             query={
-                "Values": {"projections": [
-                    coluna("dim_cliente", "customer_id", ativo=True),
+                "Values": {"projections": [  # sem `ativo` — ver nota em pagina_margem
+                    coluna("dim_cliente", "customer_id"),
                     coluna("dim_cliente", "cliente"),
                     coluna("dim_cliente", "ticket_medio"),
                     coluna("dim_cliente", "frequencia"),
@@ -399,7 +419,7 @@ def pagina_clientes(vid: Callable[[str], str]) -> tuple[str, list[dict]]:
 def pagina_sazonalidade(vid: Callable[[str], str]) -> tuple[str, list[dict]]:
     v = [
         texto_livre(
-            vid("z-tit"), 32, 24, 1100, 60,
+            vid("z-tit"), 32, 24, 1100, 68,
             [("Quinta-feira é o pior dia — e o cálculo ingênuo aponta outro",
               20, COR_TEXTO, True),
              ("Lojas físicas · 2.557 dias de calendário · 78 deles sem nenhuma venda",
@@ -463,7 +483,7 @@ def pagina_sazonalidade(vid: Callable[[str], str]) -> tuple[str, list[dict]]:
 def pagina_modelos(vid: Callable[[str], str]) -> tuple[str, list[dict]]:
     v = [
         texto_livre(
-            vid("p-tit"), 32, 24, 1100, 60,
+            vid("p-tit"), 32, 24, 1100, 72,
             [("Previsão e recomendação — Questões 6 e 7", 20, COR_TEXTO, True),
              ("Dois modelos baseline, e a evidência de que nenhum dos dois "
               "deveria ir para produção como está.", 10, COR_SUAVE, False)],

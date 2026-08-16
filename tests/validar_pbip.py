@@ -223,6 +223,20 @@ def validar_visuais(erros: list[str], avisos: list[str]) -> None:
             avisos.append(f"{rotulo}: position sem 'tabOrder'")
 
         for papel, cfg in v.get("query", {}).get("queryState", {}).items():
+            projecoes = cfg.get("projections", [])
+
+            # 'active' só é comprovado onde o papel tem UMA projeção — ali ele
+            # marca o campo em foco. Num `tableEx`, cujo papel Values carrega
+            # todas as colunas, ele faz o visual tratar o conjunto como
+            # hierarquia e exibir só a projeção ativa: a tabela veio com uma
+            # coluna e nenhuma linha. Zero ocorrências em 84 projeções de
+            # `tableEx` nos projetos de referência.
+            if len(projecoes) > 1 and any("active" in p for p in projecoes):
+                erros.append(
+                    f"{rotulo}: '{tipo}' tem 'active' em '{papel}', que carrega "
+                    f"{len(projecoes)} projeções — só é comprovado com uma"
+                )
+
             esperado = PAPEIS_COMPROVADOS.get((tipo, papel))
             if esperado is None:
                 avisos.append(

@@ -76,3 +76,4 @@ table dim_cliente
 					Tabela
 
 	annotation PBI_ResultType = Table
+

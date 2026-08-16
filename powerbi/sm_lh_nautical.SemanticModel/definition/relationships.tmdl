@@ -61,3 +61,4 @@ relationship dim_status_pedido_fct_pedido_status
 relationship dim_status_pedido_fct_item_pedido_status
 	fromColumn: fct_item_pedido.status
 	toColumn: dim_status_pedido.status
+

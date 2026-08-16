@@ -14,8 +14,6 @@ table fct_venda_diaria_pos
 		summarizeBy: none
 		sourceColumn: data
 
-		annotation UnderlyingDateTimeDataType = Date
-
 	column valor_venda
 		dataType: double
 		formatString: #,##0.00
@@ -46,3 +44,4 @@ table fct_venda_diaria_pos
 					Tabela
 
 	annotation PBI_ResultType = Table
+

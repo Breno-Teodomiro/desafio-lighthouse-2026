@@ -58,24 +58,40 @@ Todas confirmadas por **dois caminhos independentes** (`tests/verificar_resposta
 
 ## ⛔ Bloqueador: o dashboard precisa ser aberto e exportado
 
-**Esta é a única pendência que exige ação manual, e ela é obrigatória.**
+**O projeto abre e carrega.** Aberto e atualizado no Desktop em 16/08: as 14
+tabelas importaram e todos os visuais têm dados. O dashboard também já está
+**publicado no Power BI Service**:
 
-O projeto Power BI foi gerado em `powerbi/lh_nautical.pbip` (15 tabelas, 19 medidas, 16 relacionamentos, 5 páginas, 48 visuais). Ele foi validado por script — todas as 65 referências a campos resolvem contra o modelo —, **mas não foi aberto no Power BI Desktop**, porque o Desktop não está instalado na máquina onde o projeto foi construído.
+> https://app.powerbi.com/view?r=eyJrIjoiMDY4MDQxM2ItYWI4Ni00ZjQ5LWJmOGMtMTlhNDgwNDAzNjQzIiwidCI6ImMyMGU3MTg4LTNkMzEtNGM1ZC05YWNlLTE4MzQyM2E2MGMxZCJ9
+
+O que resta é uma **reabertura para aplicar 4 correções de formatação** já
+gravadas no PBIP, e então exportar o `.pbix` e o PDF.
+
+### As 4 correções aplicadas depois da primeira carga
+
+Vistas nas telas da primeira atualização e corrigidas direto no PBIP salvo pelo
+Desktop (não regeradas pelo script, para não desfazer o que ele normalizou):
+
+| # | Sintoma na tela | Causa |
+|---|---|---|
+| 1 | "Produtos por margem" veio com **uma coluna e nenhuma linha** | `active` numa projeção de `tableEx` faz o visual tratar as colunas como hierarquia e exibir só a ativa. Zero ocorrências em 84 projeções dos projetos de referência |
+| 2 | Receita Bruta e Receita Efetivada exibiam **ambas "R$ 1 Bi"** — sendo 1,41 bi e 1,20 bi, numa página cujo subtítulo diz "R$ 1,41 bi de GMV" | unidade do cartão no padrão "Auto". Agora explícita: milhões nos cartões de valor, nenhuma nos demais |
+| 3 | Eixo do gráfico por ano mostrava **"2.020"** | `ano` é rótulo, não quantidade — `formatString` foi de `#,##0` para `0` |
+| 4 | Subtítulo cortado no cabeçalho de 4 páginas | altura da caixa de texto |
+
+As regras 1 e 2 viraram verificação automática em `tests/validar_pbip.py`.
 
 **Passos:**
 
-1. Regenerar os dados, se necessário: `make powerbi`
-2. Abrir `powerbi/lh_nautical.pbip` no Power BI Desktop
+1. Abrir `powerbi/lh_nautical.pbip` no Power BI Desktop
    *(Arquivo → Opções → Recursos de Versão Prévia → **Power BI Project (.pbip) save option** ligado)*
-3. Se o parâmetro `PastaDados` não apontar para a pasta certa, ajustar em *Transformar dados → Parâmetros*.
-   Valor gravado: `C:\PROJETOS\INDICIUM_ACADEMY\DESAFIO_LIGHTHOUSE_2026\dados\gold`
-4. **Conferir os números contra a tabela de referência abaixo**
-5. *(opcional)* Marcar `dim_data` como tabela de datas — botão direito na tabela →
-   **Marcar como tabela de data** → coluna `data`. Nenhuma das 19 medidas usa
+2. **Atualizar** e conferir os números contra a tabela de referência abaixo
+3. *(opcional)* Marcar `dim_data` como tabela de datas — botão direito na tabela →
+   **Marcar como tabela de data** → coluna `data`. Nenhuma das medidas usa
    time intelligence, então nada quebra sem isso; é só higiene do modelo
-6. Ajustar posicionamento e formatação dos visuais onde estiver feio — o layout foi escrito às cegas
-7. `Arquivo → Salvar como → .pbix`
-8. `Arquivo → Exportar → PDF`
+4. `Arquivo → Salvar como → .pbix`
+5. `Arquivo → Exportar → PDF`
+6. Republicar no Service, para o link público refletir as correções
 
 ### Números que o dashboard deve reproduzir
 
@@ -135,6 +151,8 @@ Antes de clicar em enviar:
 - [ ] **`.pbix` exportado e anexado** ⛔ *obrigatório*
 - [ ] PDF do dashboard anexado
 - [ ] Link do repositório incluído no campo de notas
+- [ ] Link do dashboard publicado incluído no campo de notas
+- [ ] Dashboard **republicado** depois das 4 correções de formatação
 - [ ] Repositório **não contém** `Formulario_de_Questoes.md`, `Desafio_Lighthouse.md`, o PDF do edital, os CSVs nem o `.env`
 
 **Conferência do último item:**

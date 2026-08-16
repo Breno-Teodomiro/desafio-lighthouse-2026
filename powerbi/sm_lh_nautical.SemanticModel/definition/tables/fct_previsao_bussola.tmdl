@@ -17,8 +17,6 @@ table fct_previsao_bussola
 		summarizeBy: none
 		sourceColumn: data
 
-		annotation UnderlyingDateTimeDataType = Date
-
 	column realizado
 		dataType: double
 		formatString: #,##0.00
@@ -63,3 +61,4 @@ table fct_previsao_bussola
 					Tabela
 
 	annotation PBI_ResultType = Table
+

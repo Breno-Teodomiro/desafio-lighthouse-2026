@@ -42,3 +42,4 @@ table dim_local
 					Tabela
 
 	annotation PBI_ResultType = Table
+

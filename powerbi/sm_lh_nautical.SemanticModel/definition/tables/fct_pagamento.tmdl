@@ -33,8 +33,6 @@ table fct_pagamento
 		summarizeBy: none
 		sourceColumn: data
 
-		annotation UnderlyingDateTimeDataType = Date
-
 	column metodo
 		dataType: string
 		lineageTag: ffc824a3-0975-92d6-381c-90ac3b7588f3
@@ -71,3 +69,4 @@ table fct_pagamento
 					Tabela
 
 	annotation PBI_ResultType = Table
+

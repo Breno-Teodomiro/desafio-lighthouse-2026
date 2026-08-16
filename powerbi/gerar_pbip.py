@@ -93,6 +93,10 @@ CHAVES = {
     "num_trimestre", "ano", "posicao",
 }
 
+# Colunas numéricas que são RÓTULO, não quantidade: nada de separador de
+# milhar. Com `#,##0`, o eixo do gráfico por ano mostrava "2.020".
+SEM_SEPARADOR = {"ano"}
+
 # Colunas ocultas no relatório: existem para relacionamento ou ordenação.
 OCULTAS = {
     "order_id", "order_item_id", "payment_id", "return_id", "return_item_id",
@@ -492,6 +496,8 @@ def gerar_tabela_tmdl(nome: str, df: pd.DataFrame) -> str:
         dt, summ, fmt = tipo_tmdl(df[coluna].dtype)
         if coluna in CHAVES:
             summ = "none"
+        if coluna in SEM_SEPARADOR:
+            fmt = "0"
 
         linhas.append(f"\tcolumn {coluna}")
         linhas.append(f"\t\tdataType: {dt}")
