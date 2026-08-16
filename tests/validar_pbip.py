@@ -622,6 +622,39 @@ def main() -> int:
 
         visitar(dados)
 
+    # --- 19. layout: sobreposição e canvas ---------------------------------
+    # Visual sobreposto some por baixo do vizinho, e visual além do canvas
+    # simplesmente não aparece. Nenhum dos dois dá erro no Desktop — foi
+    # assim que títulos foram parar em cima de gráficos e que caixas
+    # redimensionadas comeram os textos de rodapé.
+    CANVAS_L, CANVAS_A = 1280, 720
+    for pagina in sorted((RELATORIO / "pages").glob("*/")):
+        caixas = []
+        for caminho in sorted(pagina.glob("visuals/*/visual.json")):
+            dados = json.loads(caminho.read_text(encoding="utf-8"))
+            pos = dados.get("position", {})
+            caixas.append((caminho.parent.name,
+                           dados["visual"].get("visualType", "?"), pos))
+        for nome_v, tipo_v, pos in caixas:
+            if (pos["x"] + pos["width"] > CANVAS_L
+                    or pos["y"] + pos["height"] > CANVAS_A):
+                erros.append(
+                    f"{nome_v} ({tipo_v}): passa do canvas {CANVAS_L}x{CANVAS_A} — "
+                    f"termina em {pos['x'] + pos['width']},{pos['y'] + pos['height']}"
+                )
+        for i in range(len(caixas)):
+            for j in range(i + 1, len(caixas)):
+                a, b = caixas[i][2], caixas[j][2]
+                if (a["x"] + a["width"] <= b["x"] or b["x"] + b["width"] <= a["x"]
+                        or a["y"] + a["height"] <= b["y"]
+                        or b["y"] + b["height"] <= a["y"]):
+                    continue
+                erros.append(
+                    f"{caixas[i][0]} ({caixas[i][1]}) sobrepõe "
+                    f"{caixas[j][0]} ({caixas[j][1]}) na página "
+                    f"{pagina.name[:8]}"
+                )
+
     # --- 8. páginas declaradas existem ------------------------------------
     pages_json = json.loads((RELATORIO / "pages" / "pages.json").read_text(encoding="utf-8"))
     for pid in pages_json["pageOrder"]:

@@ -271,20 +271,20 @@ table _Medidas
 			VAR _P1 =
 			    CONCATENATEX(
 			        FILTER(_T, NOT ISBLANK([@v1])),
-			        SUBSTITUTE(FORMAT([@i] - _Ini, "0"), ",", ".") & "," & SUBSTITUTE(FORMAT(96 - DIVIDE([@v1] - _Min, _Max - _Min) * 90, "0.00"), ",", "."),
+			        SUBSTITUTE(FORMAT([@i] - _Ini, "0"), ",", ".") & "," & SUBSTITUTE(FORMAT(140 - DIVIDE([@v1] - _Min, _Max - _Min) * 134, "0.00"), ",", "."),
 			        " ", [@i], ASC
 			    )
 			VAR _P2 =
 			    CONCATENATEX(
 			        FILTER(_T, NOT ISBLANK([@v2])),
-			        SUBSTITUTE(FORMAT([@i] - _Ini, "0"), ",", ".") & "," & SUBSTITUTE(FORMAT(96 - DIVIDE([@v2] - _Min, _Max - _Min) * 90, "0.00"), ",", "."),
+			        SUBSTITUTE(FORMAT([@i] - _Ini, "0"), ",", ".") & "," & SUBSTITUTE(FORMAT(140 - DIVIDE([@v2] - _Min, _Max - _Min) * 134, "0.00"), ",", "."),
 			        " ", [@i], ASC
 			    )
 			RETURN
 			    "<div style=""font-family:Segoe UI,-apple-system,Roboto,sans-serif;"">"
-			  & "<svg viewBox=""0 0 " & _N & " 96"" preserveAspectRatio=""none"" style=""width:100%;height:96px;display:block;"">"
+			  & "<svg viewBox=""0 0 " & _N & " 140"" preserveAspectRatio=""none"" style=""width:100%;height:140px;display:block;"">"
 			  & "<defs><lineargradient id=""lhg"" x1=""0"" y1=""0"" x2=""0"" y2=""1""><stop offset=""0%"" stop-color=""#2D9CDB"" stop-opacity="".45""></stop><stop offset=""100%"" stop-color=""#2D9CDB"" stop-opacity=""0""></stop></lineargradient></defs>"
-			  & "<polygon fill=""url(#lhg)"" points=""0,96 " & _P1 & " " & _N & ",96""></polygon>"
+			  & "<polygon fill=""url(#lhg)"" points=""0,140 " & _P1 & " " & _N & ",140""></polygon>"
 			  & "<polyline fill=""none"" stroke=""#2D9CDB"" stroke-width=""1.6"" vector-effect=""non-scaling-stroke"" stroke-linejoin=""round"" stroke-linecap=""round"" points=""" & _P1 & """></polyline>"
 			  & "<polyline fill=""none"" stroke=""#D9772A"" stroke-width=""1.6"" vector-effect=""non-scaling-stroke"" stroke-linejoin=""round"" stroke-linecap=""round"" points=""" & _P2 & """></polyline>"
 			  & "</svg></div>"
@@ -297,9 +297,9 @@ table _Medidas
 	/// papel `sampling` do visual. É isso que dá cross-filter: o visual cria um
 	/// selectionId por linha, e clicar filtra a página como um gráfico nativo.
 	measure 'HTML — Linha de Status' =
-			VAR _V   = [Receita Bruta]
-			VAR _Max = MAXX(TOPN(4, ALLSELECTED(dim_status_pedido[status_exibicao]), [Receita Bruta], DESC), [Receita Bruta])
-			VAR _Pos = RANKX(ALLSELECTED(dim_status_pedido[status_exibicao]), [Receita Bruta],, DESC)
+			VAR _V   = [Receita Bruta] / 1000000
+			VAR _Max = MAXX(TOPN(4, ALLSELECTED(dim_status_pedido[status_exibicao]), [Receita Bruta] / 1000000, DESC), [Receita Bruta] / 1000000)
+			VAR _Pos = RANKX(ALLSELECTED(dim_status_pedido[status_exibicao]), [Receita Bruta] / 1000000,, DESC)
 			VAR _Dentro = _Pos <= 4
 			RETURN
 			    IF(
@@ -311,7 +311,7 @@ table _Medidas
 			      & "<div style=""flex:1;height:8px;background:#16233A;border-radius:4px;overflow:hidden;min-width:26px;""><div style=""height:8px;border-radius:4px;background:linear-gradient(90deg,#2D9CDB,#2D9CDB66);width:"
 			      & SUBSTITUTE(FORMAT(DIVIDE(_V, _Max) * 100, "0.0"), ",", ".")
 			      & "%""></div></div>"
-			      & "<div style=""width:78px;text-align:right;font-size:12px;color:#93A5B8;flex:none;line-height:1.35;"">" & FORMAT(_V, "R$ #,##0,, "" Mi""") & "</div>"
+			      & "<div style=""width:78px;text-align:right;font-size:12px;color:#93A5B8;flex:none;line-height:1.35;"">" & FORMAT(_V, "R$ #,##0"" Mi""") & "</div>"
 			      & "</div>"
 			    )
 		displayFolder: 0 HTML
@@ -349,9 +349,9 @@ table _Medidas
 	/// papel `sampling` do visual. É isso que dá cross-filter: o visual cria um
 	/// selectionId por linha, e clicar filtra a página como um gráfico nativo.
 	measure 'HTML — Linha de Categoria' =
-			VAR _V   = [Margem Líquida R$]
-			VAR _Max = MAXX(TOPN(5, ALLSELECTED(dim_produto[categoria]), [Margem Líquida R$], DESC), [Margem Líquida R$])
-			VAR _Pos = RANKX(ALLSELECTED(dim_produto[categoria]), [Margem Líquida R$],, DESC)
+			VAR _V   = [Margem Líquida R$] / 1000000
+			VAR _Max = MAXX(TOPN(5, ALLSELECTED(dim_produto[categoria]), [Margem Líquida R$] / 1000000, DESC), [Margem Líquida R$] / 1000000)
+			VAR _Pos = RANKX(ALLSELECTED(dim_produto[categoria]), [Margem Líquida R$] / 1000000,, DESC)
 			VAR _Dentro = _Pos <= 5
 			RETURN
 			    IF(
@@ -363,7 +363,7 @@ table _Medidas
 			      & "<div style=""flex:1;height:8px;background:#16233A;border-radius:4px;overflow:hidden;min-width:26px;""><div style=""height:8px;border-radius:4px;background:linear-gradient(90deg,#D9772A,#D9772A66);width:"
 			      & SUBSTITUTE(FORMAT(DIVIDE(_V, _Max) * 100, "0.0"), ",", ".")
 			      & "%""></div></div>"
-			      & "<div style=""width:78px;text-align:right;font-size:12px;color:#93A5B8;flex:none;line-height:1.35;"">" & FORMAT(_V, "R$ #,##0,, "" Mi""") & "</div>"
+			      & "<div style=""width:78px;text-align:right;font-size:12px;color:#93A5B8;flex:none;line-height:1.35;"">" & FORMAT(_V, "R$ #,##0"" Mi""") & "</div>"
 			      & "</div>"
 			    )
 		displayFolder: 0 HTML
@@ -418,12 +418,12 @@ table _Medidas
 	/// papel `sampling` do visual. É isso que dá cross-filter: o visual cria um
 	/// selectionId por linha, e clicar filtra a página como um gráfico nativo.
 	measure 'HTML — Linha de Categoria Dupla' =
-			VAR _V   = [Receita de Itens]
-			VAR _V2  = [Margem Líquida R$]
-			VAR _Max = MAXX(TOPN(14, ALLSELECTED(dim_produto[categoria]), [Receita de Itens], DESC), [Receita de Itens])
-			VAR _Max2 = MAXX(TOPN(14, ALLSELECTED(dim_produto[categoria]), [Margem Líquida R$], DESC), [Margem Líquida R$])
-			VAR _Pos = RANKX(ALLSELECTED(dim_produto[categoria]), [Receita de Itens],, DESC)
-			VAR _Dentro = _Pos <= 14
+			VAR _V   = [Receita de Itens] / 1000000
+			VAR _V2  = [Margem Líquida R$] / 1000000
+			VAR _Max = MAXX(TOPN(8, ALLSELECTED(dim_produto[categoria]), [Receita de Itens] / 1000000, DESC), [Receita de Itens] / 1000000)
+			VAR _Max2 = MAXX(TOPN(8, ALLSELECTED(dim_produto[categoria]), [Margem Líquida R$] / 1000000, DESC), [Margem Líquida R$] / 1000000)
+			VAR _Pos = RANKX(ALLSELECTED(dim_produto[categoria]), [Receita de Itens] / 1000000,, DESC)
+			VAR _Dentro = _Pos <= 8
 			RETURN
 			    IF(
 			        _Dentro,
@@ -438,8 +438,8 @@ table _Medidas
 			      & "<div style=""flex:1;height:7px;background:#16233A;border-radius:3px;overflow:hidden;min-width:26px;margin-top:3px;""><div style=""height:7px;border-radius:3px;background:linear-gradient(90deg,#D9772A,#D9772A66);width:"
 			      & SUBSTITUTE(FORMAT(DIVIDE(_V2, _Max2) * 100, "0.0"), ",", ".")
 			      & "%""></div></div></div>"
-			      & "<div style=""width:68px;text-align:right;font-size:12px;color:#93A5B8;flex:none;line-height:1.35;"">" & FORMAT(_V, "R$ #,##0,, "" Mi""")
-			      & "<br><span style=""color:#D9772A;"">" & FORMAT(_V2, "R$ #,##0,, "" Mi""") & "</span></div>"
+			      & "<div style=""width:68px;text-align:right;font-size:12px;color:#93A5B8;flex:none;line-height:1.35;"">" & FORMAT(_V, "R$ #,##0"" Mi""")
+			      & "<br><span style=""color:#D9772A;"">" & FORMAT(_V2, "R$ #,##0"" Mi""") & "</span></div>"
 			      & "</div>"
 			    )
 		displayFolder: 0 HTML
@@ -497,12 +497,12 @@ table _Medidas
 			VAR _P1 =
 			    CONCATENATEX(
 			        FILTER(_T, NOT ISBLANK([@v1])),
-			        SUBSTITUTE(FORMAT([@i] - _Ini, "0"), ",", ".") & "," & SUBSTITUTE(FORMAT(96 - DIVIDE([@v1] - _Min, _Max - _Min) * 90, "0.00"), ",", "."),
+			        SUBSTITUTE(FORMAT([@i] - _Ini, "0"), ",", ".") & "," & SUBSTITUTE(FORMAT(30 - DIVIDE([@v1] - _Min, _Max - _Min) * 24, "0.00"), ",", "."),
 			        " ", [@i], ASC
 			    )
 			RETURN
 			    "<div style=""font-family:Segoe UI,-apple-system,Roboto,sans-serif;"">"
-			  & "<svg viewBox=""0 0 " & _N & " 96"" preserveAspectRatio=""none"" style=""width:100%;height:96px;display:block;"">"
+			  & "<svg viewBox=""0 0 " & _N & " 30"" preserveAspectRatio=""none"" style=""width:100%;height:30px;display:block;"">"
 			  & "<defs><lineargradient id=""lhg"" x1=""0"" y1=""0"" x2=""0"" y2=""1""><stop offset=""0%"" stop-color=""#2D9CDB"" stop-opacity="".45""></stop><stop offset=""100%"" stop-color=""#2D9CDB"" stop-opacity=""0""></stop></lineargradient></defs>"
 			  & "<polyline fill=""none"" stroke=""#2D9CDB"" stroke-width=""1.6"" vector-effect=""non-scaling-stroke"" stroke-linejoin=""round"" stroke-linecap=""round"" points=""" & _P1 & """></polyline>"
 			  & "</svg></div>"
@@ -580,9 +580,9 @@ table _Medidas
 	/// selectionId por linha, e clicar filtra a página como um gráfico nativo.
 	measure 'HTML — Linha de Cliente Dupla' =
 			VAR _V   = [Ticket Médio]
-			VAR _V2  = [Receita Bruta]
+			VAR _V2  = [Receita Bruta] / 1000000
 			VAR _Max = MAXX(TOPN(10, ALLSELECTED(dim_cliente[cliente]), [Ticket Médio], DESC), [Ticket Médio])
-			VAR _Max2 = MAXX(TOPN(10, ALLSELECTED(dim_cliente[cliente]), [Receita Bruta], DESC), [Receita Bruta])
+			VAR _Max2 = MAXX(TOPN(10, ALLSELECTED(dim_cliente[cliente]), [Receita Bruta] / 1000000, DESC), [Receita Bruta] / 1000000)
 			VAR _Pos = RANKX(ALLSELECTED(dim_cliente[cliente]), [Ticket Médio],, DESC)
 			VAR _Dentro = _Pos <= 10
 			RETURN
@@ -600,7 +600,7 @@ table _Medidas
 			      & SUBSTITUTE(FORMAT(DIVIDE(_V2, _Max2) * 100, "0.0"), ",", ".")
 			      & "%""></div></div></div>"
 			      & "<div style=""width:62px;text-align:right;font-size:12px;color:#93A5B8;flex:none;line-height:1.35;"">" & FORMAT(_V, "R$ #,##0")
-			      & "<br><span style=""color:#D9772A;"">" & FORMAT(_V2, "R$ #,##0.00,, "" Mi""") & "</span></div>"
+			      & "<br><span style=""color:#D9772A;"">" & FORMAT(_V2, "R$ #,##0.0"" Mi""") & "</span></div>"
 			      & "</div>"
 			    )
 		displayFolder: 0 HTML
@@ -776,20 +776,20 @@ table _Medidas
 			VAR _P1 =
 			    CONCATENATEX(
 			        FILTER(_T, NOT ISBLANK([@v1])),
-			        SUBSTITUTE(FORMAT([@i] - _Ini, "0"), ",", ".") & "," & SUBSTITUTE(FORMAT(96 - DIVIDE([@v1] - _Min, _Max - _Min) * 90, "0.00"), ",", "."),
+			        SUBSTITUTE(FORMAT([@i] - _Ini, "0"), ",", ".") & "," & SUBSTITUTE(FORMAT(100 - DIVIDE([@v1] - _Min, _Max - _Min) * 94, "0.00"), ",", "."),
 			        " ", [@i], ASC
 			    )
 			VAR _P2 =
 			    CONCATENATEX(
 			        FILTER(_T, NOT ISBLANK([@v2])),
-			        SUBSTITUTE(FORMAT([@i] - _Ini, "0"), ",", ".") & "," & SUBSTITUTE(FORMAT(96 - DIVIDE([@v2] - _Min, _Max - _Min) * 90, "0.00"), ",", "."),
+			        SUBSTITUTE(FORMAT([@i] - _Ini, "0"), ",", ".") & "," & SUBSTITUTE(FORMAT(100 - DIVIDE([@v2] - _Min, _Max - _Min) * 94, "0.00"), ",", "."),
 			        " ", [@i], ASC
 			    )
 			RETURN
 			    "<div style=""font-family:Segoe UI,-apple-system,Roboto,sans-serif;"">"
-			  & "<svg viewBox=""0 0 " & _N & " 96"" preserveAspectRatio=""none"" style=""width:100%;height:96px;display:block;"">"
+			  & "<svg viewBox=""0 0 " & _N & " 100"" preserveAspectRatio=""none"" style=""width:100%;height:100px;display:block;"">"
 			  & "<defs><lineargradient id=""lhg"" x1=""0"" y1=""0"" x2=""0"" y2=""1""><stop offset=""0%"" stop-color=""#2D9CDB"" stop-opacity="".45""></stop><stop offset=""100%"" stop-color=""#2D9CDB"" stop-opacity=""0""></stop></lineargradient></defs>"
-			  & "<polygon fill=""url(#lhg)"" points=""0,96 " & _P1 & " " & _N & ",96""></polygon>"
+			  & "<polygon fill=""url(#lhg)"" points=""0,100 " & _P1 & " " & _N & ",100""></polygon>"
 			  & "<polyline fill=""none"" stroke=""#2D9CDB"" stroke-width=""1.6"" vector-effect=""non-scaling-stroke"" stroke-linejoin=""round"" stroke-linecap=""round"" points=""" & _P1 & """></polyline>"
 			  & "<polyline fill=""none"" stroke=""#D9772A"" stroke-width=""1.6"" vector-effect=""non-scaling-stroke"" stroke-linejoin=""round"" stroke-linecap=""round"" points=""" & _P2 & """></polyline>"
 			  & "</svg></div>"
@@ -801,7 +801,7 @@ table _Medidas
 	/// FORMA BLOCO — devolve o componente inteiro, então o visual recebe uma
 	/// linha só e não emite filtro. Recebe filtro normalmente.
 	measure 'HTML — Faixa da Previsão' =
-			"<div style=""display:flex;flex-direction:column;gap:10px;font-family:Segoe UI,-apple-system,Roboto,sans-serif;"">"
+			"<div style=""display:flex;flex-direction:row;gap:10px;font-family:Segoe UI,-apple-system,Roboto,sans-serif;"">"
 			& "<div style=""flex:1;min-width:0;background:#12203366;border:1px solid #1E2E42;border-radius:14px;padding:14px 16px;"">"
 			& "<div style=""font-size:10px;letter-spacing:.10em;text-transform:uppercase;color:#93A5B8;font-weight:600;white-space:nowrap;"">Realizado</div>"
 			& "<div style=""font-size:26px;line-height:1.1;font-weight:200;color:#2D9CDB;margin-top:10px;white-space:nowrap;"">" & FORMAT([Realizado no Trimestre], "#,##0") & " un" & "</div>"

@@ -396,33 +396,33 @@ add("HTML — Faixa de KPIs",
 
 add("HTML — Série de Receita",
     serie("dim_data", "ano_mes",
-          [("[Receita Bruta]", AZUL), ("[Receita Efetivada]", LARANJA)], 96),
+          [("[Receita Bruta]", AZUL), ("[Receita Efetivada]", LARANJA)], 140),
     ["RECEITA MENSAL, BRUTA E EFETIVADA, em SVG.",
      "",
      "A distância entre as duas linhas é o dinheiro que nunca virou receita —",
      "R$ 207,1 milhões no período inteiro."] + DOC_BLOCO,
     P1, "A receita cresce todo ano — e a faixa entre as linhas é o que se perde",
-    (32, 296, 780, 220), None, [])
+    (32, 296, 780, 200), None, [])
 
 add("HTML — Linha de Status",
-    ranking("dim_status_pedido", "status_exibicao", "[Receita Bruta]",
-            'R$ #,##0,, " Mi"', 4, AZUL, 104),
+    ranking("dim_status_pedido", "status_exibicao",
+            "[Receita Bruta] / 1000000", 'R$ #,##0" Mi"', 4, AZUL, 104),
     ["RECEITA POR STATUS DO PEDIDO."] + DOC_CROSS,
     P1, "Um em cada sete reais nunca virou receita",
-    (826, 296, 422, 220), ("dim_status_pedido", "status_exibicao"), [])
+    (826, 296, 422, 146), ("dim_status_pedido", "status_exibicao"), [])
 
 add("HTML — Linha de Canal",
     ranking("dim_canal", "canal_exibicao", "[Nº Pedidos]", "#,##0", 2, ROXO, 92),
     ["PEDIDOS POR CANAL."] + DOC_CROSS,
     P1, "E-commerce responde por 70% dos pedidos",
-    (32, 522, 592, 170), ("dim_canal", "canal_exibicao"), [])
+    (32, 506, 592, 96), ("dim_canal", "canal_exibicao"), [])
 
 add("HTML — Linha de Categoria",
-    ranking("dim_produto", "categoria", "[Margem Líquida R$]",
-            'R$ #,##0,, " Mi"', 5, LARANJA, 120),
+    ranking("dim_produto", "categoria", "[Margem Líquida R$] / 1000000",
+            'R$ #,##0" Mi"', 5, LARANJA, 120),
     ["AS CINCO MAIORES CATEGORIAS POR MARGEM LÍQUIDA."] + DOC_CROSS,
     P1, "Margem líquida por categoria — as cinco maiores",
-    (656, 522, 592, 170), ("dim_produto", "categoria"), [])
+    (656, 506, 592, 171), ("dim_produto", "categoria"), [])
 
 # ── vendas e margem ─────────────────────────────────────────────────────────
 add("HTML — Faixa de Margem",
@@ -450,16 +450,17 @@ add("HTML — Faixa de Margem",
     P2, None, (32, 130, 1216, 100), None, [])
 
 add("HTML — Linha de Categoria Dupla",
-    ranking("dim_produto", "categoria", "[Receita de Itens]", 'R$ #,##0,, " Mi"',
-            14, AZUL, 116, larg_val=68, med2="[Margem Líquida R$]",
-            fmt2='R$ #,##0,, " Mi"', cor2=LARANJA),
+    ranking("dim_produto", "categoria", "[Receita de Itens] / 1000000",
+            'R$ #,##0" Mi"', 8, AZUL, 116, larg_val=68,
+            med2="[Margem Líquida R$] / 1000000", fmt2='R$ #,##0" Mi"',
+            cor2=LARANJA),
     ["RECEITA E MARGEM POR CATEGORIA, as duas barras empilhadas.",
      "",
      "Empilhadas e não lado a lado porque a comparação é entre as DUAS de uma",
      "mesma categoria, não entre categorias — e é a proporção constante entre",
      "elas que sustenta o título da página."] + DOC_CROSS,
     P2, "Margem homogênea (37,8% a 41,5%): o lucro repete o ranking de receita",
-    (32, 236, 608, 290), ("dim_produto", "categoria"), [])
+    (32, 236, 608, 382), ("dim_produto", "categoria"), [])
 
 add("HTML — Linha de Produto",
     ranking("dim_produto", "produto", "[% Margem Líquida]", "0.00%", 10, LARANJA,
@@ -470,14 +471,14 @@ add("HTML — Linha de Produto",
      "37% a 53%, e num eixo de 0 a 100 nada se distinguiria. O valor absoluto",
      "vai no rótulo, então a escala relativa não engana."] + DOC_CROSS,
     P2, "Produtos por margem — clique para filtrar a página",
-    (654, 236, 594, 290), ("dim_produto", "produto"), [])
+    (654, 236, 594, 296), ("dim_produto", "produto"), [])
 
 add("HTML — Série de Margem",
-    serie("dim_data", "ano_mes", [("[% Margem Líquida]", AZUL)], 96,
+    serie("dim_data", "ano_mes", [("[% Margem Líquida]", AZUL)], 30,
           base_zero=False),
     ["MARGEM PERCENTUAL MÊS A MÊS, em SVG."] + DOC_BLOCO,
     P2, "A margem percentual é estável no tempo — o crescimento vem de volume",
-    (32, 532, 1216, 160), None, [])
+    (32, 626, 1216, 66), None, [])
 
 # ── clientes (Q4) ───────────────────────────────────────────────────────────
 add("HTML — Faixa de Clientes",
@@ -500,25 +501,25 @@ add("HTML — Linha de Cliente",
     ["TOP 10 CLIENTES POR TICKET MÉDIO — o ranking literal da Questão 4."]
     + DOC_CROSS,
     P3, "Os 10 de maior ticket — clique para filtrar a página",
-    (32, 292, 640, 220), ("dim_cliente", "cliente"), [])
+    (32, 292, 640, 296), ("dim_cliente", "cliente"), [])
 
 add("HTML — Linha de Cliente Dupla",
     ranking("dim_cliente", "cliente", "[Ticket Médio]", "R$ #,##0", 10, AZUL, 96,
-            larg_val=62, med2="[Receita Bruta]", fmt2='R$ #,##0.00,, " Mi"',
-            cor2=LARANJA),
+            larg_val=62, med2="[Receita Bruta] / 1000000",
+            fmt2='R$ #,##0.0" Mi"', cor2=LARANJA),
     ["TICKET × FATURAMENTO, no mesmo cliente.",
      "",
      "As duas barras raramente acompanham uma à outra, e é esse descompasso",
      "que mostra que ticket alto não é o mesmo que cliente valioso."] + DOC_CROSS,
     P3, "Ticket alto não é cliente valioso",
-    (960, 292, 288, 220), ("dim_cliente", "cliente"), [])
+    (960, 292, 288, 298), ("dim_cliente", "cliente"), [])
 
 add("HTML — Linha de Categoria Itens",
     ranking("dim_produto", "categoria", "[Itens Vendidos]", "#,##0", 8, AZUL, 88,
             larg_val=62),
     ["CATEGORIAS POR ITENS VENDIDOS."] + DOC_CROSS,
     P3, "Hélices lidera o grupo",
-    (686, 292, 260, 220), ("dim_produto", "categoria"), [])
+    (686, 292, 260, 246), ("dim_produto", "categoria"), [])
 
 # ── sazonalidade (Q5) ───────────────────────────────────────────────────────
 add("HTML — Faixa de Sazonalidade",
@@ -549,7 +550,7 @@ add("HTML — Linha de Dia",
      "a laranja se estica mais, o erro é maior — e ele é maior justamente na",
      "quinta-feira, que é o que inverte o ranking."] + DOC_CROSS,
     P4, "As duas médias lado a lado: a correta (azul) põe a quinta em último",
-    (32, 232, 760, 280), ("dim_data", "dia_semana"), [])
+    (32, 232, 760, 340), ("dim_data", "dia_semana"), [])
 
 add("HTML — Linha de Dia Vazio",
     ranking("dim_data", "dia_semana", "[Dias sem Venda]", "#,##0", 7, LARANJA,
@@ -560,7 +561,7 @@ add("HTML — Linha de Dia Vazio",
      "ingênua inflar mais um dia que outro e trocar o pior dia da semana."]
     + DOC_CROSS,
     P4, "20 dias vazios na quinta contra 7 na segunda",
-    (806, 232, 442, 280), ("dim_data", "dia_semana"), [])
+    (806, 232, 442, 221), ("dim_data", "dia_semana"), [])
 
 add("HTML — Linha de Ano",
     ranking("dim_data", "ano", "[Dias sem Venda]", "#,##0", 8, ROXO, 52,
@@ -570,13 +571,13 @@ add("HTML — Linha de Ano",
      "25 em 2020 e 1 em 2025: dia sem venda é característica de operação",
      "nova, não de sazonalidade."] + DOC_CROSS,
     P4, "Dia sem venda é fenômeno de ramp-up: 25 em 2020, 1 em 2025",
-    (806, 520, 442, 172), ("dim_data", "ano"), [])
+    (806, 461, 442, 221), ("dim_data", "ano"), [])
 
 # ── previsão e recomendação (Q6-Q7) ─────────────────────────────────────────
 add("HTML — Série da Bússola",
     serie("fct_previsao_bussola", "ano_mes",
           [("[Unidades Realizadas]", AZUL),
-           ("[Previsão — Média Móvel 3m]", LARANJA)], 96),
+           ("[Previsão — Média Móvel 3m]", LARANJA)], 100),
     ["A SÉRIE DA BÚSSOLA DE BORDO 702, em SVG.",
      "",
      "A linha laranja só existe nos três meses de teste — é ali que a previsão",
@@ -584,7 +585,7 @@ add("HTML — Série da Bússola",
      "do gráfico nativo aqui: a previsão ficava fora da janela visível."]
     + DOC_BLOCO,
     P5, "A série da Bússola: alta constante e um dez/2025 fora da curva",
-    (32, 130, 528, 254), None, [])
+    (32, 236, 528, 154), None, [])
 
 add("HTML — Faixa da Previsão",
     faixa([
@@ -594,10 +595,10 @@ add("HTML — Faixa da Previsão",
          s("o baseline do enunciado"), TEXTO, None),
         ("Erro", 'FORMAT([Erro da Previsão], "0.0%")',
          s("o baseline subestima"), LARANJA, None),
-    ], tam=26, coluna=True),
+    ], tam=26),
     ["O CONFRONTO DA QUESTÃO 6: 207 realizadas contra 116 previstas."]
     + DOC_BLOCO,
-    P5, None, (572, 130, 220, 254), None, [])
+    P5, None, (32, 130, 1216, 96), None, [])
 
 add("HTML — Linha de Similar",
     ranking("fct_similaridade_produto", "produto", "[Similaridade de Cosseno]",
@@ -608,7 +609,7 @@ add("HTML — Linha de Similar",
      "arredondar para duas empataria os três primeiros — que é exatamente o",
      "argumento da resposta."] + DOC_CROSS,
     P5, "Top similares ao Motor de Popa 1949 — clique para filtrar",
-    (32, 398, 500, 294), ("fct_similaridade_produto", "produto"), [])
+    (32, 396, 500, 296), ("fct_similaridade_produto", "produto"), [])
 
 add("HTML — Linha de Cesta",
     ranking("fct_similaridade_produto", "produto", "[Pedidos em Comum]", "#,##0",
@@ -616,7 +617,7 @@ add("HTML — Linha de Cesta",
     ["CO-OCORRÊNCIA NO MESMO PEDIDO — a formulação correta do problema da",
      "Marina, que devolve outro campeão: Tinta Antifouling."] + DOC_CROSS,
     P5, "Co-ocorrência no pedido — a pergunta que a Marina fez",
-    (546, 398, 500, 294), ("fct_similaridade_produto", "produto"), [])
+    (546, 396, 500, 296), ("fct_similaridade_produto", "produto"), [])
 
 
 # ═══════════════════════════════════════════════════════════════ gravação ══
@@ -716,23 +717,23 @@ def json_visual(nome_visual: str, medida: str, caixa: tuple,
 # descontada.
 TEXTOS = {
     "391e2a649b1f1d77900b": (32, 52, 1100, 72),     # Q6-Q7, cabeçalho
-    "50ff396ca43983a9c8ef": (806, 130, 442, 254),   # Q6, nota lateral
-    "7abdf216958fcde92469": (1060, 398, 188, 294),  # Q7, nota lateral
-    "216ffc47830f5a89c2e0": (32, 526, 1216, 166),   # Q4, rodapé
+    "50ff396ca43983a9c8ef": (572, 236, 676, 154),   # Q6, nota lateral
+    "7abdf216958fcde92469": (1060, 396, 188, 296),  # Q7, nota lateral
+    "216ffc47830f5a89c2e0": (32, 598, 1216, 94),    # Q4, rodapé
     "a84e3eee58ded52dd438": (32, 126, 1216, 54),    # Q4, tarja
     "bd7aaef7f0bfcc1ef7d9": (32, 52, 900, 68),      # Q4, cabeçalho
     "da871194ce722756e472": (32, 52, 900, 72),      # Vendas, cabeçalho
     "2889264c822a6a350236": (32, 132, 1216, 52),    # Capa, tarja
     "b7207488563d8e774de8": (32, 52, 900, 74),      # Capa, cabeçalho
-    "7b7e3d65158fa6f871bb": (32, 520, 760, 172),    # Q5, rodapé
+    "7b7e3d65158fa6f871bb": (32, 580, 760, 112),    # Q5, rodapé
     "c23191ed5a16409fc4c2": (32, 52, 1100, 68),     # Q5, cabeçalho
 }
 
 # Onde ficam os segmentadores. Filtro no rodapé, abaixo dos gráficos, era o
 # que estava errado: quem usa procura o controle antes de ler, não depois.
 SLICERS = {
-    "9b59c383596f4321410c": (948, 52, 300, 74),
-    "7063cddba223efdc191f": (948, 52, 300, 68),
+    "9b59c383596f4321410c": (948, 52, 300, 62),
+    "7063cddba223efdc191f": (948, 52, 300, 62),
 }
 
 
