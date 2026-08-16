@@ -14,21 +14,21 @@
 |---|---|---|
 | **1.1** Código SQL | `entregaveis/Q1_eda/q1_eda_orders.sql` | upload |
 | **1.2** Valor médio de `total` | **R$ 28.704,99** | resposta curta |
-| **1.3** Interpretação | seção *Q1.3* de `entregaveis/Q1_eda/RESPOSTA.md` | texto |
+| **1.3** Interpretação | [`RESPOSTAS-PARA-O-FORMULARIO.md`](RESPOSTAS-PARA-O-FORMULARIO.md) § 1.3 | texto |
 | **2.1** Código Python | `entregaveis/Q2_schema/q2_gerar_schema.py` | upload |
 | **2.2** `schema.sql` | `entregaveis/Q2_schema/schema.sql` | upload |
 | **3.1** Código Python | `entregaveis/Q3_carga/q3_carregar_csvs.py` | upload |
 | **3.2** Total de linhas | **251.864** | resposta curta |
 | **4.1** Código SQL | `entregaveis/Q4_clientes/q4_clientes_elite.sql` | upload |
-| **4.2** Explicação | seção *Q4.2* de `entregaveis/Q4_clientes/RESPOSTA.md` | texto |
+| **4.2** Explicação | [`RESPOSTAS-PARA-O-FORMULARIO.md`](RESPOSTAS-PARA-O-FORMULARIO.md) § 4.2 | texto |
 | **5.1** Código SQL | `entregaveis/Q5_calendario/q5_dim_calendario.sql` | upload |
-| **5.2** Explicação | seção *Q5.2* de `entregaveis/Q5_calendario/RESPOSTA.md` | texto |
+| **5.2** Explicação | [`RESPOSTAS-PARA-O-FORMULARIO.md`](RESPOSTAS-PARA-O-FORMULARIO.md) § 5.2 | texto |
 | **6.1** Código Python | `entregaveis/Q6_previsao/q6_previsao_demanda.py` | upload |
 | **6.2** Soma da previsão | **116** | resposta curta |
-| **6.3** Explicação | seção *Q6.3* de `entregaveis/Q6_previsao/RESPOSTA.md` | texto |
+| **6.3** Explicação | [`RESPOSTAS-PARA-O-FORMULARIO.md`](RESPOSTAS-PARA-O-FORMULARIO.md) § 6.3 | texto |
 | **7.1** Código Python | `entregaveis/Q7_recomendacao/q7_recomendacao.py` | upload |
 | **7.2** Produto mais similar | **Motor de Popa 5331** | resposta curta |
-| **7.3** Explicação | seção *Q7.3* de `entregaveis/Q7_recomendacao/RESPOSTA.md` | texto |
+| **7.3** Explicação | [`RESPOSTAS-PARA-O-FORMULARIO.md`](RESPOSTAS-PARA-O-FORMULARIO.md) § 7.3 | texto |
 | **Material complementar** | **`.pbix` exportado do PBIP** + PDF + link do repositório | upload · **obrigatório** |
 
 **Perguntas finais (opinião, sem resposta certa):**
@@ -64,11 +64,11 @@ dele.
 
 **Na ordem:**
 
-1. Abrir `powerbi/lh_nautical.pbip` e conferir as telas
-2. `Arquivo → Salvar como → .pbix` ⛔ **obrigatório no formulário**
-3. `Arquivo → Exportar → PDF`
-4. Publicar no Power BI Service e atualizar o link público
-5. Preencher o formulário pelo mapa do topo deste documento
+1. ~~Abrir o `.pbip` e conferir as telas~~ ✅
+2. ~~`Arquivo → Salvar como → .pbix`~~ ✅ `powerbi/lh_nautical.pbix` (9,2 MB)
+3. ~~`Arquivo → Exportar → PDF`~~ ✅ `powerbi/lh_nautical.pdf` (5 páginas)
+4. ~~Publicar no Service~~ ✅ link atualizado
+5. **Preencher o formulário** pelo mapa do topo deste documento ← falta só isto
 
 > ⚠️ **Depois de ajustar algo à mão no Desktop, não rode `make powerbi` nem
 > `powerbi/gerar_html_dax.py`.** Os dois regravam o projeto a partir do script
@@ -131,7 +131,7 @@ Antes de clicar em enviar:
 - [ ] **3.2 = 251.864**
 - [ ] **6.2 = 116** *(não 117)*
 - [ ] **7.2 = Motor de Popa 5331** *(não "1949", que é a referência)*
-- [ ] Textos de 1.3, 4.2, 5.2, 6.3 e 7.3 colados dos `RESPOSTA.md`
+- [ ] Textos de 1.3, 4.2, 5.2, 6.3 e 7.3 colados de `RESPOSTAS-PARA-O-FORMULARIO.md`
 - [ ] **A resposta da Q1 não menciona 2027** — `orders` termina em 2026-12-31
 - [ ] **`.pbix` exportado e anexado** ⛔ *obrigatório*
 - [ ] PDF do dashboard anexado

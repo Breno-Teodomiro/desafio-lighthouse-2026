@@ -1,13 +1,13 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.11.0/schema.json",
   "name": "7b7e3d65158fa6f871bb",
   "position": {
-    "x": 15,
-    "y": 657,
-    "z": 100,
-    "height": 48,
-    "width": 675,
-    "tabOrder": 100
+    "x": 14.814867737153268,
+    "y": 572.84155250325966,
+    "z": 0,
+    "height": 147.32562916391305,
+    "width": 674.89953024809336,
+    "tabOrder": 1000
   },
   "visual": {
     "visualType": "textbox",
@@ -21,11 +21,19 @@
                   {
                     "value": "Por que o erro é perigoso, e por que a recomendação é não fechar",
                     "textStyle": {
-                      "fontSize": "12pt",
-                      "color": "#E8EEF4",
                       "fontWeight": "bold",
-                      "fontFamily": "Segoe UI"
+                      "fontFamily": "Segoe UI",
+                      "fontSize": "10pt",
+                      "color": "#e8eef4"
                     }
+                  }
+                ],
+                "horizontalTextAlignment": "center"
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": ""
                   }
                 ]
               },
@@ -34,11 +42,17 @@
                   {
                     "value": "Se o erro fosse uniforme, ele seria inofensivo para o ranking: todos os dias inflariam igual e a ordem sobreviveria. Ele não é. Remover 20 dias vazios do denominador da quinta sobe a média dela em R$ 9.084 (+5,78%) e a tira do último lugar; a segunda, com 7 vazios, sobe só R$ 3.094 (+1,96%) e cai para lá.",
                     "textStyle": {
+                      "fontFamily": "Segoe UI",
                       "fontSize": "10pt",
-                      "color": "#93A5B8",
-                      "fontWeight": "normal",
-                      "fontFamily": "Segoe UI"
+                      "color": "#93a5b8"
                     }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": ""
                   }
                 ]
               },
@@ -47,10 +61,9 @@
                   {
                     "value": "Mas a diferença entre o pior dia e o melhor é de apenas 10,5%, e entre quinta e domingo é de 0,3%. Isso é ruído, não sazonalidade. Nenhum dia da semana justifica fechar a loja.",
                     "textStyle": {
+                      "fontFamily": "Segoe UI",
                       "fontSize": "10pt",
-                      "color": "#D9772A",
-                      "fontWeight": "normal",
-                      "fontFamily": "Segoe UI"
+                      "color": "#d9772a"
                     }
                   }
                 ]
@@ -115,6 +128,19 @@
               "expr": {
                 "Literal": {
                   "Value": "0D"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "border": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
                 }
               }
             }

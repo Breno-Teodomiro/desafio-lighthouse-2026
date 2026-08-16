@@ -1,13 +1,13 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.11.0/schema.json",
   "name": "50ff396ca43983a9c8ef",
   "position": {
-    "x": 705,
-    "y": 302,
-    "z": 100,
-    "height": 168,
-    "width": 560,
-    "tabOrder": 100
+    "x": 705.35231393001948,
+    "y": 275,
+    "z": 2000,
+    "height": 190,
+    "width": 559.67278118134561,
+    "tabOrder": 3000
   },
   "visual": {
     "visualType": "textbox",
@@ -21,11 +21,19 @@
                   {
                     "value": "Questão 6 — por que o baseline não serve",
                     "textStyle": {
-                      "fontSize": "12pt",
-                      "color": "#E8EEF4",
                       "fontWeight": "bold",
-                      "fontFamily": "Segoe UI"
+                      "fontFamily": "Segoe UI",
+                      "fontSize": "10pt",
+                      "color": "#e8eef4"
                     }
+                  }
+                ],
+                "horizontalTextAlignment": "center"
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": ""
                   }
                 ]
               },
@@ -34,11 +42,17 @@
                   {
                     "value": "Não é 'usou meses de baixa para prever meses de pico': out–dez vale 39,6 un./mês contra 35,9 de jan–mar. A janela estava do lado certo do ciclo.",
                     "textStyle": {
+                      "fontFamily": "Segoe UI",
                       "fontSize": "10pt",
-                      "color": "#93A5B8",
-                      "fontWeight": "normal",
-                      "fontFamily": "Segoe UI"
+                      "color": "#93a5b8"
                     }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": ""
                   }
                 ]
               },
@@ -47,11 +61,17 @@
                   {
                     "value": "As causas reais são a tendência (o Q1 saiu de 64 unidades em 2020 para 207 em 2026) e dez/2025 ter vendido 22 contra uma média histórica de 45,6 — sozinho, esse mês derruba a previsão em 24 unidades no trimestre.",
                     "textStyle": {
+                      "fontFamily": "Segoe UI",
                       "fontSize": "10pt",
-                      "color": "#93A5B8",
-                      "fontWeight": "normal",
-                      "fontFamily": "Segoe UI"
+                      "color": "#93a5b8"
                     }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": ""
                   }
                 ]
               },
@@ -60,10 +80,9 @@
                   {
                     "value": "O seasonal naive, que só repete o ano anterior, tem MAE de 25,0 contra 30,3 da média móvel. O baseline pedido perde para a regra mais simples que existe.",
                     "textStyle": {
+                      "fontFamily": "Segoe UI",
                       "fontSize": "10pt",
-                      "color": "#D9772A",
-                      "fontWeight": "normal",
-                      "fontFamily": "Segoe UI"
+                      "color": "#d9772a"
                     }
                   }
                 ]
@@ -128,6 +147,19 @@
               "expr": {
                 "Literal": {
                   "Value": "0D"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "border": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
                 }
               }
             }

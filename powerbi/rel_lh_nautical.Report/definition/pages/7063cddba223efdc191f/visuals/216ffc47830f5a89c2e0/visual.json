@@ -1,13 +1,13 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.11.0/schema.json",
   "name": "216ffc47830f5a89c2e0",
   "position": {
     "x": 15,
-    "y": 626,
-    "z": 100,
-    "height": 79,
-    "width": 1250,
-    "tabOrder": 100
+    "y": 554.734491935628,
+    "z": 0,
+    "height": 150.61782199439156,
+    "width": 1250.2102273742119,
+    "tabOrder": 1000
   },
   "visual": {
     "visualType": "textbox",
@@ -19,13 +19,28 @@
               {
                 "textRuns": [
                   {
+                    "value": ""
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
                     "value": "O que o ranking premia, e o que ele deixa passar",
                     "textStyle": {
-                      "fontSize": "12pt",
-                      "color": "#E8EEF4",
                       "fontWeight": "bold",
-                      "fontFamily": "Segoe UI"
+                      "fontFamily": "Segoe UI",
+                      "fontSize": "10pt",
+                      "color": "#e8eef4"
                     }
+                  }
+                ],
+                "horizontalTextAlignment": "center"
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": ""
                   }
                 ]
               },
@@ -34,11 +49,17 @@
                   {
                     "value": "Ordenar por ticket médio premia quem compra caro e raro em cima de quem compra muito. O cliente 1116 tem o 4º maior ticket e R$ 655 mil de faturamento; o cliente 1722 tem o 10º ticket e R$ 1,15 milhão — 75% a mais.",
                     "textStyle": {
+                      "fontFamily": "Segoe UI",
                       "fontSize": "10pt",
-                      "color": "#93A5B8",
-                      "fontWeight": "normal",
-                      "fontFamily": "Segoe UI"
+                      "color": "#93a5b8"
                     }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": ""
                   }
                 ]
               },
@@ -47,10 +68,9 @@
                   {
                     "value": "Se o objetivo declarado é replicar o comportamento em outros segmentos, o comportamento de 1722 provavelmente interessa mais. Um critério de RFM (recência, frequência, valor) discriminaria o que o filtro de 13 categorias não discrimina.",
                     "textStyle": {
+                      "fontFamily": "Segoe UI",
                       "fontSize": "10pt",
-                      "color": "#93A5B8",
-                      "fontWeight": "normal",
-                      "fontFamily": "Segoe UI"
+                      "color": "#93a5b8"
                     }
                   }
                 ]
@@ -115,6 +135,19 @@
               "expr": {
                 "Literal": {
                   "Value": "0D"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "border": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
                 }
               }
             }

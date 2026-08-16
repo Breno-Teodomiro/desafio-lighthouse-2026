@@ -1,13 +1,13 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.11.0/schema.json",
   "name": "7abdf216958fcde92469",
   "position": {
     "x": 1005,
-    "y": 485,
-    "z": 100,
-    "height": 220,
+    "y": 480,
+    "z": 5000,
+    "height": 225,
     "width": 260,
-    "tabOrder": 100
+    "tabOrder": 6000
   },
   "visual": {
     "visualType": "textbox",
@@ -19,13 +19,29 @@
               {
                 "textRuns": [
                   {
+                    "value": ""
+                  }
+                ],
+                "horizontalTextAlignment": "center"
+              },
+              {
+                "textRuns": [
+                  {
                     "value": "Questão 7",
                     "textStyle": {
-                      "fontSize": "12pt",
-                      "color": "#E8EEF4",
                       "fontWeight": "bold",
-                      "fontFamily": "Segoe UI"
+                      "fontFamily": "Segoe UI",
+                      "fontSize": "10pt",
+                      "color": "#e8eef4"
                     }
+                  }
+                ],
+                "horizontalTextAlignment": "center"
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": ""
                   }
                 ]
               },
@@ -34,11 +50,17 @@
                   {
                     "value": "Os três primeiros estão a 2,40 / 2,39 / 2,38 desvios da média. São indistinguíveis.",
                     "textStyle": {
-                      "fontSize": "9pt",
-                      "color": "#93A5B8",
-                      "fontWeight": "normal",
-                      "fontFamily": "Segoe UI"
+                      "fontFamily": "Segoe UI",
+                      "fontSize": "10pt",
+                      "color": "#93a5b8"
                     }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": ""
                   }
                 ]
               },
@@ -47,11 +69,17 @@
                   {
                     "value": "O top-1 é outro motor de popa: a métrica encontra substitutos, e cross-sell precisa de complementos.",
                     "textStyle": {
-                      "fontSize": "9pt",
-                      "color": "#D9772A",
-                      "fontWeight": "normal",
-                      "fontFamily": "Segoe UI"
+                      "fontFamily": "Segoe UI",
+                      "fontSize": "10pt",
+                      "color": "#d9772a"
                     }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": ""
                   }
                 ]
               },
@@ -60,10 +88,9 @@
                   {
                     "value": "Por cesta, o vizinho mais frequente é Tinta Antifouling — que faz sentido de negócio.",
                     "textStyle": {
-                      "fontSize": "9pt",
-                      "color": "#93A5B8",
-                      "fontWeight": "normal",
-                      "fontFamily": "Segoe UI"
+                      "fontFamily": "Segoe UI",
+                      "fontSize": "10pt",
+                      "color": "#93a5b8"
                     }
                   }
                 ]
@@ -128,6 +155,19 @@
               "expr": {
                 "Literal": {
                   "Value": "0D"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "border": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
                 }
               }
             }

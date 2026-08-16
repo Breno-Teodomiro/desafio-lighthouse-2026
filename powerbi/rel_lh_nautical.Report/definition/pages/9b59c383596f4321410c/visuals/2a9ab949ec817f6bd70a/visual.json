@@ -4,10 +4,10 @@
   "position": {
     "x": 930,
     "y": 15,
-    "z": 100,
+    "z": 2000,
     "height": 75,
     "width": 335,
-    "tabOrder": 100
+    "tabOrder": 3000
   },
   "visual": {
     "visualType": "slicer",
@@ -50,7 +50,19 @@
       ],
       "general": [
         {
-          "properties": {}
+          "properties": {
+            "outlineColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#1E2E42'"
+                    }
+                  }
+                }
+              }
+            }
+          }
         }
       ],
       "data": [
@@ -97,6 +109,43 @@
                   "Value": "10D"
                 }
               }
+            },
+            "outlineStyle": {
+              "expr": {
+                "Literal": {
+                  "Value": "0D"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "selection": [
+        {
+          "properties": {
+            "selectAllCheckboxEnabled": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "selectionIcon": [
+        {
+          "properties": {
+            "color": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#E8EEF4'"
+                    }
+                  }
+                }
+              }
             }
           }
         }
@@ -109,7 +158,7 @@
             "show": {
               "expr": {
                 "Literal": {
-                  "Value": "true"
+                  "Value": "false"
                 }
               }
             },

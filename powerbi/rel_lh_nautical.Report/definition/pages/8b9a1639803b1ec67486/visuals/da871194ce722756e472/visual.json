@@ -1,13 +1,13 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.11.0/schema.json",
   "name": "da871194ce722756e472",
   "position": {
-    "x": 15,
-    "y": 15,
-    "z": 100,
-    "height": 75,
-    "width": 900,
-    "tabOrder": 100
+    "x": 14.814867737153268,
+    "y": 14.814867737153268,
+    "z": 3000,
+    "height": 74.897386893385971,
+    "width": 1250.2102273742119,
+    "tabOrder": 4000
   },
   "visual": {
     "visualType": "textbox",
@@ -21,10 +21,10 @@
                   {
                     "value": "Vendas e margem",
                     "textStyle": {
-                      "fontSize": "20pt",
-                      "color": "#E8EEF4",
                       "fontWeight": "bold",
-                      "fontFamily": "Segoe UI"
+                      "fontFamily": "Segoe UI",
+                      "fontSize": "20pt",
+                      "color": "#e8eef4"
                     }
                   }
                 ]
@@ -34,10 +34,9 @@
                   {
                     "value": "Grão de item — 147.320 linhas. O desconto do pedido chega aqui rateado pela participação de cada linha.",
                     "textStyle": {
+                      "fontFamily": "Segoe UI",
                       "fontSize": "10pt",
-                      "color": "#93A5B8",
-                      "fontWeight": "normal",
-                      "fontFamily": "Segoe UI"
+                      "color": "#93a5b8"
                     }
                   }
                 ]
