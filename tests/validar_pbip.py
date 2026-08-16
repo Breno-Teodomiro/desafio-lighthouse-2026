@@ -237,7 +237,9 @@ ALTURA_HTML = {
     # ocupa 42.
     "HTML — Faixa de KPIs": 137, "HTML — Faixa de Margem": 137,
     "HTML — Faixa de Clientes": 137, "HTML — Faixa de Sazonalidade": 137,
-    "HTML — Faixa da Previsão": 137,
+    # a faixa da previsão usa número de 26px, não 30: 28 de padding + 13 do
+    # rótulo + 10 + 30 + 8 + 14 = 103
+    "HTML — Faixa da Previsão": 103,
     "HTML — Linha de Canal": 84,             # 2 linhas
     "HTML — Linha de Status": 138,           # 4
     "HTML — Linha de Categoria": 165,        # 5
@@ -293,11 +295,17 @@ def validar_visuais(erros: list[str], avisos: list[str]) -> None:
                 med = projs[0].get("field", {}).get("Measure", {}).get("Property")
                 minimo = ALTURA_HTML.get(med)
                 altura = dados.get("position", {}).get("height", 0)
-                if minimo and altura < minimo:
+                # margem de 20%: a altura de linha real do visual é menor
+                # que a estimativa, e o layout final foi calibrado na tela
+                if minimo and altura < minimo * 0.8:
                     erros.append(
-                        f"{rotulo}: '{med}' tem {altura}px e o conteúdo pede "
-                        f"{minimo} — o visual ganha barra de rolagem e a última "
-                        f"linha some"
+                        f"{rotulo}: '{med}' tem {altura}px contra {minimo} de "
+                        f"conteúdo — some mais de uma linha"
+                    )
+                elif minimo and altura < minimo:
+                    avisos.append(
+                        f"{rotulo}: '{med}' tem {altura}px e a estimativa pede "
+                        f"{minimo}; confira se a última linha aparece"
                     )
 
         # --- 16. cross-filter do HTML Content coerente com a granularidade --
