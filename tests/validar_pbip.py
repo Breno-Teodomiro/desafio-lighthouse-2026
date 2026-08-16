@@ -509,8 +509,12 @@ def main() -> int:
                 erros.append(f"medida '{nome_medida}': tabela '{tab}' não existe")
             elif col not in tabelas[tab]:
                 erros.append(f"medida '{nome_medida}': coluna '{tab}[{col}]' não existe")
-        # Referências a outras medidas: [Nome da Medida]
+        # Referências a outras medidas: [Nome da Medida]. As que começam com
+        # `@` são colunas de tabela virtual criadas por ADDCOLUMNS e só
+        # existem dentro da própria expressão — não são medidas do modelo.
         for ref in re.findall(r"(?<![\w\]])\[([^\]]+)\]", expressao):
+            if ref.startswith("@"):
+                continue
             if ref not in medidas and not any(
                 f"{t}[{ref}]" in expressao for t in tabelas
             ):

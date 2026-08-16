@@ -208,25 +208,16 @@ table _Medidas
 		displayFolder: 7 Recomendação
 		lineageTag: 60990c74-193c-909e-2224-536c87377f0a
 
-	/// FAIXA DE KPIs — visual "HTML Content (lite)", forma BLOCO.
+	/// OS CINCO INDICADORES DA CAPA.
 	///
-	/// Os cinco indicadores da capa: número em peso 200, rótulo em versalete
-	/// espaçado, barra de proporção na receita efetivada e uma linha de contexto
-	/// por indicador, que o cartão nativo não comporta.
-	///
-	/// RECEBE filtro como qualquer medida — mexer no segmentador de status
-	/// reescreve os cinco números e a largura da barra. NÃO EMITE filtro, e é
-	/// deliberado: uma faixa de KPIs é para ler, não para clicar.
-	///
-	/// CSS INLINE POR OBRIGAÇÃO: o visual roda num iframe com apenas
-	/// `allow-scripts`, que bloqueia toda tag <script> externa. Nenhum CDN
-	/// carrega ali — nem Tailwind, nem fonte do Google.
+	/// FORMA BLOCO — devolve o componente inteiro, então o visual recebe uma
+	/// linha só e não emite filtro. Recebe filtro normalmente.
 	measure 'HTML — Faixa de KPIs' =
 			VAR _Bruta     = [Receita Bruta]
 			VAR _Efetivada = [Receita Efetivada]
 			VAR _Pct       = DIVIDE(_Efetivada, _Bruta)
 			RETURN
-			    "<div style=""display:flex;gap:10px;font-family:Segoe UI,-apple-system,Roboto,sans-serif;"">"
+			    "<div style=""display:flex;flex-direction:row;gap:10px;font-family:Segoe UI,-apple-system,Roboto,sans-serif;"">"
 			& "<div style=""flex:1;min-width:0;background:#12203366;border:1px solid #1E2E42;border-radius:14px;padding:14px 16px;"">"
 			& "<div style=""font-size:10px;letter-spacing:.10em;text-transform:uppercase;color:#93A5B8;font-weight:600;white-space:nowrap;"">Receita Bruta</div>"
 			& "<div style=""font-size:30px;line-height:1.1;font-weight:200;color:#E8EEF4;margin-top:10px;white-space:nowrap;"">" & FORMAT(_Bruta / 1000000, "R$ #,##0") & " Mi" & "</div>"
@@ -257,103 +248,631 @@ table _Medidas
 		displayFolder: 0 HTML
 		lineageTag: 1378e373-12a9-677e-5ca8-395682d3e749
 
-	/// TOP PRODUTOS POR MARGEM, uma linha por produto.
+	/// RECEITA MENSAL, BRUTA E EFETIVADA, em SVG.
 	///
-	/// A barra é proporcional ao MAIOR DA LISTA, não a 100%: as margens vão
-	/// de 37% a 53%, e num eixo de 0 a 100 nada se distinguiria. O valor
-	/// absoluto vai no rótulo, então a escala relativa não engana.
+	/// A distância entre as duas linhas é o dinheiro que nunca virou receita —
+	/// R$ 207,1 milhões no período inteiro.
+	///
+	/// FORMA BLOCO — devolve o componente inteiro, então o visual recebe uma
+	/// linha só e não emite filtro. Recebe filtro normalmente.
+	measure 'HTML — Série de Receita' =
+			VAR _Base = ALLSELECTED(dim_data[ano_mes])
+			VAR _T =
+			    ADDCOLUMNS(
+			        _Base,
+			        "@i", RANKX(_Base, dim_data[ano_mes],, ASC) - 1,
+			        "@v1", [Receita Bruta],
+			        "@v2", [Receita Efetivada]
+			    )
+			VAR _N   = COUNTROWS(_T) - 1
+			VAR _Max = MAXX(_T, COALESCE([@v1], 0) + COALESCE([@v2], 0))
+			VAR _P1 =
+			    CONCATENATEX(
+			        FILTER(_T, NOT ISBLANK([@v1])),
+			        FORMAT([@i], "0") & "," & FORMAT(96 - DIVIDE([@v1], _Max) * 90, "0.00"),
+			        " ", [@i], ASC
+			    )
+			VAR _P2 =
+			    CONCATENATEX(
+			        FILTER(_T, NOT ISBLANK([@v2])),
+			        FORMAT([@i], "0") & "," & FORMAT(96 - DIVIDE([@v2], _Max) * 90, "0.00"),
+			        " ", [@i], ASC
+			    )
+			RETURN
+			    "<div style=""font-family:Segoe UI,-apple-system,Roboto,sans-serif;"">"
+			  & "<svg viewBox=""0 0 " & _N & " 96"" preserveAspectRatio=""none"" style=""width:100%;height:96px;display:block;"">"
+			  & "<defs><lineargradient id=""lhg"" x1=""0"" y1=""0"" x2=""0"" y2=""1""><stop offset=""0%"" stop-color=""#2D9CDB"" stop-opacity="".45""></stop><stop offset=""100%"" stop-color=""#2D9CDB"" stop-opacity=""0""></stop></lineargradient></defs>"
+			  & "<polygon fill=""url(#lhg)"" points=""0,96 " & _P1 & " " & _N & ",96""></polygon>"
+			  & "<polyline fill=""none"" stroke=""#2D9CDB"" stroke-width=""1.6"" vector-effect=""non-scaling-stroke"" stroke-linejoin=""round"" stroke-linecap=""round"" points=""" & _P1 & """></polyline>"
+			  & "<polyline fill=""none"" stroke=""#D9772A"" stroke-width=""1.6"" vector-effect=""non-scaling-stroke"" stroke-linejoin=""round"" stroke-linecap=""round"" points=""" & _P2 & """></polyline>"
+			  & "</svg></div>"
+		displayFolder: 0 HTML
+		lineageTag: 00852169-6575-0cbc-b5a7-624ab13095ef
+
+	/// RECEITA POR STATUS DO PEDIDO.
 	///
 	/// FORMA LINHA — devolve UMA linha, e a coluna de granularidade entra no
 	/// papel `sampling` do visual. É isso que dá cross-filter: o visual cria um
 	/// selectionId por linha, e clicar filtra a página como um gráfico nativo.
-	/// Sem campo em `sampling`, a opção de cross-filter nem aparece.
-	///
-	/// O top N sai do BLANK: fora do corte a medida devolve vazio e o Power BI
-	/// descarta a linha, sem precisar de filtro de visual.
-	measure 'HTML — Linha de Produto' =
-			VAR _V   = [% Margem Líquida]
-			VAR _Pos = RANKX(ALLSELECTED(dim_produto[produto]), [% Margem Líquida],, DESC)
-			VAR _Max = MAXX(TOPN(10, ALLSELECTED(dim_produto[produto]), [% Margem Líquida], DESC), [% Margem Líquida])
+	measure 'HTML — Linha de Status' =
+			VAR _V   = [Receita Bruta]
+			VAR _Max = MAXX(TOPN(4, ALLSELECTED(dim_status_pedido[status_exibicao]), [Receita Bruta], DESC), [Receita Bruta])
+			VAR _Pos = RANKX(ALLSELECTED(dim_status_pedido[status_exibicao]), [Receita Bruta],, DESC)
+			VAR _Dentro = _Pos <= 4
 			RETURN
 			    IF(
-			        _Pos <= 10,
-			        "<div style=""display:flex;align-items:center;gap:10px;padding:2px 2px;font-family:Segoe UI,-apple-system,Roboto,sans-serif;"">"
+			        _Dentro,
+			        "<div style=""display:flex;align-items:center;gap:9px;padding:2px 2px;font-family:Segoe UI,-apple-system,Roboto,sans-serif;"">"
 			      & "<div style=""width:18px;font-size:11px;color:#6F8299;text-align:right;flex:none;"">" & _Pos & "</div>"
-			      & "<div style=""width:150px;font-size:12px;color:#E8EEF4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:none;"">"
-			      & SELECTEDVALUE(dim_produto[produto]) & "</div>"
-			      & "<div style=""flex:1;height:8px;background:#16233A;border-radius:4px;overflow:hidden;min-width:30px;""><div style=""height:8px;border-radius:4px;background:linear-gradient(90deg,#D9772A,#D9772A66);width:"
+			      & "<div style=""width:104px;font-size:12px;color:#E8EEF4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:none;"">"
+			      & SELECTEDVALUE(dim_status_pedido[status_exibicao]) & "</div>"
+			      & "<div style=""flex:1;height:8px;background:#16233A;border-radius:4px;overflow:hidden;min-width:26px;""><div style=""height:8px;border-radius:4px;background:linear-gradient(90deg,#2D9CDB,#2D9CDB66);width:"
 			      & FORMAT(DIVIDE(_V, _Max) * 100, "0.0")
 			      & "%""></div></div>"
-			      & "<div style=""width:78px;text-align:right;font-size:12px;color:#93A5B8;flex:none;"">" & FORMAT(_V, "0.00%")
-			      & "</div></div>"
+			      & "<div style=""width:78px;text-align:right;font-size:12px;color:#93A5B8;flex:none;line-height:1.35;"">" & FORMAT(_V, "R$ #,##0,, "" Mi""") & "</div>"
+			      & "</div>"
+			    )
+		displayFolder: 0 HTML
+		lineageTag: 7a335205-a896-783c-1519-5020dd69f4b1
+
+	/// PEDIDOS POR CANAL.
+	///
+	/// FORMA LINHA — devolve UMA linha, e a coluna de granularidade entra no
+	/// papel `sampling` do visual. É isso que dá cross-filter: o visual cria um
+	/// selectionId por linha, e clicar filtra a página como um gráfico nativo.
+	measure 'HTML — Linha de Canal' =
+			VAR _V   = [Nº Pedidos]
+			VAR _Max = MAXX(TOPN(2, ALLSELECTED(dim_canal[canal_exibicao]), [Nº Pedidos], DESC), [Nº Pedidos])
+			VAR _Pos = RANKX(ALLSELECTED(dim_canal[canal_exibicao]), [Nº Pedidos],, DESC)
+			VAR _Dentro = _Pos <= 2
+			RETURN
+			    IF(
+			        _Dentro,
+			        "<div style=""display:flex;align-items:center;gap:9px;padding:2px 2px;font-family:Segoe UI,-apple-system,Roboto,sans-serif;"">"
+			      & "<div style=""width:18px;font-size:11px;color:#6F8299;text-align:right;flex:none;"">" & _Pos & "</div>"
+			      & "<div style=""width:92px;font-size:12px;color:#E8EEF4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:none;"">"
+			      & SELECTEDVALUE(dim_canal[canal_exibicao]) & "</div>"
+			      & "<div style=""flex:1;height:8px;background:#16233A;border-radius:4px;overflow:hidden;min-width:26px;""><div style=""height:8px;border-radius:4px;background:linear-gradient(90deg,#8B7AE8,#8B7AE866);width:"
+			      & FORMAT(DIVIDE(_V, _Max) * 100, "0.0")
+			      & "%""></div></div>"
+			      & "<div style=""width:78px;text-align:right;font-size:12px;color:#93A5B8;flex:none;line-height:1.35;"">" & FORMAT(_V, "#,##0") & "</div>"
+			      & "</div>"
+			    )
+		displayFolder: 0 HTML
+		lineageTag: d2a2796e-4385-56bf-c7ef-5ef6fca0abc9
+
+	/// AS CINCO MAIORES CATEGORIAS POR MARGEM LÍQUIDA.
+	///
+	/// FORMA LINHA — devolve UMA linha, e a coluna de granularidade entra no
+	/// papel `sampling` do visual. É isso que dá cross-filter: o visual cria um
+	/// selectionId por linha, e clicar filtra a página como um gráfico nativo.
+	measure 'HTML — Linha de Categoria' =
+			VAR _V   = [Margem Líquida R$]
+			VAR _Max = MAXX(TOPN(5, ALLSELECTED(dim_produto[categoria]), [Margem Líquida R$], DESC), [Margem Líquida R$])
+			VAR _Pos = RANKX(ALLSELECTED(dim_produto[categoria]), [Margem Líquida R$],, DESC)
+			VAR _Dentro = _Pos <= 5
+			RETURN
+			    IF(
+			        _Dentro,
+			        "<div style=""display:flex;align-items:center;gap:9px;padding:2px 2px;font-family:Segoe UI,-apple-system,Roboto,sans-serif;"">"
+			      & "<div style=""width:18px;font-size:11px;color:#6F8299;text-align:right;flex:none;"">" & _Pos & "</div>"
+			      & "<div style=""width:120px;font-size:12px;color:#E8EEF4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:none;"">"
+			      & SELECTEDVALUE(dim_produto[categoria]) & "</div>"
+			      & "<div style=""flex:1;height:8px;background:#16233A;border-radius:4px;overflow:hidden;min-width:26px;""><div style=""height:8px;border-radius:4px;background:linear-gradient(90deg,#D9772A,#D9772A66);width:"
+			      & FORMAT(DIVIDE(_V, _Max) * 100, "0.0")
+			      & "%""></div></div>"
+			      & "<div style=""width:78px;text-align:right;font-size:12px;color:#93A5B8;flex:none;line-height:1.35;"">" & FORMAT(_V, "R$ #,##0,, "" Mi""") & "</div>"
+			      & "</div>"
+			    )
+		displayFolder: 0 HTML
+		lineageTag: 56ad3982-3298-9a25-39fd-7cecede4adab
+
+	/// INDICADORES DE MARGEM.
+	///
+	/// O terceiro cartão troca o `% Margem Bruta` do desenho antigo pelo
+	/// DESCONTO em reais — a diferença entre as duas margens, que é o número
+	/// que ninguém olha e explica o resto da página.
+	///
+	/// FORMA BLOCO — devolve o componente inteiro, então o visual recebe uma
+	/// linha só e não emite filtro. Recebe filtro normalmente.
+	measure 'HTML — Faixa de Margem' =
+			RETURN
+			    "<div style=""display:flex;flex-direction:row;gap:10px;font-family:Segoe UI,-apple-system,Roboto,sans-serif;"">"
+			& "<div style=""flex:1;min-width:0;background:#12203366;border:1px solid #1E2E42;border-radius:14px;padding:14px 16px;"">"
+			& "<div style=""font-size:10px;letter-spacing:.10em;text-transform:uppercase;color:#93A5B8;font-weight:600;white-space:nowrap;"">Receita de Itens</div>"
+			& "<div style=""font-size:30px;line-height:1.1;font-weight:200;color:#E8EEF4;margin-top:10px;white-space:nowrap;"">" & FORMAT([Receita de Itens] / 1000000, "R$ #,##0") & " Mi" & "</div>"
+			& "<div style=""font-size:11px;color:#6F8299;margin-top:8px;white-space:nowrap;"">" & "grão de item — 147.320 linhas" & "</div>"
+			& "</div>"
+			& "<div style=""flex:1;min-width:0;background:#12203366;border:1px solid #1E2E42;border-radius:14px;padding:14px 16px;"">"
+			& "<div style=""font-size:10px;letter-spacing:.10em;text-transform:uppercase;color:#93A5B8;font-weight:600;white-space:nowrap;"">Margem Bruta</div>"
+			& "<div style=""font-size:30px;line-height:1.1;font-weight:200;color:#E8EEF4;margin-top:10px;white-space:nowrap;"">" & FORMAT([Margem Bruta R$] / 1000000, "R$ #,##0") & " Mi" & "</div>"
+			& "<div style=""font-size:11px;color:#6F8299;margin-top:8px;white-space:nowrap;"">" & FORMAT([% Margem Bruta], "0.00%") & " da receita" & "</div>"
+			& "</div>"
+			& "<div style=""flex:1;min-width:0;background:#12203366;border:1px solid #1E2E42;border-radius:14px;padding:14px 16px;"">"
+			& "<div style=""font-size:10px;letter-spacing:.10em;text-transform:uppercase;color:#93A5B8;font-weight:600;white-space:nowrap;"">Desconto</div>"
+			& "<div style=""font-size:30px;line-height:1.1;font-weight:200;color:#D9772A;margin-top:10px;white-space:nowrap;"">" & FORMAT(([Margem Bruta R$] - [Margem Líquida R$]) / 1000000, "R$ #,##0") & " Mi" & "</div>"
+			& "<div style=""font-size:11px;color:#6F8299;margin-top:8px;white-space:nowrap;"">" & "rateado por linha de item" & "</div>"
+			& "</div>"
+			& "<div style=""flex:1;min-width:0;background:#12203366;border:1px solid #1E2E42;border-radius:14px;padding:14px 16px;"">"
+			& "<div style=""font-size:10px;letter-spacing:.10em;text-transform:uppercase;color:#93A5B8;font-weight:600;white-space:nowrap;"">Margem Líquida</div>"
+			& "<div style=""font-size:30px;line-height:1.1;font-weight:200;color:#E8EEF4;margin-top:10px;white-space:nowrap;"">" & FORMAT([Margem Líquida R$] / 1000000, "R$ #,##0") & " Mi" & "</div>"
+			& "<div style=""font-size:11px;color:#6F8299;margin-top:8px;white-space:nowrap;"">" & "depois do desconto" & "</div>"
+			& "</div>"
+			& "<div style=""flex:1;min-width:0;background:#12203366;border:1px solid #1E2E42;border-radius:14px;padding:14px 16px;"">"
+			& "<div style=""font-size:10px;letter-spacing:.10em;text-transform:uppercase;color:#93A5B8;font-weight:600;white-space:nowrap;"">% Margem Líquida</div>"
+			& "<div style=""font-size:30px;line-height:1.1;font-weight:200;color:#2D9CDB;margin-top:10px;white-space:nowrap;"">" & FORMAT([% Margem Líquida], "0.00%") & "</div>"
+			& "<div style=""font-size:11px;color:#6F8299;margin-top:8px;white-space:nowrap;"">" & "estável em todo o período" & "</div>"
+			& "</div>"
+			& "</div>"
+		displayFolder: 0 HTML
+		lineageTag: 0817ed3d-d400-a80f-3535-1cdfee8d036b
+
+	/// RECEITA E MARGEM POR CATEGORIA, as duas barras empilhadas.
+	///
+	/// Empilhadas e não lado a lado porque a comparação é entre as DUAS de uma
+	/// mesma categoria, não entre categorias — e é a proporção constante entre
+	/// elas que sustenta o título da página.
+	///
+	/// FORMA LINHA — devolve UMA linha, e a coluna de granularidade entra no
+	/// papel `sampling` do visual. É isso que dá cross-filter: o visual cria um
+	/// selectionId por linha, e clicar filtra a página como um gráfico nativo.
+	measure 'HTML — Linha de Categoria Dupla' =
+			VAR _V   = [Receita de Itens]
+			VAR _V2  = [Margem Líquida R$]
+			VAR _Max = MAXX(TOPN(14, ALLSELECTED(dim_produto[categoria]), [Receita de Itens], DESC), [Receita de Itens])
+			VAR _Max2 = MAXX(TOPN(14, ALLSELECTED(dim_produto[categoria]), [Margem Líquida R$], DESC), [Margem Líquida R$])
+			VAR _Pos = RANKX(ALLSELECTED(dim_produto[categoria]), [Receita de Itens],, DESC)
+			VAR _Dentro = _Pos <= 14
+			RETURN
+			    IF(
+			        _Dentro,
+			        "<div style=""display:flex;align-items:center;gap:9px;padding:2px 2px;font-family:Segoe UI,-apple-system,Roboto,sans-serif;"">"
+			      & "<div style=""width:18px;font-size:11px;color:#6F8299;text-align:right;flex:none;"">" & _Pos & "</div>"
+			      & "<div style=""width:116px;font-size:12px;color:#E8EEF4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:none;"">"
+			      & SELECTEDVALUE(dim_produto[categoria]) & "</div>"
+			      & "<div style=""flex:1;min-width:40px;"">"
+			      & "<div style=""flex:1;height:7px;background:#16233A;border-radius:3px;overflow:hidden;min-width:26px;""><div style=""height:7px;border-radius:3px;background:linear-gradient(90deg,#2D9CDB,#2D9CDB66);width:"
+			      & FORMAT(DIVIDE(_V, _Max) * 100, "0.0")
+			      & "%""></div></div>"
+			      & "<div style=""flex:1;height:7px;background:#16233A;border-radius:3px;overflow:hidden;min-width:26px;margin-top:3px;""><div style=""height:7px;border-radius:3px;background:linear-gradient(90deg,#D9772A,#D9772A66);width:"
+			      & FORMAT(DIVIDE(_V2, _Max2) * 100, "0.0")
+			      & "%""></div></div></div>"
+			      & "<div style=""width:68px;text-align:right;font-size:12px;color:#93A5B8;flex:none;line-height:1.35;"">" & FORMAT(_V, "R$ #,##0,, "" Mi""")
+			      & "<br><span style=""color:#D9772A;"">" & FORMAT(_V2, "R$ #,##0,, "" Mi""") & "</span></div>"
+			      & "</div>"
+			    )
+		displayFolder: 0 HTML
+		lineageTag: 4b414eea-e226-da9f-d951-e9b178283d78
+
+	/// TOP 10 PRODUTOS POR MARGEM.
+	///
+	/// A barra é proporcional ao MAIOR DA LISTA, não a 100%: as margens vão de
+	/// 37% a 53%, e num eixo de 0 a 100 nada se distinguiria. O valor absoluto
+	/// vai no rótulo, então a escala relativa não engana.
+	///
+	/// FORMA LINHA — devolve UMA linha, e a coluna de granularidade entra no
+	/// papel `sampling` do visual. É isso que dá cross-filter: o visual cria um
+	/// selectionId por linha, e clicar filtra a página como um gráfico nativo.
+	measure 'HTML — Linha de Produto' =
+			VAR _V   = [% Margem Líquida]
+			VAR _Max = MAXX(TOPN(10, ALLSELECTED(dim_produto[produto]), [% Margem Líquida], DESC), [% Margem Líquida])
+			VAR _Pos = RANKX(ALLSELECTED(dim_produto[produto]), [% Margem Líquida],, DESC)
+			VAR _Dentro = _Pos <= 10
+			RETURN
+			    IF(
+			        _Dentro,
+			        "<div style=""display:flex;align-items:center;gap:9px;padding:2px 2px;font-family:Segoe UI,-apple-system,Roboto,sans-serif;"">"
+			      & "<div style=""width:18px;font-size:11px;color:#6F8299;text-align:right;flex:none;"">" & _Pos & "</div>"
+			      & "<div style=""width:168px;font-size:12px;color:#E8EEF4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:none;"">"
+			      & SELECTEDVALUE(dim_produto[produto]) & "</div>"
+			      & "<div style=""flex:1;height:8px;background:#16233A;border-radius:4px;overflow:hidden;min-width:26px;""><div style=""height:8px;border-radius:4px;background:linear-gradient(90deg,#D9772A,#D9772A66);width:"
+			      & FORMAT(DIVIDE(_V, _Max) * 100, "0.0")
+			      & "%""></div></div>"
+			      & "<div style=""width:78px;text-align:right;font-size:12px;color:#93A5B8;flex:none;line-height:1.35;"">" & FORMAT(_V, "0.00%") & "</div>"
+			      & "</div>"
 			    )
 		displayFolder: 0 HTML
 		lineageTag: 05c25cd0-2bc7-e264-48e8-8eceb4decc6d
 
-	/// RANKING DA QUESTÃO 7, uma linha por produto.
+	/// MARGEM PERCENTUAL MÊS A MÊS, em SVG.
 	///
-	/// Quatro casas decimais de propósito: o 1º ganha do 2º por 0,0003, e
-	/// arredondar para duas empataria os três primeiros — que é exatamente
-	/// o argumento da resposta.
+	/// FORMA BLOCO — devolve o componente inteiro, então o visual recebe uma
+	/// linha só e não emite filtro. Recebe filtro normalmente.
+	measure 'HTML — Série de Margem' =
+			VAR _Base = ALLSELECTED(dim_data[ano_mes])
+			VAR _T =
+			    ADDCOLUMNS(
+			        _Base,
+			        "@i", RANKX(_Base, dim_data[ano_mes],, ASC) - 1,
+			        "@v1", [% Margem Líquida]
+			    )
+			VAR _N   = COUNTROWS(_T) - 1
+			VAR _Max = MAXX(_T, COALESCE([@v1], 0))
+			VAR _P1 =
+			    CONCATENATEX(
+			        FILTER(_T, NOT ISBLANK([@v1])),
+			        FORMAT([@i], "0") & "," & FORMAT(96 - DIVIDE([@v1], _Max) * 90, "0.00"),
+			        " ", [@i], ASC
+			    )
+			RETURN
+			    "<div style=""font-family:Segoe UI,-apple-system,Roboto,sans-serif;"">"
+			  & "<svg viewBox=""0 0 " & _N & " 96"" preserveAspectRatio=""none"" style=""width:100%;height:96px;display:block;"">"
+			  & "<defs><lineargradient id=""lhg"" x1=""0"" y1=""0"" x2=""0"" y2=""1""><stop offset=""0%"" stop-color=""#2D9CDB"" stop-opacity="".45""></stop><stop offset=""100%"" stop-color=""#2D9CDB"" stop-opacity=""0""></stop></lineargradient></defs>"
+			  & "<polygon fill=""url(#lhg)"" points=""0,96 " & _P1 & " " & _N & ",96""></polygon>"
+			  & "<polyline fill=""none"" stroke=""#2D9CDB"" stroke-width=""1.6"" vector-effect=""non-scaling-stroke"" stroke-linejoin=""round"" stroke-linecap=""round"" points=""" & _P1 & """></polyline>"
+			  & "</svg></div>"
+		displayFolder: 0 HTML
+		lineageTag: 3a8a01ad-3c02-b88d-79de-92bdcef23fd1
+
+	/// INDICADORES DE CLIENTE.
+	///
+	/// FORMA BLOCO — devolve o componente inteiro, então o visual recebe uma
+	/// linha só e não emite filtro. Recebe filtro normalmente.
+	measure 'HTML — Faixa de Clientes' =
+			RETURN
+			    "<div style=""display:flex;flex-direction:row;gap:10px;font-family:Segoe UI,-apple-system,Roboto,sans-serif;"">"
+			& "<div style=""flex:1;min-width:0;background:#12203366;border:1px solid #1E2E42;border-radius:14px;padding:14px 16px;"">"
+			& "<div style=""font-size:10px;letter-spacing:.10em;text-transform:uppercase;color:#93A5B8;font-weight:600;white-space:nowrap;"">Clientes</div>"
+			& "<div style=""font-size:30px;line-height:1.1;font-weight:200;color:#E8EEF4;margin-top:10px;white-space:nowrap;"">" & FORMAT([Clientes], "#,##0") & "</div>"
+			& "<div style=""font-size:11px;color:#6F8299;margin-top:8px;white-space:nowrap;"">" & "todos compraram" & "</div>"
+			& "</div>"
+			& "<div style=""flex:1;min-width:0;background:#12203366;border:1px solid #1E2E42;border-radius:14px;padding:14px 16px;"">"
+			& "<div style=""font-size:10px;letter-spacing:.10em;text-transform:uppercase;color:#93A5B8;font-weight:600;white-space:nowrap;"">Ticket Médio</div>"
+			& "<div style=""font-size:30px;line-height:1.1;font-weight:200;color:#2D9CDB;margin-top:10px;white-space:nowrap;"">" & FORMAT([Ticket Médio], "R$ #,##0.00") & "</div>"
+			& "<div style=""font-size:11px;color:#6F8299;margin-top:8px;white-space:nowrap;"">" & "o critério do ranking" & "</div>"
+			& "</div>"
+			& "<div style=""flex:1;min-width:0;background:#12203366;border:1px solid #1E2E42;border-radius:14px;padding:14px 16px;"">"
+			& "<div style=""font-size:10px;letter-spacing:.10em;text-transform:uppercase;color:#93A5B8;font-weight:600;white-space:nowrap;"">Pedidos</div>"
+			& "<div style=""font-size:30px;line-height:1.1;font-weight:200;color:#E8EEF4;margin-top:10px;white-space:nowrap;"">" & FORMAT([Nº Pedidos], "#,##0") & "</div>"
+			& "<div style=""font-size:11px;color:#6F8299;margin-top:8px;white-space:nowrap;"">" & "2020 a 2026" & "</div>"
+			& "</div>"
+			& "<div style=""flex:1;min-width:0;background:#12203366;border:1px solid #1E2E42;border-radius:14px;padding:14px 16px;"">"
+			& "<div style=""font-size:10px;letter-spacing:.10em;text-transform:uppercase;color:#93A5B8;font-weight:600;white-space:nowrap;"">Itens Vendidos</div>"
+			& "<div style=""font-size:30px;line-height:1.1;font-weight:200;color:#E8EEF4;margin-top:10px;white-space:nowrap;"">" & FORMAT([Itens Vendidos], "#,##0") & "</div>"
+			& "<div style=""font-size:11px;color:#6F8299;margin-top:8px;white-space:nowrap;"">" & "soma das quantidades" & "</div>"
+			& "</div>"
+			& "<div style=""flex:1;min-width:0;background:#12203366;border:1px solid #1E2E42;border-radius:14px;padding:14px 16px;"">"
+			& "<div style=""font-size:10px;letter-spacing:.10em;text-transform:uppercase;color:#93A5B8;font-weight:600;white-space:nowrap;"">Taxa de Devolução</div>"
+			& "<div style=""font-size:30px;line-height:1.1;font-weight:200;color:#D9772A;margin-top:10px;white-space:nowrap;"">" & FORMAT([Taxa de Devolução], "0.00%") & "</div>"
+			& "<div style=""font-size:11px;color:#6F8299;margin-top:8px;white-space:nowrap;"">" & "sobre itens vendidos" & "</div>"
+			& "</div>"
+			& "</div>"
+		displayFolder: 0 HTML
+		lineageTag: 2445292e-49bd-eea5-37c5-19d490958350
+
+	/// TOP 10 CLIENTES POR TICKET MÉDIO — o ranking literal da Questão 4.
 	///
 	/// FORMA LINHA — devolve UMA linha, e a coluna de granularidade entra no
 	/// papel `sampling` do visual. É isso que dá cross-filter: o visual cria um
 	/// selectionId por linha, e clicar filtra a página como um gráfico nativo.
-	/// Sem campo em `sampling`, a opção de cross-filter nem aparece.
-	///
-	/// O top N sai do BLANK: fora do corte a medida devolve vazio e o Power BI
-	/// descarta a linha, sem precisar de filtro de visual.
-	measure 'HTML — Linha de Similar' =
-			VAR _V   = [Similaridade de Cosseno]
-			VAR _Pos = RANKX(ALLSELECTED(fct_similaridade_produto[produto]), [Similaridade de Cosseno],, DESC)
-			VAR _Max = MAXX(TOPN(10, ALLSELECTED(fct_similaridade_produto[produto]), [Similaridade de Cosseno], DESC), [Similaridade de Cosseno])
+	measure 'HTML — Linha de Cliente' =
+			VAR _V   = [Ticket Médio]
+			VAR _Max = MAXX(TOPN(10, ALLSELECTED(dim_cliente[cliente]), [Ticket Médio], DESC), [Ticket Médio])
+			VAR _Pos = RANKX(ALLSELECTED(dim_cliente[cliente]), [Ticket Médio],, DESC)
+			VAR _Dentro = _Pos <= 10
 			RETURN
 			    IF(
-			        _Pos <= 10,
-			        "<div style=""display:flex;align-items:center;gap:10px;padding:2px 2px;font-family:Segoe UI,-apple-system,Roboto,sans-serif;"">"
+			        _Dentro,
+			        "<div style=""display:flex;align-items:center;gap:9px;padding:2px 2px;font-family:Segoe UI,-apple-system,Roboto,sans-serif;"">"
+			      & "<div style=""width:18px;font-size:11px;color:#6F8299;text-align:right;flex:none;"">" & _Pos & "</div>"
+			      & "<div style=""width:168px;font-size:12px;color:#E8EEF4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:none;"">"
+			      & SELECTEDVALUE(dim_cliente[cliente]) & "</div>"
+			      & "<div style=""flex:1;height:8px;background:#16233A;border-radius:4px;overflow:hidden;min-width:26px;""><div style=""height:8px;border-radius:4px;background:linear-gradient(90deg,#8B7AE8,#8B7AE866);width:"
+			      & FORMAT(DIVIDE(_V, _Max) * 100, "0.0")
+			      & "%""></div></div>"
+			      & "<div style=""width:78px;text-align:right;font-size:12px;color:#93A5B8;flex:none;line-height:1.35;"">" & FORMAT(_V, "R$ #,##0") & "</div>"
+			      & "</div>"
+			    )
+		displayFolder: 0 HTML
+		lineageTag: f9ec154e-f3b6-8a6e-acb8-65a8c58562d2
+
+	/// TICKET × FATURAMENTO, no mesmo cliente.
+	///
+	/// As duas barras raramente acompanham uma à outra, e é esse descompasso
+	/// que mostra que ticket alto não é o mesmo que cliente valioso.
+	///
+	/// FORMA LINHA — devolve UMA linha, e a coluna de granularidade entra no
+	/// papel `sampling` do visual. É isso que dá cross-filter: o visual cria um
+	/// selectionId por linha, e clicar filtra a página como um gráfico nativo.
+	measure 'HTML — Linha de Cliente Dupla' =
+			VAR _V   = [Ticket Médio]
+			VAR _V2  = [Receita Bruta]
+			VAR _Max = MAXX(TOPN(10, ALLSELECTED(dim_cliente[cliente]), [Ticket Médio], DESC), [Ticket Médio])
+			VAR _Max2 = MAXX(TOPN(10, ALLSELECTED(dim_cliente[cliente]), [Receita Bruta], DESC), [Receita Bruta])
+			VAR _Pos = RANKX(ALLSELECTED(dim_cliente[cliente]), [Ticket Médio],, DESC)
+			VAR _Dentro = _Pos <= 10
+			RETURN
+			    IF(
+			        _Dentro,
+			        "<div style=""display:flex;align-items:center;gap:9px;padding:2px 2px;font-family:Segoe UI,-apple-system,Roboto,sans-serif;"">"
+			      & "<div style=""width:18px;font-size:11px;color:#6F8299;text-align:right;flex:none;"">" & _Pos & "</div>"
+			      & "<div style=""width:96px;font-size:12px;color:#E8EEF4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:none;"">"
+			      & SELECTEDVALUE(dim_cliente[cliente]) & "</div>"
+			      & "<div style=""flex:1;min-width:40px;"">"
+			      & "<div style=""flex:1;height:7px;background:#16233A;border-radius:3px;overflow:hidden;min-width:26px;""><div style=""height:7px;border-radius:3px;background:linear-gradient(90deg,#2D9CDB,#2D9CDB66);width:"
+			      & FORMAT(DIVIDE(_V, _Max) * 100, "0.0")
+			      & "%""></div></div>"
+			      & "<div style=""flex:1;height:7px;background:#16233A;border-radius:3px;overflow:hidden;min-width:26px;margin-top:3px;""><div style=""height:7px;border-radius:3px;background:linear-gradient(90deg,#D9772A,#D9772A66);width:"
+			      & FORMAT(DIVIDE(_V2, _Max2) * 100, "0.0")
+			      & "%""></div></div></div>"
+			      & "<div style=""width:62px;text-align:right;font-size:12px;color:#93A5B8;flex:none;line-height:1.35;"">" & FORMAT(_V, "R$ #,##0")
+			      & "<br><span style=""color:#D9772A;"">" & FORMAT(_V2, "R$ #,##0,, "" Mi""") & "</span></div>"
+			      & "</div>"
+			    )
+		displayFolder: 0 HTML
+		lineageTag: be766c21-0b14-fe70-cafd-7fdabd01d8ee
+
+	/// CATEGORIAS POR ITENS VENDIDOS.
+	///
+	/// FORMA LINHA — devolve UMA linha, e a coluna de granularidade entra no
+	/// papel `sampling` do visual. É isso que dá cross-filter: o visual cria um
+	/// selectionId por linha, e clicar filtra a página como um gráfico nativo.
+	measure 'HTML — Linha de Categoria Itens' =
+			VAR _V   = [Itens Vendidos]
+			VAR _Max = MAXX(TOPN(4, ALLSELECTED(dim_produto[categoria]), [Itens Vendidos], DESC), [Itens Vendidos])
+			VAR _Pos = RANKX(ALLSELECTED(dim_produto[categoria]), [Itens Vendidos],, DESC)
+			VAR _Dentro = _Pos <= 4
+			RETURN
+			    IF(
+			        _Dentro,
+			        "<div style=""display:flex;align-items:center;gap:9px;padding:2px 2px;font-family:Segoe UI,-apple-system,Roboto,sans-serif;"">"
+			      & "<div style=""width:18px;font-size:11px;color:#6F8299;text-align:right;flex:none;"">" & _Pos & "</div>"
+			      & "<div style=""width:88px;font-size:12px;color:#E8EEF4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:none;"">"
+			      & SELECTEDVALUE(dim_produto[categoria]) & "</div>"
+			      & "<div style=""flex:1;height:8px;background:#16233A;border-radius:4px;overflow:hidden;min-width:26px;""><div style=""height:8px;border-radius:4px;background:linear-gradient(90deg,#2D9CDB,#2D9CDB66);width:"
+			      & FORMAT(DIVIDE(_V, _Max) * 100, "0.0")
+			      & "%""></div></div>"
+			      & "<div style=""width:62px;text-align:right;font-size:12px;color:#93A5B8;flex:none;line-height:1.35;"">" & FORMAT(_V, "#,##0") & "</div>"
+			      & "</div>"
+			    )
+		displayFolder: 0 HTML
+		lineageTag: d2363932-5610-be59-c717-9c88f833870e
+
+	/// OS QUATRO NÚMEROS DA QUESTÃO 5.
+	///
+	/// FORMA BLOCO — devolve o componente inteiro, então o visual recebe uma
+	/// linha só e não emite filtro. Recebe filtro normalmente.
+	measure 'HTML — Faixa de Sazonalidade' =
+			RETURN
+			    "<div style=""display:flex;flex-direction:row;gap:10px;font-family:Segoe UI,-apple-system,Roboto,sans-serif;"">"
+			& "<div style=""flex:1;min-width:0;background:#12203366;border:1px solid #1E2E42;border-radius:14px;padding:14px 16px;"">"
+			& "<div style=""font-size:10px;letter-spacing:.10em;text-transform:uppercase;color:#93A5B8;font-weight:600;white-space:nowrap;"">Média Correta</div>"
+			& "<div style=""font-size:30px;line-height:1.1;font-weight:200;color:#2D9CDB;margin-top:10px;white-space:nowrap;"">" & FORMAT([Média de Venda por Dia POS], "R$ #,##0") & "</div>"
+			& "<div style=""font-size:11px;color:#6F8299;margin-top:8px;white-space:nowrap;"">" & "divide pelo calendário inteiro" & "</div>"
+			& "</div>"
+			& "<div style=""flex:1;min-width:0;background:#12203366;border:1px solid #1E2E42;border-radius:14px;padding:14px 16px;"">"
+			& "<div style=""font-size:10px;letter-spacing:.10em;text-transform:uppercase;color:#93A5B8;font-weight:600;white-space:nowrap;"">Média Ingênua</div>"
+			& "<div style=""font-size:30px;line-height:1.1;font-weight:200;color:#D9772A;margin-top:10px;white-space:nowrap;"">" & FORMAT([Média por Dia (só dias com venda)], "R$ #,##0") & "</div>"
+			& "<div style=""font-size:11px;color:#6F8299;margin-top:8px;white-space:nowrap;"">" & "só dias com venda — o erro" & "</div>"
+			& "</div>"
+			& "<div style=""flex:1;min-width:0;background:#12203366;border:1px solid #1E2E42;border-radius:14px;padding:14px 16px;"">"
+			& "<div style=""font-size:10px;letter-spacing:.10em;text-transform:uppercase;color:#93A5B8;font-weight:600;white-space:nowrap;"">Dias sem Venda</div>"
+			& "<div style=""font-size:30px;line-height:1.1;font-weight:200;color:#E8EEF4;margin-top:10px;white-space:nowrap;"">" & FORMAT([Dias sem Venda], "#,##0") & "</div>"
+			& "<div style=""font-size:11px;color:#6F8299;margin-top:8px;white-space:nowrap;"">" & "de 2.557 dias de calendário" & "</div>"
+			& "</div>"
+			& "<div style=""flex:1;min-width:0;background:#12203366;border:1px solid #1E2E42;border-radius:14px;padding:14px 16px;"">"
+			& "<div style=""font-size:10px;letter-spacing:.10em;text-transform:uppercase;color:#93A5B8;font-weight:600;white-space:nowrap;"">Inflação da Média</div>"
+			& "<div style=""font-size:30px;line-height:1.1;font-weight:200;color:#D9772A;margin-top:10px;white-space:nowrap;"">" & FORMAT([Inflação da Média (erro do estagiário)], "0.00%") & "</div>"
+			& "<div style=""font-size:11px;color:#6F8299;margin-top:8px;white-space:nowrap;"">" & "e não é uniforme entre os dias" & "</div>"
+			& "</div>"
+			& "</div>"
+		displayFolder: 0 HTML
+		lineageTag: f78be799-fd48-35f2-a614-804eae3d927f
+
+	/// AS DUAS MÉDIAS, DIA A DIA — o visual mais importante do painel.
+	///
+	/// Ordem natural da semana, não por valor: o leitor procura o dia, não a
+	/// posição. A barra de cima é a média correta e a de baixo a ingênua; onde
+	/// a laranja se estica mais, o erro é maior — e ele é maior justamente na
+	/// quinta-feira, que é o que inverte o ranking.
+	///
+	/// FORMA LINHA — devolve UMA linha, e a coluna de granularidade entra no
+	/// papel `sampling` do visual. É isso que dá cross-filter: o visual cria um
+	/// selectionId por linha, e clicar filtra a página como um gráfico nativo.
+	measure 'HTML — Linha de Dia' =
+			VAR _V   = [Média de Venda por Dia POS]
+			VAR _V2  = [Média por Dia (só dias com venda)]
+			VAR _Max = MAXX(TOPN(7, ALLSELECTED(dim_data[dia_semana]), [Média de Venda por Dia POS], DESC), [Média de Venda por Dia POS])
+			VAR _Max2 = MAXX(TOPN(7, ALLSELECTED(dim_data[dia_semana]), [Média por Dia (só dias com venda)], DESC), [Média por Dia (só dias com venda)])
+			VAR _Dentro = NOT ISBLANK(_V)
+			RETURN
+			    IF(
+			        _Dentro,
+			        "<div style=""display:flex;align-items:center;gap:9px;padding:2px 2px;font-family:Segoe UI,-apple-system,Roboto,sans-serif;"">"
+			      & "<div style=""width:116px;font-size:12px;color:#E8EEF4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:none;"">"
+			      & SELECTEDVALUE(dim_data[dia_semana]) & "</div>"
+			      & "<div style=""flex:1;min-width:40px;"">"
+			      & "<div style=""flex:1;height:7px;background:#16233A;border-radius:3px;overflow:hidden;min-width:26px;""><div style=""height:7px;border-radius:3px;background:linear-gradient(90deg,#2D9CDB,#2D9CDB66);width:"
+			      & FORMAT(DIVIDE(_V, _Max) * 100, "0.0")
+			      & "%""></div></div>"
+			      & "<div style=""flex:1;height:7px;background:#16233A;border-radius:3px;overflow:hidden;min-width:26px;margin-top:3px;""><div style=""height:7px;border-radius:3px;background:linear-gradient(90deg,#D9772A,#D9772A66);width:"
+			      & FORMAT(DIVIDE(_V2, _Max2) * 100, "0.0")
+			      & "%""></div></div></div>"
+			      & "<div style=""width:72px;text-align:right;font-size:12px;color:#93A5B8;flex:none;line-height:1.35;"">" & FORMAT(_V, "R$ #,##0")
+			      & "<br><span style=""color:#D9772A;"">" & FORMAT(_V2, "R$ #,##0") & "</span></div>"
+			      & "</div>"
+			    )
+		displayFolder: 0 HTML
+		lineageTag: 145cebab-8832-5f93-dba9-43a8885e97b5
+
+	/// DIAS SEM VENDA POR DIA DA SEMANA.
+	///
+	/// 20 na quinta contra 7 na segunda — a desigualdade que faz a média
+	/// ingênua inflar mais um dia que outro e trocar o pior dia da semana.
+	///
+	/// FORMA LINHA — devolve UMA linha, e a coluna de granularidade entra no
+	/// papel `sampling` do visual. É isso que dá cross-filter: o visual cria um
+	/// selectionId por linha, e clicar filtra a página como um gráfico nativo.
+	measure 'HTML — Linha de Dia Vazio' =
+			VAR _V   = [Dias sem Venda]
+			VAR _Max = MAXX(TOPN(7, ALLSELECTED(dim_data[dia_semana]), [Dias sem Venda], DESC), [Dias sem Venda])
+			VAR _Dentro = NOT ISBLANK(_V)
+			RETURN
+			    IF(
+			        _Dentro,
+			        "<div style=""display:flex;align-items:center;gap:9px;padding:2px 2px;font-family:Segoe UI,-apple-system,Roboto,sans-serif;"">"
+			      & "<div style=""width:116px;font-size:12px;color:#E8EEF4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:none;"">"
+			      & SELECTEDVALUE(dim_data[dia_semana]) & "</div>"
+			      & "<div style=""flex:1;height:8px;background:#16233A;border-radius:4px;overflow:hidden;min-width:26px;""><div style=""height:8px;border-radius:4px;background:linear-gradient(90deg,#D9772A,#D9772A66);width:"
+			      & FORMAT(DIVIDE(_V, _Max) * 100, "0.0")
+			      & "%""></div></div>"
+			      & "<div style=""width:44px;text-align:right;font-size:12px;color:#93A5B8;flex:none;line-height:1.35;"">" & FORMAT(_V, "#,##0") & "</div>"
+			      & "</div>"
+			    )
+		displayFolder: 0 HTML
+		lineageTag: 6e82700b-dd5e-7590-4a56-c25a18587fa4
+
+	/// DIAS SEM VENDA POR ANO — a curva de ramp-up.
+	///
+	/// 25 em 2020 e 1 em 2025: dia sem venda é característica de operação
+	/// nova, não de sazonalidade.
+	///
+	/// FORMA LINHA — devolve UMA linha, e a coluna de granularidade entra no
+	/// papel `sampling` do visual. É isso que dá cross-filter: o visual cria um
+	/// selectionId por linha, e clicar filtra a página como um gráfico nativo.
+	measure 'HTML — Linha de Ano' =
+			VAR _V   = [Dias sem Venda]
+			VAR _Max = MAXX(TOPN(8, ALLSELECTED(dim_data[ano]), [Dias sem Venda], DESC), [Dias sem Venda])
+			VAR _Dentro = NOT ISBLANK(_V)
+			RETURN
+			    IF(
+			        _Dentro,
+			        "<div style=""display:flex;align-items:center;gap:9px;padding:2px 2px;font-family:Segoe UI,-apple-system,Roboto,sans-serif;"">"
+			      & "<div style=""width:52px;font-size:12px;color:#E8EEF4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:none;"">"
+			      & SELECTEDVALUE(dim_data[ano]) & "</div>"
+			      & "<div style=""flex:1;height:8px;background:#16233A;border-radius:4px;overflow:hidden;min-width:26px;""><div style=""height:8px;border-radius:4px;background:linear-gradient(90deg,#8B7AE8,#8B7AE866);width:"
+			      & FORMAT(DIVIDE(_V, _Max) * 100, "0.0")
+			      & "%""></div></div>"
+			      & "<div style=""width:44px;text-align:right;font-size:12px;color:#93A5B8;flex:none;line-height:1.35;"">" & FORMAT(_V, "#,##0") & "</div>"
+			      & "</div>"
+			    )
+		displayFolder: 0 HTML
+		lineageTag: c58e353e-18c3-7c24-9d7e-dc5ae434a09e
+
+	/// A SÉRIE DA BÚSSOLA DE BORDO 702, em SVG.
+	///
+	/// A linha laranja só existe nos três meses de teste — é ali que a previsão
+	/// descola do realizado. Os 75 meses cabem sem rolagem, que era o defeito
+	/// do gráfico nativo aqui: a previsão ficava fora da janela visível.
+	///
+	/// FORMA BLOCO — devolve o componente inteiro, então o visual recebe uma
+	/// linha só e não emite filtro. Recebe filtro normalmente.
+	measure 'HTML — Série da Bússola' =
+			VAR _Base = ALLSELECTED(fct_previsao_bussola[ano_mes])
+			VAR _T =
+			    ADDCOLUMNS(
+			        _Base,
+			        "@i", RANKX(_Base, fct_previsao_bussola[ano_mes],, ASC) - 1,
+			        "@v1", [Unidades Realizadas],
+			        "@v2", [Previsão — Média Móvel 3m]
+			    )
+			VAR _N   = COUNTROWS(_T) - 1
+			VAR _Max = MAXX(_T, COALESCE([@v1], 0) + COALESCE([@v2], 0))
+			VAR _P1 =
+			    CONCATENATEX(
+			        FILTER(_T, NOT ISBLANK([@v1])),
+			        FORMAT([@i], "0") & "," & FORMAT(96 - DIVIDE([@v1], _Max) * 90, "0.00"),
+			        " ", [@i], ASC
+			    )
+			VAR _P2 =
+			    CONCATENATEX(
+			        FILTER(_T, NOT ISBLANK([@v2])),
+			        FORMAT([@i], "0") & "," & FORMAT(96 - DIVIDE([@v2], _Max) * 90, "0.00"),
+			        " ", [@i], ASC
+			    )
+			RETURN
+			    "<div style=""font-family:Segoe UI,-apple-system,Roboto,sans-serif;"">"
+			  & "<svg viewBox=""0 0 " & _N & " 96"" preserveAspectRatio=""none"" style=""width:100%;height:96px;display:block;"">"
+			  & "<defs><lineargradient id=""lhg"" x1=""0"" y1=""0"" x2=""0"" y2=""1""><stop offset=""0%"" stop-color=""#2D9CDB"" stop-opacity="".45""></stop><stop offset=""100%"" stop-color=""#2D9CDB"" stop-opacity=""0""></stop></lineargradient></defs>"
+			  & "<polygon fill=""url(#lhg)"" points=""0,96 " & _P1 & " " & _N & ",96""></polygon>"
+			  & "<polyline fill=""none"" stroke=""#2D9CDB"" stroke-width=""1.6"" vector-effect=""non-scaling-stroke"" stroke-linejoin=""round"" stroke-linecap=""round"" points=""" & _P1 & """></polyline>"
+			  & "<polyline fill=""none"" stroke=""#D9772A"" stroke-width=""1.6"" vector-effect=""non-scaling-stroke"" stroke-linejoin=""round"" stroke-linecap=""round"" points=""" & _P2 & """></polyline>"
+			  & "</svg></div>"
+		displayFolder: 0 HTML
+		lineageTag: 85a1c971-a6f0-71a4-2ed5-472a533d44ec
+
+	/// O CONFRONTO DA QUESTÃO 6: 207 realizadas contra 116 previstas.
+	///
+	/// FORMA BLOCO — devolve o componente inteiro, então o visual recebe uma
+	/// linha só e não emite filtro. Recebe filtro normalmente.
+	measure 'HTML — Faixa da Previsão' =
+			RETURN
+			    "<div style=""display:flex;flex-direction:column;gap:10px;font-family:Segoe UI,-apple-system,Roboto,sans-serif;"">"
+			& "<div style=""flex:1;min-width:0;background:#12203366;border:1px solid #1E2E42;border-radius:14px;padding:14px 16px;"">"
+			& "<div style=""font-size:10px;letter-spacing:.10em;text-transform:uppercase;color:#93A5B8;font-weight:600;white-space:nowrap;"">Realizado</div>"
+			& "<div style=""font-size:26px;line-height:1.1;font-weight:200;color:#2D9CDB;margin-top:10px;white-space:nowrap;"">" & FORMAT([Realizado no Trimestre], "#,##0") & " un" & "</div>"
+			& "<div style=""font-size:11px;color:#6F8299;margin-top:8px;white-space:nowrap;"">" & "jan a mar de 2026" & "</div>"
+			& "</div>"
+			& "<div style=""flex:1;min-width:0;background:#12203366;border:1px solid #1E2E42;border-radius:14px;padding:14px 16px;"">"
+			& "<div style=""font-size:10px;letter-spacing:.10em;text-transform:uppercase;color:#93A5B8;font-weight:600;white-space:nowrap;"">Previsto (MM3)</div>"
+			& "<div style=""font-size:26px;line-height:1.1;font-weight:200;color:#E8EEF4;margin-top:10px;white-space:nowrap;"">" & FORMAT([Previsão — Média Móvel 3m], "#,##0") & " un" & "</div>"
+			& "<div style=""font-size:11px;color:#6F8299;margin-top:8px;white-space:nowrap;"">" & "o baseline do enunciado" & "</div>"
+			& "</div>"
+			& "<div style=""flex:1;min-width:0;background:#12203366;border:1px solid #1E2E42;border-radius:14px;padding:14px 16px;"">"
+			& "<div style=""font-size:10px;letter-spacing:.10em;text-transform:uppercase;color:#93A5B8;font-weight:600;white-space:nowrap;"">Erro</div>"
+			& "<div style=""font-size:26px;line-height:1.1;font-weight:200;color:#D9772A;margin-top:10px;white-space:nowrap;"">" & FORMAT([Erro da Previsão], "0.0%") & "</div>"
+			& "<div style=""font-size:11px;color:#6F8299;margin-top:8px;white-space:nowrap;"">" & "o baseline subestima" & "</div>"
+			& "</div>"
+			& "</div>"
+		displayFolder: 0 HTML
+		lineageTag: 59364cd2-e3e5-56f3-e870-5da5074a4702
+
+	/// RANKING DA QUESTÃO 7.
+	///
+	/// Quatro casas decimais de propósito: o 1º ganha do 2º por 0,0003, e
+	/// arredondar para duas empataria os três primeiros — que é exatamente o
+	/// argumento da resposta.
+	///
+	/// FORMA LINHA — devolve UMA linha, e a coluna de granularidade entra no
+	/// papel `sampling` do visual. É isso que dá cross-filter: o visual cria um
+	/// selectionId por linha, e clicar filtra a página como um gráfico nativo.
+	measure 'HTML — Linha de Similar' =
+			VAR _V   = [Similaridade de Cosseno]
+			VAR _Max = MAXX(TOPN(10, ALLSELECTED(fct_similaridade_produto[produto]), [Similaridade de Cosseno], DESC), [Similaridade de Cosseno])
+			VAR _Pos = RANKX(ALLSELECTED(fct_similaridade_produto[produto]), [Similaridade de Cosseno],, DESC)
+			VAR _Dentro = _Pos <= 10
+			RETURN
+			    IF(
+			        _Dentro,
+			        "<div style=""display:flex;align-items:center;gap:9px;padding:2px 2px;font-family:Segoe UI,-apple-system,Roboto,sans-serif;"">"
 			      & "<div style=""width:18px;font-size:11px;color:#6F8299;text-align:right;flex:none;"">" & _Pos & "</div>"
 			      & "<div style=""width:150px;font-size:12px;color:#E8EEF4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:none;"">"
 			      & SELECTEDVALUE(fct_similaridade_produto[produto]) & "</div>"
-			      & "<div style=""flex:1;height:8px;background:#16233A;border-radius:4px;overflow:hidden;min-width:30px;""><div style=""height:8px;border-radius:4px;background:linear-gradient(90deg,#2D9CDB,#2D9CDB66);width:"
+			      & "<div style=""flex:1;height:8px;background:#16233A;border-radius:4px;overflow:hidden;min-width:26px;""><div style=""height:8px;border-radius:4px;background:linear-gradient(90deg,#2D9CDB,#2D9CDB66);width:"
 			      & FORMAT(DIVIDE(_V, _Max) * 100, "0.0")
 			      & "%""></div></div>"
-			      & "<div style=""width:78px;text-align:right;font-size:12px;color:#93A5B8;flex:none;"">" & FORMAT(_V, "0.0000")
-			      & "</div></div>"
+			      & "<div style=""width:78px;text-align:right;font-size:12px;color:#93A5B8;flex:none;line-height:1.35;"">" & FORMAT(_V, "0.0000") & "</div>"
+			      & "</div>"
 			    )
 		displayFolder: 0 HTML
 		lineageTag: 2706a5bf-e428-0bd1-32c4-0d60f369763b
 
-	/// TOP CLIENTES POR TICKET MÉDIO, uma linha por cliente.
-	///
-	/// É o ranking literal da Questão 4 — ticket médio, sem RFM. Clicar num
-	/// cliente filtra a página e mostra o que o ranking premiou nele.
+	/// CO-OCORRÊNCIA NO MESMO PEDIDO — a formulação correta do problema da
+	/// Marina, que devolve outro campeão: Tinta Antifouling.
 	///
 	/// FORMA LINHA — devolve UMA linha, e a coluna de granularidade entra no
 	/// papel `sampling` do visual. É isso que dá cross-filter: o visual cria um
 	/// selectionId por linha, e clicar filtra a página como um gráfico nativo.
-	/// Sem campo em `sampling`, a opção de cross-filter nem aparece.
-	///
-	/// O top N sai do BLANK: fora do corte a medida devolve vazio e o Power BI
-	/// descarta a linha, sem precisar de filtro de visual.
-	measure 'HTML — Linha de Cliente' =
-			VAR _V   = [Ticket Médio]
-			VAR _Pos = RANKX(ALLSELECTED(dim_cliente[cliente]), [Ticket Médio],, DESC)
-			VAR _Max = MAXX(TOPN(10, ALLSELECTED(dim_cliente[cliente]), [Ticket Médio], DESC), [Ticket Médio])
+	measure 'HTML — Linha de Cesta' =
+			VAR _V   = [Pedidos em Comum]
+			VAR _Max = MAXX(TOPN(10, ALLSELECTED(fct_similaridade_produto[produto]), [Pedidos em Comum], DESC), [Pedidos em Comum])
+			VAR _Pos = RANKX(ALLSELECTED(fct_similaridade_produto[produto]), [Pedidos em Comum],, DESC)
+			VAR _Dentro = _Pos <= 10
 			RETURN
 			    IF(
-			        _Pos <= 10,
-			        "<div style=""display:flex;align-items:center;gap:10px;padding:2px 2px;font-family:Segoe UI,-apple-system,Roboto,sans-serif;"">"
+			        _Dentro,
+			        "<div style=""display:flex;align-items:center;gap:9px;padding:2px 2px;font-family:Segoe UI,-apple-system,Roboto,sans-serif;"">"
 			      & "<div style=""width:18px;font-size:11px;color:#6F8299;text-align:right;flex:none;"">" & _Pos & "</div>"
 			      & "<div style=""width:150px;font-size:12px;color:#E8EEF4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:none;"">"
-			      & SELECTEDVALUE(dim_cliente[cliente]) & "</div>"
-			      & "<div style=""flex:1;height:8px;background:#16233A;border-radius:4px;overflow:hidden;min-width:30px;""><div style=""height:8px;border-radius:4px;background:linear-gradient(90deg,#8B7AE8,#8B7AE866);width:"
+			      & SELECTEDVALUE(fct_similaridade_produto[produto]) & "</div>"
+			      & "<div style=""flex:1;height:8px;background:#16233A;border-radius:4px;overflow:hidden;min-width:26px;""><div style=""height:8px;border-radius:4px;background:linear-gradient(90deg,#8B7AE8,#8B7AE866);width:"
 			      & FORMAT(DIVIDE(_V, _Max) * 100, "0.0")
 			      & "%""></div></div>"
-			      & "<div style=""width:78px;text-align:right;font-size:12px;color:#93A5B8;flex:none;"">" & FORMAT(_V, "R$ #,##0")
-			      & "</div></div>"
+			      & "<div style=""width:52px;text-align:right;font-size:12px;color:#93A5B8;flex:none;line-height:1.35;"">" & FORMAT(_V, "#,##0") & "</div>"
+			      & "</div>"
 			    )
 		displayFolder: 0 HTML
-		lineageTag: f9ec154e-f3b6-8a6e-acb8-65a8c58562d2
+		lineageTag: 7b3a4b1b-6c82-080e-ff36-52adf4893d43
 
 	/// As 207 unidades efetivamente vendidas no trimestre de teste
 	/// (jan–mar/2026). Recorta pela flag `eh_treino`, e não por datas
