@@ -135,7 +135,7 @@ Gerador é **determinístico**: duas execuções produzem arquivos idênticos by
 
 | | |
 |---|---|
-| **Status** | ⬜ |
+| **Status** | ✅ **concluída** (16/08) |
 | **Premissas literais** | Faturamento = soma de `orders.total` por cliente · Frequência = contagem de transações · Ticket médio = faturamento / frequência · Diversidade = `COUNT(DISTINCT category_id)` · **Filtro: ≥ 13 categorias** · Desempate por `customer_id` crescente |
 | **Entregável** | `entregaveis/Q4_clientes/q4_clientes_elite.sql` + `RESPOSTA.md` |
 | **Gate** | Nenhum JOIN com `payments`. Ticket médio calculado antes de qualquer join com itens. Top 10 exato. |
@@ -157,6 +157,20 @@ Gerador é **determinístico**: duas execuções produzem arquivos idênticos by
 
 **Categoria com maior `SUM(quantity)` no grupo dos 10:** **Hélices** (id 8) com **492** itens. Vice: Coletes Salva-Vidas (393), Eletrônica Náutica (392).
 
+✅ **Confirmado no banco (16/08).** Os 10 clientes e a categoria batem exatamente. Asserção `count(*) = 10` embutida no arquivo devolve OK.
+
+**Fan-out medido, não estimado** (apêndice do arquivo SQL):
+
+| Método | Faturamento | Desvio |
+|---|---:|---:|
+| ✅ `SUM(total)` sem join | R$ 1.406.487.201,80 | — |
+| ❌ após join em `payments` | R$ 1.536.966.390,29 | **+9,3%** |
+| ❌ após join em `order_items` | R$ 5.162.685.388,47 | **+267% (3,67×)** |
+
+Distribuição de diversidade confirmada: 11 cat → 2 · 12 → 27 · 13 → 200 · 14 → **1.771**. Total que passa: **1.971 de 2.000 (98,5%)**.
+
+⚠️ **Achado novo:** a categoria 13 se chama `SEGURANÇA` em CAIXA ALTA, destoando das outras 13. Inconsistência de cadastro na fonte — não afeta a resposta (agregação é por `category_id`), mas aparece como rótulo destoante em visual. A `silver` deve normalizar.
+
 **Q4.2 — pontos a explicar:**
 - **Cadeia de chaves:** `orders.customer_id` → `orders.id` = `order_items.order_id` → `order_items.product_variant_id` → `product_variants.product_id` → `products.category_id` → `categories.id`. Note que **`order_items` não tem `product_id`** — a variante é obrigatória no caminho.
 - **Crítica ao critério de diversidade:** ele não discrimina. Distribuição real: 11 cat → 2 clientes · 12 cat → 27 · **13 cat → 200** · **14 cat → 1.771**. Ou seja, **1.971 de 2.000 (98,5%)** passam no filtro. O que realmente ordena o ranking é só o ticket médio.
@@ -169,7 +183,7 @@ Gerador é **determinístico**: duas execuções produzem arquivos idênticos by
 
 | | |
 |---|---|
-| **Status** | ⬜ |
+| **Status** | ✅ **concluída** (16/08) |
 | **Premissas literais** | Período entre a menor e a maior data de venda do arquivo · Loja aberta todos os dias · **Apenas `channel = 'pos'`** · Dias sem registro contam como venda = 0 · Média por dia da semana sobre **todos** os dias do calendário · Nome do dia **em português** |
 | **Entregável** | `entregaveis/Q5_calendario/q5_dim_calendario.sql` + `RESPOSTA.md` |
 | **Gate** | Calendário tem exatamente 2.557 dias. `COALESCE` presente. Nomes em pt-BR sem depender de `lc_time`. |
@@ -185,6 +199,16 @@ Gerador é **determinístico**: duas execuções produzem arquivos idênticos by
 | Terça-feira | R$ 166.118,83 | R$ 169.841,38 |
 | Sexta-feira | R$ 170.193,68 | R$ 174.987,87 |
 | Quarta-feira | R$ 173.605,44 | R$ 178.481,99 |
+
+✅ **Confirmado no banco (16/08).** Os 7 dias batem ao centavo em ambas as colunas. Calendário materializado em `gold.dim_calendario` (2.557 dias) e view `gold.vw_venda_diaria_pos`. Faturamento POS total: R$ 419.273.315,30.
+
+⚠️ **Achado novo — os 78 dias vazios são um fenômeno histórico, não atual:**
+
+| Ano | 2020 | 2021 | 2022 | 2023 | 2024 | 2025 | 2026 |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| Dias sem venda | **25** | 20 | 13 | 11 | 6 | **1** | 2 |
+
+Dia sem venda é característica de operação em *ramp-up*. Uma análise restrita a 2025 quase não sofreria o erro do estagiário — a armadilha é histórica. Bom material para a Q5.2 e para o dashboard.
 
 **O argumento central da Q5.2:** o diagnóstico **troca de dia**. A quinta-feira tem 20 dias sem venda; ao ignorá-los, o denominador cai de 366 para 346 e a média sobe R$ 9 mil, tirando-a do último lugar. O Sr. Almir fecharia a loja na **segunda-feira**, que na verdade é o 3º pior dia. Ignorar os zeros não "aproxima" a média — ela deixa de ser média de faturamento por dia e vira média condicionada a ter havido venda, que é outra pergunta.
 
