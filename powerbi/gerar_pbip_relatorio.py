@@ -33,11 +33,11 @@ LARGURA, ALTURA = 1280, 720
 # destaque funcionar.
 COR_TEXTO = "#0F2B3D"
 COR_SUAVE = "#5A6B78"
-COR_PRIMARIA = "#0E5C7F"
-COR_DESTAQUE = "#E07A2F"
-COR_FUNDO = "#F7F9FA"
+COR_PRIMARIA = "#0069A3"
+COR_DESTAQUE = "#D96A17"
+COR_FUNDO = "#F4F7F9"
 COR_CARTAO = "#FFFFFF"
-COR_BORDA = "#DFE5E9"
+COR_BORDA = "#E4EBEF"
 
 
 def lit(valor: Any) -> dict:
@@ -84,7 +84,7 @@ def caixa_visual(cor_fundo: str = COR_CARTAO) -> dict:
         "background": [{"properties": {"show": lit("true"), "color": cor(cor_fundo)}}],
         "border": [
             {"properties": {"show": lit("true"), "color": cor(COR_BORDA),
-                            "radius": lit("6D")}}
+                            "radius": lit("10D")}}
         ],
         "visualHeader": [{"properties": {"show": lit("false")}}],
     }
@@ -194,7 +194,7 @@ def cartao(nome: str, nome_medida: str, x: int, y: int, w: int = 200, h: int = 9
             "labels": [
                 {
                     "properties": {
-                        "fontSize": lit("20D"),
+                        "fontSize": lit("24D"),
                         "bold": lit("true"),
                         "color": cor(COR_DESTAQUE if destaque else COR_PRIMARIA),
                         "labelDisplayUnits": lit(unidade),

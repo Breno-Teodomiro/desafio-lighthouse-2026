@@ -109,7 +109,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#DFE5E9'"
+                      "Value": "'#E4EBEF'"
                     }
                   }
                 }
@@ -118,7 +118,7 @@
             "radius": {
               "expr": {
                 "Literal": {
-                  "Value": "6D"
+                  "Value": "10D"
                 }
               }
             }
@@ -151,14 +151,14 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Co-ocorrência no mesmo pedido — a pergunta que a Marina realmente fez, e a resposta muda'"
+                  "Value": "'Co-ocorrência no pedido — a pergunta que a Marina fez'"
                 }
               }
             },
             "fontSize": {
               "expr": {
                 "Literal": {
-                  "Value": "11D"
+                  "Value": "10D"
                 }
               }
             },

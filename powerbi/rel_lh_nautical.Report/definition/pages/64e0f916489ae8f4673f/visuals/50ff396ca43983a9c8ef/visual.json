@@ -61,7 +61,7 @@
                     "value": "O seasonal naive, que só repete o ano anterior, tem MAE de 25,0 contra 30,3 da média móvel. O baseline pedido perde para a regra mais simples que existe.",
                     "textStyle": {
                       "fontSize": "10pt",
-                      "color": "#E07A2F",
+                      "color": "#D96A17",
                       "fontWeight": "normal",
                       "fontFamily": "Segoe UI"
                     }

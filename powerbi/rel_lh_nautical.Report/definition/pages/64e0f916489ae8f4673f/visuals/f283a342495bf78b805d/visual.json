@@ -134,7 +134,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#DFE5E9'"
+                      "Value": "'#E4EBEF'"
                     }
                   }
                 }
@@ -143,7 +143,7 @@
             "radius": {
               "expr": {
                 "Literal": {
-                  "Value": "6D"
+                  "Value": "10D"
                 }
               }
             }
@@ -176,14 +176,14 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'A série da Bússola: tendência de alta e um dez/2025 fora da curva — o confronto do trimestre está ao lado'"
+                  "Value": "'A série da Bússola: alta constante e um dez/2025 fora da curva'"
                 }
               }
             },
             "fontSize": {
               "expr": {
                 "Literal": {
-                  "Value": "11D"
+                  "Value": "10D"
                 }
               }
             },

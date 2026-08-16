@@ -222,6 +222,26 @@ def validar_visuais(erros: list[str], avisos: list[str]) -> None:
         if "tabOrder" not in dados.get("position", {}):
             avisos.append(f"{rotulo}: position sem 'tabOrder'")
 
+        # Título que não cabe na largura do visual. O Power BI trunca com "…"
+        # e a conclusão morre justamente no fim da frase, que é onde ela está
+        # — este projeto escreve título como conclusão, não como rótulo.
+        for grupo in (v.get("visualContainerObjects") or {}).get("title", []):
+            props = grupo.get("properties", {})
+            texto = props.get("text", {}).get("expr", {}).get("Literal", {}).get("Value", "")
+            texto = texto.strip("'")
+            if not texto:
+                continue
+            corpo = props.get("fontSize", {}).get("expr", {}).get("Literal", {}).get("Value", "10D")
+            pt = float(str(corpo).rstrip("D"))
+            largura = dados.get("position", {}).get("width", 0)
+            # Segoe UI Semibold: ~0.66 do corpo por caractere, 26px de padding
+            cabem = int((largura - 26) / (pt * 0.66))
+            if len(texto) > cabem:
+                erros.append(
+                    f"{rotulo}: título de {len(texto)} caracteres em {largura}px "
+                    f"({pt:.0f}pt cabe ~{cabem}) — vai truncar: {texto[:40]}…"
+                )
+
         for papel, cfg in v.get("query", {}).get("queryState", {}).items():
             projecoes = cfg.get("projections", [])
 

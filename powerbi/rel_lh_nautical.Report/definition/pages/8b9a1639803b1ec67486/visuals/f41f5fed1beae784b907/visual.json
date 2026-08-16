@@ -123,7 +123,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#DFE5E9'"
+                      "Value": "'#E4EBEF'"
                     }
                   }
                 }
@@ -132,7 +132,7 @@
             "radius": {
               "expr": {
                 "Literal": {
-                  "Value": "6D"
+                  "Value": "10D"
                 }
               }
             }
@@ -165,14 +165,14 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'A margem é homogênea entre categorias (37,8% a 41,5%) — o ranking de lucro repete o de receita'"
+                  "Value": "'Margem homogênea (37,8% a 41,5%): o lucro repete o ranking de receita'"
                 }
               }
             },
             "fontSize": {
               "expr": {
                 "Literal": {
-                  "Value": "11D"
+                  "Value": "10D"
                 }
               }
             },

@@ -1,23 +1,41 @@
 {
   "name": "tema_lh_nautical",
   "dataColors": [
-    "#0E5C7F",
-    "#E07A2F",
-    "#2E8AA8",
-    "#8FB4C4",
-    "#C46A1F",
-    "#54707F",
-    "#A9C3CE",
-    "#3D5666"
+    "#0069A3",
+    "#D96A17",
+    "#6A4C93",
+    "#B08628",
+    "#8E44AD",
+    "#C0392B"
   ],
-  "background": "#F7F9FA",
+  "background": "#F4F7F9",
+  "backgroundLight": "#FFFFFF",
   "foreground": "#0F2B3D",
-  "tableAccent": "#0E5C7F",
+  "foregroundNeutralSecondary": "#5A6B78",
+  "tableAccent": "#0069A3",
+  "good": "#2E7D32",
+  "neutral": "#8A98A3",
+  "bad": "#C0392B",
+  "maximum": "#0069A3",
+  "center": "#B8C7D1",
+  "minimum": "#EAF1F5",
+  "null": "#8A98A3",
+  "hyperlink": "#0069A3",
   "textClasses": {
+    "callout": {
+      "fontFace": "Segoe UI Light",
+      "fontSize": 28,
+      "color": "#0069A3"
+    },
     "title": {
       "fontFace": "Segoe UI Semibold",
-      "fontSize": 13,
+      "fontSize": 12,
       "color": "#0F2B3D"
+    },
+    "header": {
+      "fontFace": "Segoe UI Semibold",
+      "fontSize": 10,
+      "color": "#3D5666"
     },
     "label": {
       "fontFace": "Segoe UI",
@@ -31,23 +49,59 @@
         "background": [
           {
             "show": true,
-            "color": {
-              "solid": {
-                "color": "#FFFFFF"
-              }
-            },
+            "color": { "solid": { "color": "#FFFFFF" } },
             "transparency": 0
           }
         ],
         "border": [
           {
             "show": true,
-            "color": {
-              "solid": {
-                "color": "#DFE5E9"
-              }
-            },
-            "radius": 6
+            "color": { "solid": { "color": "#E4EBEF" } },
+            "radius": 10
+          }
+        ],
+        "visualHeader": [{ "show": false }],
+        "title": [
+          {
+            "fontColor": { "solid": { "color": "#0F2B3D" } },
+            "fontSize": 11,
+            "alignment": "left"
+          }
+        ],
+        "categoryAxis": [
+          {
+            "show": true,
+            "showAxisTitle": false,
+            "gridlineShow": false,
+            "labelColor": { "solid": { "color": "#5A6B78" } },
+            "fontSize": 9,
+            "concatenateLabels": false
+          }
+        ],
+        "valueAxis": [
+          {
+            "show": true,
+            "showAxisTitle": false,
+            "gridlineShow": true,
+            "gridlineColor": { "solid": { "color": "#EFF3F5" } },
+            "gridlineThickness": 1,
+            "labelColor": { "solid": { "color": "#8A98A3" } },
+            "fontSize": 9
+          }
+        ],
+        "legend": [
+          {
+            "show": true,
+            "position": "TopLeft",
+            "showTitle": false,
+            "labelColor": { "solid": { "color": "#5A6B78" } },
+            "fontSize": 9
+          }
+        ],
+        "labels": [
+          {
+            "color": { "solid": { "color": "#3D5666" } },
+            "fontSize": 9
           }
         ]
       }

@@ -92,7 +92,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#DFE5E9'"
+                      "Value": "'#E4EBEF'"
                     }
                   }
                 }
@@ -101,7 +101,7 @@
             "radius": {
               "expr": {
                 "Literal": {
-                  "Value": "6D"
+                  "Value": "10D"
                 }
               }
             }
@@ -141,7 +141,7 @@
             "fontSize": {
               "expr": {
                 "Literal": {
-                  "Value": "11D"
+                  "Value": "10D"
                 }
               }
             },

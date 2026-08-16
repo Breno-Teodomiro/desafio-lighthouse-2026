@@ -92,7 +92,7 @@
                 "color": {
                   "expr": {
                     "Literal": {
-                      "Value": "'#DFE5E9'"
+                      "Value": "'#E4EBEF'"
                     }
                   }
                 }
@@ -101,7 +101,7 @@
             "radius": {
               "expr": {
                 "Literal": {
-                  "Value": "6D"
+                  "Value": "10D"
                 }
               }
             }
@@ -134,14 +134,14 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'A quinta tem 20 dias vazios contra 7 da segunda — é essa desigualdade que inverte o ranking'"
+                  "Value": "'20 dias vazios na quinta contra 7 na segunda'"
                 }
               }
             },
             "fontSize": {
               "expr": {
                 "Literal": {
-                  "Value": "11D"
+                  "Value": "10D"
                 }
               }
             },
