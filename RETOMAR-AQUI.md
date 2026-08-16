@@ -29,16 +29,55 @@ foram refeitas em SQL sobre o banco.
 
 ---
 
-## ⛔ A única pendência: abrir o dashboard no Power BI Desktop
+## ⛔ A única pendência: abrir o dashboard e exportar o `.pbix`
 
-O projeto `powerbi/lh_nautical.pbip` foi **gerado por script e validado por
-script**, mas **nunca foi aberto** — não há Power BI Desktop nesta máquina.
+O projeto `powerbi/lh_nautical.pbip` é gerado e validado por script. **Não há
+Power BI Desktop nesta máquina (WSL)** — quem abre é o usuário, no Windows.
 
-Isso significa que o layout dos visuais foi escrito às cegas. As referências a
-campos estão todas corretas (65 conferidas), mas posicionamento, sobreposição e
-formatação só se veem renderizados.
+**Duas tentativas de abrir, duas correções (16/08):**
 
-**Passos e plano B em [`ENTREGA.md`](ENTREGA.md).**
+| Tentativa | Erro do Desktop | Causa |
+|---|---|---|
+| 1ª | `InvalidLineType — Unexpected line type: Empty!` em `relationships.tmdl:9` | `///` no TMDL é **descrição de objeto**, não comentário livre; linha em branco entre o bloco e a declaração aborta o parser |
+| 2ª | `reportVersionAtImport` ausente em `/themeCollection/customTheme` | campo obrigatório do `report.json` |
+
+Cada erro motivou uma **auditoria completa** da camada contra os **5 projetos
+PBIP do usuário que comprovadamente abrem** (`/mnt/c/PROJETOS/*/`), e cada
+auditoria achou 4 problemas adicionais além do reportado — 10 no total. Os mais
+sérios:
+
+- **Coluna crua no papel `Y`** de 4 visuais. Nos projetos funcionais, `Y` recebe
+  **sempre** medida. Não era erro de digitação, era padrão errado repetido →
+  virou 6 medidas novas.
+- **Parâmetro com caminho WSL** (`/mnt/c/...`). O Desktop roda no Windows: o
+  projeto **abriria** e falharia só na atualização.
+- **`dataCategory: Time` / `isKey` / `columnChart` / `scatterChart` / `Series`
+  em `lineChart`** — construtos sem nenhuma ocorrência nos projetos funcionais.
+  Todos removidos ou trocados por equivalentes comprovados.
+
+### 🔑 O método, se houver uma 3ª tentativa
+
+**Não corrija só o erro reportado.** Audite a camada inteira contra os projetos
+de referência. O `tests/validar_pbip.py` já automatiza 8 dessas regras, e **cada
+uma foi testada injetando o defeito que ela deve pegar** — inclusive as duas que
+teriam evitado os erros acima.
+
+```bash
+python3 - <<'EOF'   # levanta o vocabulário comprovado
+import json, glob
+from collections import defaultdict
+papeis = defaultdict(set)
+for p in glob.glob("/mnt/c/PROJETOS/*/powerbi/*.Report/definition/pages/*/visuals/*/visual.json"):
+    v = json.load(open(p)).get("visual", {})
+    for papel, cfg in v.get("query", {}).get("queryState", {}).items():
+        for pr in cfg.get("projections", []):
+            papeis[(v.get("visualType"), papel)].add(
+                "Measure" if "Measure" in pr["field"] else "Column")
+print(dict(papeis))
+EOF
+```
+
+**Passos de abertura e plano B em [`ENTREGA.md`](ENTREGA.md).**
 
 ---
 
