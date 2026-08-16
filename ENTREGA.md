@@ -56,73 +56,27 @@ Todas confirmadas por **dois caminhos independentes** (`tests/verificar_resposta
 
 ---
 
-## ⛔ Bloqueador: o dashboard precisa ser aberto e exportado
+## ⛔ O que falta: exportar o `.pbix`
 
-**O projeto abre e carrega.** Aberto e atualizado no Desktop em 16/08: as 14
-tabelas importaram e todos os visuais têm dados. O dashboard também já está
-**publicado no Power BI Service**:
+O dashboard está pronto — 5 páginas, 21 componentes em HTML gerado por DAX,
+13 deles filtrando a página ao clique. Falta só tirar os arquivos de dentro
+dele.
 
-> https://app.powerbi.com/view?r=eyJrIjoiMDY4MDQxM2ItYWI4Ni00ZjQ5LWJmOGMtMTlhNDgwNDAzNjQzIiwidCI6ImMyMGU3MTg4LTNkMzEtNGM1ZC05YWNlLTE4MzQyM2E2MGMxZCJ9
+**Na ordem:**
 
-O que resta é uma **reabertura para aplicar 4 correções de formatação** já
-gravadas no PBIP, e então exportar o `.pbix` e o PDF.
+1. Abrir `powerbi/lh_nautical.pbip` e conferir as telas
+2. `Arquivo → Salvar como → .pbix` ⛔ **obrigatório no formulário**
+3. `Arquivo → Exportar → PDF`
+4. Publicar no Power BI Service e atualizar o link público
+5. Preencher o formulário pelo mapa do topo deste documento
 
-### As 4 correções aplicadas depois da primeira carga
+> ⚠️ **Depois de ajustar algo à mão no Desktop, não rode `make powerbi` nem
+> `powerbi/gerar_html_dax.py`.** Os dois regravam o projeto a partir do script
+> e desfazem o ajuste. O PBIP no disco é o artefato canônico desde 16/08.
 
-Vistas nas telas da primeira atualização e corrigidas direto no PBIP salvo pelo
-Desktop (não regeradas pelo script, para não desfazer o que ele normalizou):
-
-| # | Sintoma na tela | Causa |
-|---|---|---|
-| 1 | "Produtos por margem" veio com **uma coluna e nenhuma linha** | `active` numa projeção de `tableEx` faz o visual tratar as colunas como hierarquia e exibir só a ativa. Zero ocorrências em 84 projeções dos projetos de referência |
-| 2 | Receita Bruta e Receita Efetivada exibiam **ambas "R$ 1 Bi"** — sendo 1,41 bi e 1,20 bi, numa página cujo subtítulo diz "R$ 1,41 bi de GMV" | unidade do cartão no padrão "Auto". Agora explícita: milhões nos cartões de valor, nenhuma nos demais |
-| 3 | Eixo do gráfico por ano mostrava **"2.020"** | `ano` é rótulo, não quantidade — `formatString` foi de `#,##0` para `0` |
-| 4 | Subtítulo cortado no cabeçalho de 4 páginas | altura da caixa de texto |
-
-As regras 1 e 2 viraram verificação automática em `tests/validar_pbip.py`.
-
-### Os três visuais em HTML
-
-Três visuais do relatório são **HTML gerado por DAX**, no visual
-**HTML Content (lite)** — a edição **certificada**, que é a aceita em
-*Publicar na web*:
-
-| Página | Visual | Medida |
-|---|---|---|
-| Sumário executivo | faixa de KPIs (no lugar dos 5 cartões) | `HTML — Faixa de KPIs` |
-| Vendas e margem | produtos por margem (no lugar da tabela) | `HTML — Top Produtos por Margem` |
-| Previsão e recomendação | similares da Q7 (no lugar do gráfico) | `HTML — Top Similares Q7` |
-
-**Já estão posicionados no projeto.** O GUID
-`htmlContent443BE3AD55E043BF878BED274D3A6865` está declarado em
-`publicCustomVisuals` no `report.json`, então o Desktop baixa o visual do
-AppSource ao abrir — não há passo manual. Se ele pedir confirmação para
-carregar um visual do marketplace, aceite.
-
-Depois de salvar como `.pbix`, o código do visual fica **embutido no arquivo**:
-quem abrir não precisa instalar nada.
-
-**Não é Tailwind, e não dá para ser.** O visual roda num iframe com apenas
-`allow-scripts`: toda tag `<script>` externa é bloqueada, então nenhum CDN
-carrega — nem Tailwind, nem fonte do Google. Todo estilo é CSS inline, emitido
-pelo DAX. `overrideInlineStyling` está travado em `false`; se virar `true`, o
-visual pinta a formatação dele por cima e o desenho se perde.
-
-**Plano B, se algum não renderizar:** apagar o visual e recolocar os nativos —
-nenhum número depende deles, só a apresentação. As medidas dos cartões antigos
-continuam todas no modelo.
-
-**Passos:**
-
-1. Abrir `powerbi/lh_nautical.pbip` no Power BI Desktop
-   *(Arquivo → Opções → Recursos de Versão Prévia → **Power BI Project (.pbip) save option** ligado)*
-2. **Atualizar** e conferir os números contra a tabela de referência abaixo
-3. *(opcional)* Marcar `dim_data` como tabela de datas — botão direito na tabela →
-   **Marcar como tabela de data** → coluna `data`. Nenhuma das medidas usa
-   time intelligence, então nada quebra sem isso; é só higiene do modelo
-4. `Arquivo → Salvar como → .pbix`
-5. `Arquivo → Exportar → PDF`
-6. Republicar no Service, para o link público refletir as correções
+O visual **HTML Content (lite)** fica embutido no `.pbix`, então quem abrir o
+arquivo não precisa instalar nada. Ele é a edição **certificada** — a que é
+aceita em *Publicar na web*.
 
 ### Números que o dashboard deve reproduzir
 
@@ -183,7 +137,7 @@ Antes de clicar em enviar:
 - [ ] PDF do dashboard anexado
 - [ ] Link do repositório incluído no campo de notas
 - [ ] Link do dashboard publicado incluído no campo de notas
-- [ ] Dashboard **republicado** depois das 4 correções de formatação
+- [ ] Dashboard **republicado** com a versão final
 - [ ] Repositório **não contém** `Formulario_de_Questoes.md`, `Desafio_Lighthouse.md`, o PDF do edital, os CSVs nem o `.env`
 
 **Conferência do último item:**

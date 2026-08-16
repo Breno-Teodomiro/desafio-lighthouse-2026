@@ -209,7 +209,7 @@ table _Medidas
 		lineageTag: 60990c74-193c-909e-2224-536c87377f0a
 
 	/// OS CINCO INDICADORES DA CAPA.
-	///
+	/// 
 	/// FORMA BLOCO — devolve o componente inteiro, então o visual recebe uma
 	/// linha só e não emite filtro. Recebe filtro normalmente.
 	measure 'HTML — Faixa de KPIs' =
@@ -249,10 +249,10 @@ table _Medidas
 		lineageTag: 1378e373-12a9-677e-5ca8-395682d3e749
 
 	/// RECEITA MENSAL, BRUTA E EFETIVADA, em SVG.
-	///
+	/// 
 	/// A distância entre as duas linhas é o dinheiro que nunca virou receita —
 	/// R$ 207,1 milhões no período inteiro.
-	///
+	/// 
 	/// FORMA BLOCO — devolve o componente inteiro, então o visual recebe uma
 	/// linha só e não emite filtro. Recebe filtro normalmente.
 	measure 'HTML — Série de Receita' =
@@ -303,7 +303,7 @@ table _Medidas
 		lineageTag: 00852169-6575-0cbc-b5a7-624ab13095ef
 
 	/// RECEITA POR STATUS DO PEDIDO.
-	///
+	/// 
 	/// FORMA LINHA — devolve UMA linha, e a coluna de granularidade entra no
 	/// papel `sampling` do visual. É isso que dá cross-filter: o visual cria um
 	/// selectionId por linha, e clicar filtra a página como um gráfico nativo.
@@ -334,7 +334,7 @@ table _Medidas
 		lineageTag: 7a335205-a896-783c-1519-5020dd69f4b1
 
 	/// PEDIDOS POR CANAL.
-	///
+	/// 
 	/// FORMA LINHA — devolve UMA linha, e a coluna de granularidade entra no
 	/// papel `sampling` do visual. É isso que dá cross-filter: o visual cria um
 	/// selectionId por linha, e clicar filtra a página como um gráfico nativo.
@@ -365,7 +365,7 @@ table _Medidas
 		lineageTag: d2a2796e-4385-56bf-c7ef-5ef6fca0abc9
 
 	/// AS CINCO MAIORES CATEGORIAS POR MARGEM LÍQUIDA.
-	///
+	/// 
 	/// FORMA LINHA — devolve UMA linha, e a coluna de granularidade entra no
 	/// papel `sampling` do visual. É isso que dá cross-filter: o visual cria um
 	/// selectionId por linha, e clicar filtra a página como um gráfico nativo.
@@ -396,11 +396,11 @@ table _Medidas
 		lineageTag: 56ad3982-3298-9a25-39fd-7cecede4adab
 
 	/// INDICADORES DE MARGEM.
-	///
+	/// 
 	/// O terceiro cartão troca o `% Margem Bruta` do desenho antigo pelo
 	/// DESCONTO em reais — a diferença entre as duas margens, que é o número
 	/// que ninguém olha e explica o resto da página.
-	///
+	/// 
 	/// FORMA BLOCO — devolve o componente inteiro, então o visual recebe uma
 	/// linha só e não emite filtro. Recebe filtro normalmente.
 	measure 'HTML — Faixa de Margem' =
@@ -435,11 +435,11 @@ table _Medidas
 		lineageTag: 0817ed3d-d400-a80f-3535-1cdfee8d036b
 
 	/// RECEITA E MARGEM POR CATEGORIA, as duas barras empilhadas.
-	///
+	/// 
 	/// Empilhadas e não lado a lado porque a comparação é entre as DUAS de uma
 	/// mesma categoria, não entre categorias — e é a proporção constante entre
 	/// elas que sustenta o título da página.
-	///
+	/// 
 	/// FORMA LINHA — devolve UMA linha, e a coluna de granularidade entra no
 	/// papel `sampling` do visual. É isso que dá cross-filter: o visual cria um
 	/// selectionId por linha, e clicar filtra a página como um gráfico nativo.
@@ -477,11 +477,11 @@ table _Medidas
 		lineageTag: 4b414eea-e226-da9f-d951-e9b178283d78
 
 	/// TOP 10 PRODUTOS POR MARGEM.
-	///
+	/// 
 	/// A barra é proporcional ao MAIOR DA LISTA, não a 100%: as margens vão de
 	/// 37% a 53%, e num eixo de 0 a 100 nada se distinguiria. O valor absoluto
 	/// vai no rótulo, então a escala relativa não engana.
-	///
+	/// 
 	/// FORMA LINHA — devolve UMA linha, e a coluna de granularidade entra no
 	/// papel `sampling` do visual. É isso que dá cross-filter: o visual cria um
 	/// selectionId por linha, e clicar filtra a página como um gráfico nativo.
@@ -512,7 +512,7 @@ table _Medidas
 		lineageTag: 05c25cd0-2bc7-e264-48e8-8eceb4decc6d
 
 	/// MARGEM PERCENTUAL MÊS A MÊS, em SVG.
-	///
+	/// 
 	/// FORMA BLOCO — devolve o componente inteiro, então o visual recebe uma
 	/// linha só e não emite filtro. Recebe filtro normalmente.
 	measure 'HTML — Série de Margem' =
@@ -555,7 +555,7 @@ table _Medidas
 		lineageTag: 3a8a01ad-3c02-b88d-79de-92bdcef23fd1
 
 	/// INDICADORES DE CLIENTE.
-	///
+	/// 
 	/// FORMA BLOCO — devolve o componente inteiro, então o visual recebe uma
 	/// linha só e não emite filtro. Recebe filtro normalmente.
 	measure 'HTML — Faixa de Clientes' =
@@ -590,7 +590,7 @@ table _Medidas
 		lineageTag: 2445292e-49bd-eea5-37c5-19d490958350
 
 	/// TOP 10 CLIENTES POR TICKET MÉDIO — o ranking literal da Questão 4.
-	///
+	/// 
 	/// FORMA LINHA — devolve UMA linha, e a coluna de granularidade entra no
 	/// papel `sampling` do visual. É isso que dá cross-filter: o visual cria um
 	/// selectionId por linha, e clicar filtra a página como um gráfico nativo.
@@ -621,10 +621,10 @@ table _Medidas
 		lineageTag: f9ec154e-f3b6-8a6e-acb8-65a8c58562d2
 
 	/// TICKET × FATURAMENTO, no mesmo cliente.
-	///
+	/// 
 	/// As duas barras raramente acompanham uma à outra, e é esse descompasso
 	/// que mostra que ticket alto não é o mesmo que cliente valioso.
-	///
+	/// 
 	/// FORMA LINHA — devolve UMA linha, e a coluna de granularidade entra no
 	/// papel `sampling` do visual. É isso que dá cross-filter: o visual cria um
 	/// selectionId por linha, e clicar filtra a página como um gráfico nativo.
@@ -662,7 +662,7 @@ table _Medidas
 		lineageTag: be766c21-0b14-fe70-cafd-7fdabd01d8ee
 
 	/// CATEGORIAS POR ITENS VENDIDOS.
-	///
+	/// 
 	/// FORMA LINHA — devolve UMA linha, e a coluna de granularidade entra no
 	/// papel `sampling` do visual. É isso que dá cross-filter: o visual cria um
 	/// selectionId por linha, e clicar filtra a página como um gráfico nativo.
@@ -693,7 +693,7 @@ table _Medidas
 		lineageTag: d2363932-5610-be59-c717-9c88f833870e
 
 	/// OS QUATRO NÚMEROS DA QUESTÃO 5.
-	///
+	/// 
 	/// FORMA BLOCO — devolve o componente inteiro, então o visual recebe uma
 	/// linha só e não emite filtro. Recebe filtro normalmente.
 	measure 'HTML — Faixa de Sazonalidade' =
@@ -723,12 +723,12 @@ table _Medidas
 		lineageTag: f78be799-fd48-35f2-a614-804eae3d927f
 
 	/// AS DUAS MÉDIAS, DIA A DIA — o visual mais importante do painel.
-	///
+	/// 
 	/// Ordem natural da semana, não por valor: o leitor procura o dia, não a
 	/// posição. A barra de cima é a média correta e a de baixo a ingênua; onde
 	/// a laranja se estica mais, o erro é maior — e ele é maior justamente na
 	/// quinta-feira, que é o que inverte o ranking.
-	///
+	/// 
 	/// FORMA LINHA — devolve UMA linha, e a coluna de granularidade entra no
 	/// papel `sampling` do visual. É isso que dá cross-filter: o visual cria um
 	/// selectionId por linha, e clicar filtra a página como um gráfico nativo.
@@ -764,10 +764,10 @@ table _Medidas
 		lineageTag: 145cebab-8832-5f93-dba9-43a8885e97b5
 
 	/// DIAS SEM VENDA POR DIA DA SEMANA.
-	///
+	/// 
 	/// 20 na quinta contra 7 na segunda — a desigualdade que faz a média
 	/// ingênua inflar mais um dia que outro e trocar o pior dia da semana.
-	///
+	/// 
 	/// FORMA LINHA — devolve UMA linha, e a coluna de granularidade entra no
 	/// papel `sampling` do visual. É isso que dá cross-filter: o visual cria um
 	/// selectionId por linha, e clicar filtra a página como um gráfico nativo.
@@ -796,11 +796,11 @@ table _Medidas
 		lineageTag: 6e82700b-dd5e-7590-4a56-c25a18587fa4
 
 	/// DIAS SEM VENDA POR ANO, em SVG.
-	///
+	/// 
 	/// Era uma lista, e virou série porque a lista só cabia com quatro anos —
 	/// e a queda de 25 em 2020 para 1 em 2025 é justamente o que a página
 	/// quer mostrar. A curva mostra os sete de uma vez.
-	///
+	/// 
 	/// FORMA BLOCO — devolve o componente inteiro, então o visual recebe uma
 	/// linha só e não emite filtro. Recebe filtro normalmente.
 	measure 'HTML — Série de Dias Vazios' =
@@ -841,11 +841,11 @@ table _Medidas
 		lineageTag: 612c4980-0a05-f75e-ba0f-d7cb7bc51abf
 
 	/// A SÉRIE DA BÚSSOLA DE BORDO 702, em SVG.
-	///
+	/// 
 	/// A linha laranja só existe nos três meses de teste — é ali que a previsão
 	/// descola do realizado. Os 75 meses cabem sem rolagem, que era o defeito
 	/// do gráfico nativo aqui: a previsão ficava fora da janela visível.
-	///
+	/// 
 	/// FORMA BLOCO — devolve o componente inteiro, então o visual recebe uma
 	/// linha só e não emite filtro. Recebe filtro normalmente.
 	measure 'HTML — Série da Bússola' =
@@ -896,7 +896,7 @@ table _Medidas
 		lineageTag: 85a1c971-a6f0-71a4-2ed5-472a533d44ec
 
 	/// O CONFRONTO DA QUESTÃO 6: 207 realizadas contra 116 previstas.
-	///
+	/// 
 	/// FORMA BLOCO — devolve o componente inteiro, então o visual recebe uma
 	/// linha só e não emite filtro. Recebe filtro normalmente.
 	measure 'HTML — Faixa da Previsão' =
@@ -921,11 +921,11 @@ table _Medidas
 		lineageTag: 59364cd2-e3e5-56f3-e870-5da5074a4702
 
 	/// RANKING DA QUESTÃO 7.
-	///
+	/// 
 	/// Quatro casas decimais de propósito: o 1º ganha do 2º por 0,0003, e
 	/// arredondar para duas empataria os três primeiros — que é exatamente o
 	/// argumento da resposta.
-	///
+	/// 
 	/// FORMA LINHA — devolve UMA linha, e a coluna de granularidade entra no
 	/// papel `sampling` do visual. É isso que dá cross-filter: o visual cria um
 	/// selectionId por linha, e clicar filtra a página como um gráfico nativo.
@@ -957,7 +957,7 @@ table _Medidas
 
 	/// CO-OCORRÊNCIA NO MESMO PEDIDO — a formulação correta do problema da
 	/// Marina, que devolve outro campeão: Tinta Antifouling.
-	///
+	/// 
 	/// FORMA LINHA — devolve UMA linha, e a coluna de granularidade entra no
 	/// papel `sampling` do visual. É isso que dá cross-filter: o visual cria um
 	/// selectionId por linha, e clicar filtra a página como um gráfico nativo.
