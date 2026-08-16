@@ -22,7 +22,7 @@
                     "value": "Por que o erro é perigoso, e por que a recomendação é não fechar",
                     "textStyle": {
                       "fontSize": "12pt",
-                      "color": "#0F2B3D",
+                      "color": "#E8EEF4",
                       "fontWeight": "bold",
                       "fontFamily": "Segoe UI"
                     }
@@ -35,7 +35,7 @@
                     "value": "Se o erro fosse uniforme, ele seria inofensivo para o ranking: todos os dias inflariam igual e a ordem sobreviveria. Ele não é. Remover 20 dias vazios do denominador da quinta sobe a média dela em R$ 9.084 (+5,78%) e a tira do último lugar; a segunda, com 7 vazios, sobe só R$ 3.094 (+1,96%) e cai para lá.",
                     "textStyle": {
                       "fontSize": "10pt",
-                      "color": "#5A6B78",
+                      "color": "#93A5B8",
                       "fontWeight": "normal",
                       "fontFamily": "Segoe UI"
                     }
@@ -48,7 +48,7 @@
                     "value": "Mas a diferença entre o pior dia e o melhor é de apenas 10,5%, e entre quinta e domingo é de 0,3%. Isso é ruído, não sazonalidade. Nenhum dia da semana justifica fechar a loja.",
                     "textStyle": {
                       "fontSize": "10pt",
-                      "color": "#D96A17",
+                      "color": "#D9772A",
                       "fontWeight": "normal",
                       "fontFamily": "Segoe UI"
                     }

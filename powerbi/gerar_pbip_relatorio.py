@@ -31,13 +31,13 @@ LARGURA, ALTURA = 1280, 720
 # Paleta — azul-marinho (varejo náutico), com laranja como cor de destaque
 # reservada para o achado de cada página. Uso parcimonioso é o que faz o
 # destaque funcionar.
-COR_TEXTO = "#0F2B3D"
-COR_SUAVE = "#5A6B78"
-COR_PRIMARIA = "#0069A3"
-COR_DESTAQUE = "#D96A17"
-COR_FUNDO = "#F4F7F9"
-COR_CARTAO = "#FFFFFF"
-COR_BORDA = "#E4EBEF"
+COR_TEXTO = "#E8EEF4"
+COR_SUAVE = "#93A5B8"
+COR_PRIMARIA = "#2D9CDB"
+COR_DESTAQUE = "#D9772A"
+COR_FUNDO = "#0A121E"
+COR_CARTAO = "#0E1826"
+COR_BORDA = "#1E2E42"
 
 
 def lit(valor: Any) -> dict:

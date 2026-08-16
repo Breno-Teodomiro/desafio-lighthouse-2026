@@ -22,7 +22,7 @@
                     "value": "Previsão e recomendação — Questões 6 e 7",
                     "textStyle": {
                       "fontSize": "20pt",
-                      "color": "#0F2B3D",
+                      "color": "#E8EEF4",
                       "fontWeight": "bold",
                       "fontFamily": "Segoe UI"
                     }
@@ -35,7 +35,7 @@
                     "value": "Dois modelos baseline, e a evidência de que nenhum dos dois deveria ir para produção como está.",
                     "textStyle": {
                       "fontSize": "10pt",
-                      "color": "#5A6B78",
+                      "color": "#93A5B8",
                       "fontWeight": "normal",
                       "fontFamily": "Segoe UI"
                     }

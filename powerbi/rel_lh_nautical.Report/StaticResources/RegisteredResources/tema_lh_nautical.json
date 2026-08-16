@@ -1,46 +1,45 @@
 {
   "name": "tema_lh_nautical",
   "dataColors": [
-    "#0069A3",
-    "#D96A17",
-    "#6A4C93",
-    "#B08628",
-    "#8E44AD",
-    "#C0392B"
+    "#2D9CDB",
+    "#D9772A",
+    "#8B7AE8",
+    "#DE6161",
+    "#AC7DD4"
   ],
-  "background": "#F4F7F9",
-  "backgroundLight": "#FFFFFF",
-  "foreground": "#0F2B3D",
-  "foregroundNeutralSecondary": "#5A6B78",
-  "tableAccent": "#0069A3",
-  "good": "#2E7D32",
-  "neutral": "#8A98A3",
-  "bad": "#C0392B",
-  "maximum": "#0069A3",
-  "center": "#B8C7D1",
-  "minimum": "#EAF1F5",
-  "null": "#8A98A3",
-  "hyperlink": "#0069A3",
+  "background": "#0A121E",
+  "backgroundLight": "#0E1826",
+  "foreground": "#E8EEF4",
+  "foregroundNeutralSecondary": "#93A5B8",
+  "tableAccent": "#2D9CDB",
+  "good": "#3FB98A",
+  "neutral": "#6F8299",
+  "bad": "#DE6161",
+  "maximum": "#2D9CDB",
+  "center": "#2A3F58",
+  "minimum": "#16233A",
+  "null": "#6F8299",
+  "hyperlink": "#2D9CDB",
   "textClasses": {
     "callout": {
       "fontFace": "Segoe UI Light",
       "fontSize": 28,
-      "color": "#0069A3"
+      "color": "#E8EEF4"
     },
     "title": {
       "fontFace": "Segoe UI Semibold",
       "fontSize": 12,
-      "color": "#0F2B3D"
+      "color": "#E8EEF4"
     },
     "header": {
       "fontFace": "Segoe UI Semibold",
       "fontSize": 10,
-      "color": "#3D5666"
+      "color": "#B9C7D4"
     },
     "label": {
       "fontFace": "Segoe UI",
       "fontSize": 9,
-      "color": "#5A6B78"
+      "color": "#93A5B8"
     }
   },
   "visualStyles": {
@@ -49,21 +48,21 @@
         "background": [
           {
             "show": true,
-            "color": { "solid": { "color": "#FFFFFF" } },
+            "color": { "solid": { "color": "#0E1826" } },
             "transparency": 0
           }
         ],
         "border": [
           {
             "show": true,
-            "color": { "solid": { "color": "#E4EBEF" } },
+            "color": { "solid": { "color": "#1E2E42" } },
             "radius": 10
           }
         ],
         "visualHeader": [{ "show": false }],
         "title": [
           {
-            "fontColor": { "solid": { "color": "#0F2B3D" } },
+            "fontColor": { "solid": { "color": "#E8EEF4" } },
             "fontSize": 11,
             "alignment": "left"
           }
@@ -73,7 +72,7 @@
             "show": true,
             "showAxisTitle": false,
             "gridlineShow": false,
-            "labelColor": { "solid": { "color": "#5A6B78" } },
+            "labelColor": { "solid": { "color": "#93A5B8" } },
             "fontSize": 9,
             "concatenateLabels": false
           }
@@ -83,9 +82,9 @@
             "show": true,
             "showAxisTitle": false,
             "gridlineShow": true,
-            "gridlineColor": { "solid": { "color": "#EFF3F5" } },
+            "gridlineColor": { "solid": { "color": "#1A2738" } },
             "gridlineThickness": 1,
-            "labelColor": { "solid": { "color": "#8A98A3" } },
+            "labelColor": { "solid": { "color": "#6F8299" } },
             "fontSize": 9
           }
         ],
@@ -94,13 +93,13 @@
             "show": true,
             "position": "TopLeft",
             "showTitle": false,
-            "labelColor": { "solid": { "color": "#5A6B78" } },
+            "labelColor": { "solid": { "color": "#93A5B8" } },
             "fontSize": 9
           }
         ],
         "labels": [
           {
-            "color": { "solid": { "color": "#3D5666" } },
+            "color": { "solid": { "color": "#B9C7D4" } },
             "fontSize": 9
           }
         ]

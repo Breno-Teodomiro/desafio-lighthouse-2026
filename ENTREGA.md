@@ -81,6 +81,31 @@ Desktop (não regeradas pelo script, para não desfazer o que ele normalizou):
 
 As regras 1 e 2 viraram verificação automática em `tests/validar_pbip.py`.
 
+### Opcional: a faixa de KPIs em HTML
+
+Existe uma medida pronta, **`HTML — Faixa de KPIs`** (pasta *0 HTML*), que devolve
+os cinco indicadores da capa como um bloco HTML estilizado — número grande em
+peso leve, rótulo em versalete espaçado, barra de proporção e uma linha de
+contexto que o cartão nativo não comporta. Ela reage aos filtros como qualquer
+medida.
+
+Para usá-la:
+
+1. **Inserir → Mais visuais → Do AppSource → "HTML Content (lite)"**.
+   Use o **(lite)**, que é **certificado** — visual certificado é aceito em
+   *Publicar na web*, o não-certificado pode ser bloqueado. O visual fica
+   embutido no `.pbix`, então quem abrir o arquivo não precisa instalar nada.
+2. Arrastar o visual para a capa, no lugar da faixa de cartões.
+3. Colocar `HTML — Faixa de KPIs` no campo de valores.
+
+**Não é Tailwind, e não dá para ser.** O visual roda num iframe com apenas
+`allow-scripts`: toda tag `<script>` externa é bloqueada, então nenhum CDN
+carrega — nem Tailwind, nem fonte do Google. Todo estilo é CSS inline, que é
+como a medida está escrita.
+
+Se preferir não depender de visual externo, **não faça nada**: os cartões
+nativos continuam na página e o relatório está completo sem isso.
+
 **Passos:**
 
 1. Abrir `powerbi/lh_nautical.pbip` no Power BI Desktop

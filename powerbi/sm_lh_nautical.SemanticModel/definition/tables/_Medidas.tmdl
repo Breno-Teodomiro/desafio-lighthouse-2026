@@ -173,6 +173,67 @@ table _Medidas
 		displayFolder: 6 Previsão
 		lineageTag: 0e9d279e-7744-ad69-c8a6-05aac859999a
 
+	/// FAIXA DE KPIs EM HTML — para o visual "HTML Content (lite)".
+	/// 
+	/// Devolve os cinco indicadores da capa como um bloco HTML já estilizado:
+	/// número grande em peso leve, rótulo em versalete espaçado e uma linha de
+	/// contexto que o cartão nativo não comporta.
+	/// 
+	/// POR QUE CSS INLINE, E NÃO TAILWIND
+	///   O visual roda num iframe com apenas `allow-scripts`. Toda tag
+	///   <script> externa é bloqueada, então CDN de Tailwind não carrega.
+	///   Todo estilo tem de vir inline, como está aqui.
+	/// 
+	/// A faixa REAGE aos filtros, como qualquer medida — trocar o status no
+	/// segmentador reescreve os cinco números e a barra de proporção.
+	measure 'HTML — Faixa de KPIs' =
+			VAR _Bruta      = [Receita Bruta]
+			VAR _Efetivada  = [Receita Efetivada]
+			VAR _Pedidos    = [Nº Pedidos]
+			VAR _Ticket     = [Ticket Médio]
+			VAR _Margem     = [% Margem Líquida]
+			VAR _PctEfetiva = DIVIDE(_Efetivada, _Bruta)
+			VAR _Caixa =
+			    "flex:1;background:#0E1826;border:1px solid #1E2E42;border-radius:14px;padding:16px 18px;"
+			VAR _Rotulo =
+			    "font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:#93A5B8;font-weight:600;"
+			VAR _Numero =
+			    "font-size:30px;line-height:1.15;font-weight:300;color:#E8EEF4;margin-top:8px;"
+			VAR _Nota = "font-size:11px;color:#6F8299;margin-top:6px;"
+			RETURN
+			    "<div style=""display:flex;gap:12px;font-family:Segoe UI,Segoe UI Light,sans-serif;"">"
+			  & "<div style=""" & _Caixa & """>"
+			  &   "<div style=""" & _Rotulo & """>Receita Bruta</div>"
+			  &   "<div style=""" & _Numero & """>R$ " & FORMAT(_Bruta / 1000000, "#,##0") & " Mi</div>"
+			  &   "<div style=""" & _Nota & """>GMV, todos os status</div>"
+			  & "</div>"
+			  & "<div style=""" & _Caixa & """>"
+			  &   "<div style=""" & _Rotulo & """>Receita Efetivada</div>"
+			  &   "<div style=""" & _Numero & "color:#2D9CDB;"">R$ " & FORMAT(_Efetivada / 1000000, "#,##0") & " Mi</div>"
+			  &   "<div style=""height:4px;background:#16233A;border-radius:2px;margin-top:10px;overflow:hidden;"">"
+			  &     "<div style=""height:4px;width:" & FORMAT(_PctEfetiva, "0") & "%;background:#2D9CDB;""></div>"
+			  &   "</div>"
+			  &   "<div style=""" & _Nota & """>" & FORMAT(_PctEfetiva, "0.0%") & " do GMV virou receita</div>"
+			  & "</div>"
+			  & "<div style=""" & _Caixa & """>"
+			  &   "<div style=""" & _Rotulo & """>Pedidos</div>"
+			  &   "<div style=""" & _Numero & """>" & FORMAT(_Pedidos, "#,##0") & "</div>"
+			  &   "<div style=""" & _Nota & """>2020 a 2026</div>"
+			  & "</div>"
+			  & "<div style=""" & _Caixa & """>"
+			  &   "<div style=""" & _Rotulo & """>Ticket Medio</div>"
+			  &   "<div style=""" & _Numero & """>R$ " & FORMAT(_Ticket, "#,##0.00") & "</div>"
+			  &   "<div style=""" & _Nota & """>resposta da Questao 1</div>"
+			  & "</div>"
+			  & "<div style=""" & _Caixa & """>"
+			  &   "<div style=""" & _Rotulo & """>Margem Liquida</div>"
+			  &   "<div style=""" & _Numero & "color:#D9772A;"">" & FORMAT(_Margem, "0.00%") & "</div>"
+			  &   "<div style=""" & _Nota & """>ja liquida de desconto</div>"
+			  & "</div>"
+			  & "</div>"
+		displayFolder: 0 HTML
+		lineageTag: d07289d9-b0ca-6ad2-cf11-9db741fad1ad
+
 	/// As 207 unidades efetivamente vendidas no trimestre de teste
 	/// (jan–mar/2026). Recorta pela flag `eh_treino`, e não por datas
 	/// escritas à mão, para que a medida acompanhe a janela do modelo se

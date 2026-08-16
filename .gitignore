@@ -37,3 +37,8 @@ desktop.ini
 Formulario_de_Questoes.md
 Desafio_Lighthouse.md
 *Edital*.pdf
+
+# Skills instaladas de terceiros (ui-ux-pro-max, MIT) — 3,8 MB de dados de
+# consulta que não são deste projeto. Reinstaláveis pelo repositório de origem.
+.claude/skills/ui-ux-pro-max/
+.claude/skills/design-system/

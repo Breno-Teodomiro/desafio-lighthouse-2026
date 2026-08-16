@@ -22,7 +22,7 @@
                     "value": "Quinta-feira é o pior dia — e o cálculo ingênuo aponta outro",
                     "textStyle": {
                       "fontSize": "20pt",
-                      "color": "#0F2B3D",
+                      "color": "#E8EEF4",
                       "fontWeight": "bold",
                       "fontFamily": "Segoe UI"
                     }
@@ -35,7 +35,7 @@
                     "value": "Lojas físicas · 2.557 dias de calendário · 78 deles sem nenhuma venda",
                     "textStyle": {
                       "fontSize": "10pt",
-                      "color": "#5A6B78",
+                      "color": "#93A5B8",
                       "fontWeight": "normal",
                       "fontFamily": "Segoe UI"
                     }

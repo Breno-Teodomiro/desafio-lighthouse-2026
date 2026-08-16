@@ -22,7 +22,7 @@
                     "value": "O que o ranking premia, e o que ele deixa passar",
                     "textStyle": {
                       "fontSize": "12pt",
-                      "color": "#0F2B3D",
+                      "color": "#E8EEF4",
                       "fontWeight": "bold",
                       "fontFamily": "Segoe UI"
                     }
@@ -35,7 +35,7 @@
                     "value": "Ordenar por ticket médio premia quem compra caro e raro em cima de quem compra muito. O cliente 1116 tem o 4º maior ticket e R$ 655 mil de faturamento; o cliente 1722 tem o 10º ticket e R$ 1,15 milhão — 75% a mais.",
                     "textStyle": {
                       "fontSize": "10pt",
-                      "color": "#5A6B78",
+                      "color": "#93A5B8",
                       "fontWeight": "normal",
                       "fontFamily": "Segoe UI"
                     }
@@ -48,7 +48,7 @@
                     "value": "Se o objetivo declarado é replicar o comportamento em outros segmentos, o comportamento de 1722 provavelmente interessa mais. Um critério de RFM (recência, frequência, valor) discriminaria o que o filtro de 13 categorias não discrimina.",
                     "textStyle": {
                       "fontSize": "10pt",
-                      "color": "#5A6B78",
+                      "color": "#93A5B8",
                       "fontWeight": "normal",
                       "fontFamily": "Segoe UI"
                     }

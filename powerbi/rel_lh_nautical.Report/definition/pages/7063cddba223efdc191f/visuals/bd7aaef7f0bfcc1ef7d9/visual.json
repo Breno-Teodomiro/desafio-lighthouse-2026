@@ -22,7 +22,7 @@
                     "value": "Clientes de elite — Questão 4",
                     "textStyle": {
                       "fontSize": "20pt",
-                      "color": "#0F2B3D",
+                      "color": "#E8EEF4",
                       "fontWeight": "bold",
                       "fontFamily": "Segoe UI"
                     }
@@ -35,7 +35,7 @@
                     "value": "Ticket médio alto e compra em muitas categorias. O ranking usa ticket médio, com desempate por customer_id.",
                     "textStyle": {
                       "fontSize": "10pt",
-                      "color": "#5A6B78",
+                      "color": "#93A5B8",
                       "fontWeight": "normal",
                       "fontFamily": "Segoe UI"
                     }

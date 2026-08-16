@@ -400,6 +400,19 @@ def main() -> int:
     tabelas, medidas, dax = ler_modelo()
     print(f"Modelo: {len(tabelas)} tabelas, {len(medidas)} medidas")
 
+    # --- 13. fim de linha consistente -------------------------------------
+    # Um bloco gravado em LF dentro de um arquivo CRLF faz o parser TMDL ver
+    # uma linha vazia onde não há, e ele aborta com "Unexpected line type".
+    # Custou uma rodada: o erro reportado aponta o TMDL, não a gravação.
+    for arquivo in sorted(MODELO.rglob("*.tmdl")):
+        linhas = arquivo.read_bytes().split(b"\n")[:-1]
+        soltas = sum(1 for linha in linhas if not linha.endswith(b"\r"))
+        if soltas and len(linhas) - soltas:
+            erros.append(
+                f"{arquivo.name}: {soltas} de {len(linhas)} linhas em LF num "
+                f"arquivo CRLF — normalize antes de salvar"
+            )
+
     # --- 7. partição e Parquet correspondente -----------------------------
     for arquivo in sorted((MODELO / "tables").glob("*.tmdl")):
         texto = arquivo.read_text(encoding="utf-8")

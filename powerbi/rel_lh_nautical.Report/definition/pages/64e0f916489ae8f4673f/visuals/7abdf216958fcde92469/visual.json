@@ -22,7 +22,7 @@
                     "value": "Questão 7",
                     "textStyle": {
                       "fontSize": "12pt",
-                      "color": "#0F2B3D",
+                      "color": "#E8EEF4",
                       "fontWeight": "bold",
                       "fontFamily": "Segoe UI"
                     }
@@ -35,7 +35,7 @@
                     "value": "Os três primeiros estão a 2,40 / 2,39 / 2,38 desvios da média. São indistinguíveis.",
                     "textStyle": {
                       "fontSize": "9pt",
-                      "color": "#5A6B78",
+                      "color": "#93A5B8",
                       "fontWeight": "normal",
                       "fontFamily": "Segoe UI"
                     }
@@ -48,7 +48,7 @@
                     "value": "O top-1 é outro motor de popa: a métrica encontra substitutos, e cross-sell precisa de complementos.",
                     "textStyle": {
                       "fontSize": "9pt",
-                      "color": "#D96A17",
+                      "color": "#D9772A",
                       "fontWeight": "normal",
                       "fontFamily": "Segoe UI"
                     }
@@ -61,7 +61,7 @@
                     "value": "Por cesta, o vizinho mais frequente é Tinta Antifouling — que faz sentido de negócio.",
                     "textStyle": {
                       "fontSize": "9pt",
-                      "color": "#5A6B78",
+                      "color": "#93A5B8",
                       "fontWeight": "normal",
                       "fontFamily": "Segoe UI"
                     }

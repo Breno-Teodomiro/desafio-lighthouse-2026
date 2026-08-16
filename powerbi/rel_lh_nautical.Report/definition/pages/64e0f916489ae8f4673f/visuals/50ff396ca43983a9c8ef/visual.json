@@ -22,7 +22,7 @@
                     "value": "Questão 6 — por que o baseline não serve",
                     "textStyle": {
                       "fontSize": "12pt",
-                      "color": "#0F2B3D",
+                      "color": "#E8EEF4",
                       "fontWeight": "bold",
                       "fontFamily": "Segoe UI"
                     }
@@ -35,7 +35,7 @@
                     "value": "Não é 'usou meses de baixa para prever meses de pico': out–dez vale 39,6 un./mês contra 35,9 de jan–mar. A janela estava do lado certo do ciclo.",
                     "textStyle": {
                       "fontSize": "10pt",
-                      "color": "#5A6B78",
+                      "color": "#93A5B8",
                       "fontWeight": "normal",
                       "fontFamily": "Segoe UI"
                     }
@@ -48,7 +48,7 @@
                     "value": "As causas reais são a tendência (o Q1 saiu de 64 unidades em 2020 para 207 em 2026) e dez/2025 ter vendido 22 contra uma média histórica de 45,6 — sozinho, esse mês derruba a previsão em 24 unidades no trimestre.",
                     "textStyle": {
                       "fontSize": "10pt",
-                      "color": "#5A6B78",
+                      "color": "#93A5B8",
                       "fontWeight": "normal",
                       "fontFamily": "Segoe UI"
                     }
@@ -61,7 +61,7 @@
                     "value": "O seasonal naive, que só repete o ano anterior, tem MAE de 25,0 contra 30,3 da média móvel. O baseline pedido perde para a regra mais simples que existe.",
                     "textStyle": {
                       "fontSize": "10pt",
-                      "color": "#D96A17",
+                      "color": "#D9772A",
                       "fontWeight": "normal",
                       "fontFamily": "Segoe UI"
                     }
