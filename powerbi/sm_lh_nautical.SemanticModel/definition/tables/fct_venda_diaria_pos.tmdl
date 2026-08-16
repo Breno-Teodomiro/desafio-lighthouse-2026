@@ -1,6 +1,6 @@
 /// Grão: DIA de loja física, denso — 2.557 linhas, incluindo os 78 dias em
 /// que a loja abriu e não vendeu nada.
-///
+/// 
 /// É a densidade que torna a Questão 5 possível: sem os dias de valor zero,
 /// a média por dia da semana passa a ser média condicionada a ter havido
 /// venda, que é outra pergunta e aponta outro dia.

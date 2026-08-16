@@ -67,11 +67,15 @@ O projeto Power BI foi gerado em `powerbi/lh_nautical.pbip` (15 tabelas, 19 medi
 1. Regenerar os dados, se necessário: `make powerbi`
 2. Abrir `powerbi/lh_nautical.pbip` no Power BI Desktop
    *(Arquivo → Opções → Recursos de Versão Prévia → **Power BI Project (.pbip) save option** ligado)*
-3. Se o parâmetro `PastaDados` não apontar para a pasta certa, ajustar em *Transformar dados → Parâmetros*
+3. Se o parâmetro `PastaDados` não apontar para a pasta certa, ajustar em *Transformar dados → Parâmetros*.
+   Valor gravado: `C:\PROJETOS\INDICIUM_ACADEMY\DESAFIO_LIGHTHOUSE_2026\dados\gold`
 4. **Conferir os números contra a tabela de referência abaixo**
-5. Ajustar posicionamento e formatação dos visuais onde estiver feio — o layout foi escrito às cegas
-6. `Arquivo → Salvar como → .pbix`
-7. `Arquivo → Exportar → PDF`
+5. *(opcional)* Marcar `dim_data` como tabela de datas — botão direito na tabela →
+   **Marcar como tabela de data** → coluna `data`. Nenhuma das 19 medidas usa
+   time intelligence, então nada quebra sem isso; é só higiene do modelo
+6. Ajustar posicionamento e formatação dos visuais onde estiver feio — o layout foi escrito às cegas
+7. `Arquivo → Salvar como → .pbix`
+8. `Arquivo → Exportar → PDF`
 
 ### Números que o dashboard deve reproduzir
 

@@ -1,8 +1,8 @@
 /// Todas as medidas do modelo, agrupadas por displayFolder.
-///
+/// 
 /// Ficam numa tabela própria para que a lista de campos mostre dimensões e
 /// medidas separadas, em vez de medidas espalhadas por seis fatos.
-///
+/// 
 /// REGRA DESTE MODELO: medida que envolve grão ou fan-out explica na
 /// descrição de qual fato ela sai e por quê. Ticket médio sai sempre de
 /// fct_pedido; margem sai sempre de fct_item_pedido.
@@ -18,21 +18,21 @@ table _Medidas
 	/// GMV: soma de orders.total, TODOS os status. É o número da leitura
 	/// literal do enunciado — inclui pedidos cancelados e rascunhos.
 	measure 'Receita Bruta' = SUM(fct_pedido[total])
-		formatString: "R$ "#,##0
+		formatString: R$ #,##0
 		displayFolder: 1 Vendas
 		lineageTag: 60cd3cd0-5699-947d-74b3-44db185bc5da
 
 	/// Só `paid` e `confirmed`. A diferença para a Receita Bruta é de
 	/// R$ 207,1 milhões (14,7%) — pedidos que nunca viraram receita.
 	measure 'Receita Efetivada' = CALCULATE([Receita Bruta], dim_status_pedido[eh_receita_efetivada] = TRUE())
-		formatString: "R$ "#,##0
+		formatString: R$ #,##0
 		displayFolder: 1 Vendas
 		lineageTag: 34d0da20-6ca4-2e9b-d38c-78a22d453f56
 
 	/// Receita dividida por número de PEDIDOS. Como as duas parcelas saem de
 	/// fct_pedido, é imune ao fan-out de itens e de pagamentos.
 	measure 'Ticket Médio' = DIVIDE([Receita Bruta], [Nº Pedidos])
-		formatString: "R$ "#,##0.00
+		formatString: R$ #,##0.00
 		displayFolder: 1 Vendas
 		lineageTag: 633689d5-5738-07b8-6646-83395b43542f
 
@@ -50,20 +50,20 @@ table _Medidas
 	/// Soma de line_total. Difere da Receita Bruta porque não desconta o
 	/// desconto do pedido — é a base sobre a qual a margem é calculada.
 	measure 'Receita de Itens' = SUM(fct_item_pedido[valor_linha])
-		formatString: "R$ "#,##0
+		formatString: R$ #,##0
 		displayFolder: 2 Margem
 		lineageTag: d5422c28-f40c-51d4-5e27-e31a35fff164
 
 	/// valor_linha − (quantidade × custo), antes do desconto do pedido.
 	measure 'Margem Bruta R$' = SUM(fct_item_pedido[margem_bruta])
-		formatString: "R$ "#,##0
+		formatString: R$ #,##0
 		displayFolder: 2 Margem
 		lineageTag: 88077ed6-088d-cabb-98cc-0420577255fc
 
 	/// Margem bruta menos o desconto do pedido rateado pela participação da
 	/// linha. O rateio reproduz orders.discount_amount ao centavo.
 	measure 'Margem Líquida R$' = SUM(fct_item_pedido[margem_liquida])
-		formatString: "R$ "#,##0
+		formatString: R$ #,##0
 		displayFolder: 2 Margem
 		lineageTag: b51464ed-3ff2-c756-3610-fe9de7a549e0
 
@@ -89,7 +89,7 @@ table _Medidas
 	/// A MEDIDA DA QUESTÃO 5. O denominador é a contagem de linhas do fato
 	/// denso, ou seja, TODOS os dias do calendário — inclusive os 78 em que a
 	/// loja abriu e não vendeu nada.
-	///
+	/// 
 	/// Comparar com 'Média por Dia (só dias com venda)' é o argumento inteiro
 	/// da questão.
 	measure 'Média de Venda por Dia POS' =
@@ -97,14 +97,14 @@ table _Medidas
 			    SUM(fct_venda_diaria_pos[valor_venda]),
 			    COUNTROWS(fct_venda_diaria_pos)
 			)
-		formatString: "R$ "#,##0
+		formatString: R$ #,##0
 		displayFolder: 3 Sazonalidade
 		lineageTag: a789f475-a2ae-c530-2331-96e22240e624
 
 	/// O ERRO DO ESTAGIÁRIO, reproduzido de propósito para a comparação lado a
 	/// lado. Divide só pelos dias em que houve venda — que é o que um GROUP BY
 	/// direto na tabela de vendas produz.
-	///
+	/// 
 	/// Aponta Segunda-feira como pior dia. A medida correta aponta
 	/// Quinta-feira.
 	measure 'Média por Dia (só dias com venda)' =
@@ -115,7 +115,7 @@ table _Medidas
 			        fct_venda_diaria_pos[dia_sem_venda] = FALSE()
 			    )
 			)
-		formatString: "R$ "#,##0
+		formatString: R$ #,##0
 		displayFolder: 3 Sazonalidade
 		lineageTag: 4615d2f8-85e0-2311-f34b-76956999a89a
 
@@ -162,7 +162,7 @@ table _Medidas
 
 	/// Quantidade em mãos avaliada ao custo.
 	measure 'Valor em Estoque' = SUM(fct_estoque_atual[valor_em_estoque])
-		formatString: "R$ "#,##0
+		formatString: R$ #,##0
 		displayFolder: 5 Pós-venda
 		lineageTag: 4b7a5bd1-6dab-442e-3e2b-925a37a169f3
 

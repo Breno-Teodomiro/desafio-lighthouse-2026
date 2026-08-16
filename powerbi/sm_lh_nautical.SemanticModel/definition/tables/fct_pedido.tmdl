@@ -1,6 +1,6 @@
 /// Grão: PEDIDO (48.998). Única origem de ticket médio e contagem de
 /// pedidos.
-///
+/// 
 /// Existe separada de fct_item_pedido porque `total` é do grão pedido: se
 /// morasse no fato de itens, o valor se repetiria por item e qualquer soma
 /// inflaria 3,67x.

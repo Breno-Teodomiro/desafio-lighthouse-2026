@@ -39,6 +39,21 @@ NOME_RELATORIO = "rel_lh_nautical"
 NOME_PBIP = "lh_nautical"
 
 
+def caminho_windows(caminho: Path) -> str:
+    """Converte um caminho do WSL para a forma que o Windows entende.
+
+    O gerador roda no WSL e enxerga `/mnt/c/PROJETOS/...`; o Power BI Desktop
+    roda no Windows e precisa de `C:\\PROJETOS\\...`. Gravar o caminho do WSL no
+    parâmetro produziria um projeto que abre e falha na atualização, com uma
+    mensagem que não aponta para a causa.
+    """
+    texto = str(caminho)
+    if texto.startswith("/mnt/") and len(texto) > 6 and texto[6] == "/":
+        letra = texto[5].upper()
+        return f"{letra}:" + texto[6:].replace("/", "\\")
+    return texto.replace("/", "\\") if "\\" not in texto else texto
+
+
 def guid(semente: str) -> str:
     """GUID determinístico a partir de um nome. Ver nota no cabeçalho."""
     h = hashlib.sha1(f"lh_nautical::{semente}".encode()).hexdigest()
@@ -87,7 +102,7 @@ OCULTAS = {
 DESCRICOES_TABELA = {
     "dim_data": (
         "Dimensão de datas densa, cobrindo todos os dias entre o primeiro e o\n"
-        "último pedido. Marcada como tabela de datas do modelo.\n"
+        "último pedido.\n"
         "\n"
         "`eh_futuro` é a coluna que permite sombrear a área posterior a hoje nos\n"
         "visuais: 8,7% dos pedidos têm data futura, e apresentá-los como\n"
@@ -181,7 +196,7 @@ MEDIDAS: list[tuple[str, str, str, str, str]] = [
     (
         "Receita Bruta",
         "SUM(fct_pedido[total])",
-        '"R$ "#,##0',
+        "R$ #,##0",
         "1 Vendas",
         "GMV: soma de orders.total, TODOS os status. É o número da leitura\n"
         "literal do enunciado — inclui pedidos cancelados e rascunhos.",
@@ -189,7 +204,7 @@ MEDIDAS: list[tuple[str, str, str, str, str]] = [
     (
         "Receita Efetivada",
         "CALCULATE([Receita Bruta], dim_status_pedido[eh_receita_efetivada] = TRUE())",
-        '"R$ "#,##0',
+        "R$ #,##0",
         "1 Vendas",
         "Só `paid` e `confirmed`. A diferença para a Receita Bruta é de\n"
         "R$ 207,1 milhões (14,7%) — pedidos que nunca viraram receita.",
@@ -197,7 +212,7 @@ MEDIDAS: list[tuple[str, str, str, str, str]] = [
     (
         "Ticket Médio",
         "DIVIDE([Receita Bruta], [Nº Pedidos])",
-        '"R$ "#,##0.00',
+        "R$ #,##0.00",
         "1 Vendas",
         "Receita dividida por número de PEDIDOS. Como as duas parcelas saem de\n"
         "fct_pedido, é imune ao fan-out de itens e de pagamentos.",
@@ -216,7 +231,7 @@ MEDIDAS: list[tuple[str, str, str, str, str]] = [
     (
         "Receita de Itens",
         "SUM(fct_item_pedido[valor_linha])",
-        '"R$ "#,##0',
+        "R$ #,##0",
         "2 Margem",
         "Soma de line_total. Difere da Receita Bruta porque não desconta o\n"
         "desconto do pedido — é a base sobre a qual a margem é calculada.",
@@ -224,14 +239,14 @@ MEDIDAS: list[tuple[str, str, str, str, str]] = [
     (
         "Margem Bruta R$",
         "SUM(fct_item_pedido[margem_bruta])",
-        '"R$ "#,##0',
+        "R$ #,##0",
         "2 Margem",
         "valor_linha − (quantidade × custo), antes do desconto do pedido.",
     ),
     (
         "Margem Líquida R$",
         "SUM(fct_item_pedido[margem_liquida])",
-        '"R$ "#,##0',
+        "R$ #,##0",
         "2 Margem",
         "Margem bruta menos o desconto do pedido rateado pela participação da\n"
         "linha. O rateio reproduz orders.discount_amount ao centavo.",
@@ -264,7 +279,7 @@ MEDIDAS: list[tuple[str, str, str, str, str]] = [
         "    SUM(fct_venda_diaria_pos[valor_venda]),\n"
         "    COUNTROWS(fct_venda_diaria_pos)\n"
         ")",
-        '"R$ "#,##0',
+        "R$ #,##0",
         "3 Sazonalidade",
         "A MEDIDA DA QUESTÃO 5. O denominador é a contagem de linhas do fato\n"
         "denso, ou seja, TODOS os dias do calendário — inclusive os 78 em que a\n"
@@ -282,7 +297,7 @@ MEDIDAS: list[tuple[str, str, str, str, str]] = [
         "        fct_venda_diaria_pos[dia_sem_venda] = FALSE()\n"
         "    )\n"
         ")",
-        '"R$ "#,##0',
+        "R$ #,##0",
         "3 Sazonalidade",
         "O ERRO DO ESTAGIÁRIO, reproduzido de propósito para a comparação lado a\n"
         "lado. Divide só pelos dias em que houve venda — que é o que um GROUP BY\n"
@@ -339,7 +354,7 @@ MEDIDAS: list[tuple[str, str, str, str, str]] = [
     (
         "Valor em Estoque",
         "SUM(fct_estoque_atual[valor_em_estoque])",
-        '"R$ "#,##0',
+        "R$ #,##0",
         "5 Pós-venda",
         "Quantidade em mãos avaliada ao custo.",
     ),
@@ -374,12 +389,35 @@ RELACIONAMENTOS = [
 # §4  GERAÇÃO DO SEMANTIC MODEL
 # ==========================================================================
 
+def escrever_tmdl(caminho: Path, texto: str) -> None:
+    """Grava um .tmdl com quebra de linha CRLF.
+
+    É o que o Power BI Desktop escreve, e é o formato dos projetos PBIP que
+    já abrem nesta máquina. O parser provavelmente aceita LF, mas num artefato
+    que não dá para testar localmente, divergir do que comprovadamente funciona
+    é trocar risco por nada.
+    """
+    caminho.write_text(texto, encoding="utf-8", newline="\r\n")
+
+
 def bloco_doc(texto: str, nivel: int = 0) -> list[str]:
-    """Converte texto em comentário de documentação TMDL (///)."""
+    """Converte texto em comentário de documentação TMDL (///).
+
+    ATENÇÃO — duas regras que o parser do TMDL impõe e que não perdoam:
+
+    1. `///` é a DESCRIÇÃO de um objeto, não um comentário livre. O bloco tem
+       de vir colado à declaração que ele descreve. Uma linha em branco entre
+       os dois faz o parser abortar com "Unexpected line type: Empty!".
+    2. Não existe comentário solto no TMDL. Nota que não descreve um objeto
+       não vai no arquivo — vai no MODELO.md ou aqui no gerador.
+
+    A linha vazia sai como `/// ` COM espaço final, que é o que o Desktop
+    escreve.
+    """
     if not texto:
         return []
     tab = "\t" * nivel
-    return [f"{tab}/// {linha}".rstrip() for linha in texto.split("\n")]
+    return [f"{tab}/// {linha}" for linha in texto.split("\n")]
 
 
 def gerar_tabela_tmdl(nome: str, df: pd.DataFrame) -> str:
@@ -387,13 +425,14 @@ def gerar_tabela_tmdl(nome: str, df: pd.DataFrame) -> str:
     linhas += bloco_doc(DESCRICOES_TABELA.get(nome, ""))
     linhas.append(f"table {nome}")
     linhas.append(f"\tlineageTag: {guid('table:' + nome)}")
-
-    if nome == "dim_data":
-        # Marca como tabela de datas: é o que habilita time intelligence
-        # correta e evita que o Power BI crie hierarquias automáticas
-        # paralelas para cada coluna de data dos fatos.
-        linhas.append("\tdataCategory: Time")
-
+    # NÃO emitimos `dataCategory: Time` nem `isKey` em dim_data. São a forma
+    # declarativa de "marcar como tabela de datas", mas são os dois únicos
+    # construtos que não aparecem em nenhum projeto PBIP que comprovadamente
+    # abre nesta máquina — ou seja, os únicos que eu não consigo verificar.
+    # Nenhuma das 19 medidas usa time intelligence, então o modelo funciona
+    # igual sem eles. Marcar a tabela é um clique no Desktop
+    # (dim_data -> botão direito -> Marcar como tabela de data), e está
+    # anotado no ENTREGA.md como passo opcional.
     linhas.append("")
 
     for coluna in df.columns:
@@ -405,8 +444,6 @@ def gerar_tabela_tmdl(nome: str, df: pd.DataFrame) -> str:
         linhas.append(f"\t\tdataType: {dt}")
         if coluna in OCULTAS:
             linhas.append("\t\tisHidden")
-        if nome == "dim_data" and coluna == "data":
-            linhas.append("\t\tisKey")
         if fmt:
             linhas.append(f"\t\tformatString: {fmt}")
         linhas.append(f"\t\tlineageTag: {guid(f'col:{nome}.{coluna}')}")
@@ -520,23 +557,21 @@ def gerar_semantic_model(tabelas: dict[str, pd.DataFrame], destino: Path) -> Non
         encoding="utf-8",
     )
 
-    (definicao / "database.tmdl").write_text(
-        "database\n\tcompatibilityLevel: 1702\n", encoding="utf-8"
-    )
+    escrever_tmdl(definicao / "database.tmdl", "database\n\tcompatibilityLevel: 1702\n")
 
     # Parâmetro de pasta: quem abrir o projeto em outra máquina troca UM valor
     # em vez de reescrever 14 consultas.
-    (definicao / "expressions.tmdl").write_text(
+    escrever_tmdl(
+        definicao / "expressions.tmdl",
         "/// Pasta onde estão os Parquets da camada gold.\n"
         "/// \n"
         "/// É um parâmetro para que abrir o projeto em outra máquina seja trocar\n"
         "/// UM valor, e não reescrever a origem de 14 tabelas.\n"
-        f'expression PastaDados = "{(RAIZ / "dados" / "gold")}" '
+        f'expression PastaDados = "{caminho_windows(RAIZ / "dados" / "gold")}" '
         'meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]\n'
         f"\tlineageTag: {guid('expr:PastaDados')}\n"
         "\n"
         "\tannotation PBI_ResultType = Text\n",
-        encoding="utf-8",
     )
 
     ordem = list(tabelas.keys()) + ["_Medidas"]
@@ -558,34 +593,28 @@ def gerar_semantic_model(tabelas: dict[str, pd.DataFrame], destino: Path) -> Non
         "",
     ]
     modelo += [f"ref table {t}" for t in ordem]
-    modelo += ["", "ref expression PastaDados", ""]
-    (definicao / "model.tmdl").write_text("\n".join(modelo), encoding="utf-8")
+    # Sem `ref expression`: o expressions.tmdl é descoberto automaticamente,
+    # e nenhum projeto PBIP funcional desta máquina declara a referência.
+    # O parâmetro continua listado em PBI_QueryOrder, que é onde ele aparece
+    # nos projetos que abrem.
+    modelo += [""]
+    escrever_tmdl(definicao / "model.tmdl", "\n".join(modelo))
 
     for nome, df in tabelas.items():
-        (definicao / "tables" / f"{nome}.tmdl").write_text(
-            gerar_tabela_tmdl(nome, df), encoding="utf-8"
-        )
-    (definicao / "tables" / "_Medidas.tmdl").write_text(
-        gerar_medidas_tmdl(), encoding="utf-8"
-    )
+        escrever_tmdl(definicao / "tables" / f"{nome}.tmdl", gerar_tabela_tmdl(nome, df))
+    escrever_tmdl(definicao / "tables" / "_Medidas.tmdl", gerar_medidas_tmdl())
 
-    rel = [
-        "/// Relacionamentos do modelo.",
-        "/// ",
-        "/// fct_pagamento NÃO aparece aqui, e isso é deliberado: `payments` faz",
-        "/// fan-out 2:1 e relacioná-lo inflaria o faturamento em 9,3%.",
-        "/// ",
-        "/// fct_pedido e fct_item_pedido também não se relacionam entre si. Eles",
-        "/// são de grãos diferentes e conversam pelas dimensões compartilhadas —",
-        "/// é o que impede que `total` seja somado uma vez por item.",
-        "",
-    ]
+    # Sem cabeçalho de comentário: o TMDL não tem comentário livre, e um bloco
+    # `///` aqui seria interpretado como descrição do primeiro `relationship`.
+    # A documentação do modelo (por que fct_pagamento fica de fora, por que os
+    # dois fatos de venda não se relacionam) está em powerbi/MODELO.md.
+    rel: list[str] = []
     for dim, col_dim, fato, col_fato in RELACIONAMENTOS:
         rel.append(f"relationship {dim}_{fato}_{col_fato}")
         rel.append(f"\tfromColumn: {fato}.{col_fato}")
         rel.append(f"\ttoColumn: {dim}.{col_dim}")
         rel.append("")
-    (definicao / "relationships.tmdl").write_text("\n".join(rel), encoding="utf-8")
+    escrever_tmdl(definicao / "relationships.tmdl", "\n".join(rel))
 
     print(f"  SemanticModel: {len(tabelas) + 1} tabelas · {len(MEDIDAS)} medidas · "
           f"{len(RELACIONAMENTOS)} relacionamentos")

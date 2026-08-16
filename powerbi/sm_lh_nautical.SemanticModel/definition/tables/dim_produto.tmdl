@@ -1,6 +1,6 @@
 /// Um produto por linha (500). `produto` é o nome de exibição: recebe o id
 /// quando há homônimo, e vira '[sem nome]' quando o cadastro traz lixo.
-///
+/// 
 /// `flag_nome_suspeito` preserva a evidência do problema de cadastro em vez
 /// de escondê-la — o item continua no modelo e continua visível.
 table dim_produto

@@ -1,5 +1,5 @@
 /// As 499 similaridades de cosseno do 'Motor de Popa 1949' (Questão 7).
-///
+/// 
 /// `desvios_da_media` é a coluna que sustenta a conclusão honesta: os três
 /// primeiros estão a 2,40 / 2,39 / 2,38 sigma, ou seja, estatisticamente
 /// indistinguíveis. `pedidos_em_comum` traz a co-ocorrência de cesta, que é

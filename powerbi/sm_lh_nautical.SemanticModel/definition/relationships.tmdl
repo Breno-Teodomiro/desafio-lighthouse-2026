@@ -1,12 +1,3 @@
-/// Relacionamentos do modelo.
-/// 
-/// fct_pagamento NÃO aparece aqui, e isso é deliberado: `payments` faz
-/// fan-out 2:1 e relacioná-lo inflaria o faturamento em 9,3%.
-/// 
-/// fct_pedido e fct_item_pedido também não se relacionam entre si. Eles
-/// são de grãos diferentes e conversam pelas dimensões compartilhadas —
-/// é o que impede que `total` seja somado uma vez por item.
-
 relationship dim_data_fct_pedido_data
 	fromColumn: fct_pedido.data
 	toColumn: dim_data.data

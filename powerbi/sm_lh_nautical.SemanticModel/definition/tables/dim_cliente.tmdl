@@ -1,5 +1,5 @@
 /// Um cliente por linha, com as métricas da Questão 4 pré-calculadas.
-///
+/// 
 /// `flag_elite` marca os 10 clientes fiéis. Ele vem do SQL, não de DAX:
 /// a regra de desempate (ticket médio desc, customer_id asc) já está
 /// resolvida na camada gold, e reimplementá-la em DAX seria a segunda

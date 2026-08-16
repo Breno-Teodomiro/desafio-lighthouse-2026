@@ -1,10 +1,10 @@
 /// ISOLADO DO MODELO, sem nenhum relacionamento. É deliberado.
-///
+/// 
 /// `payments` faz fan-out 2:1 — 6.999 pedidos têm dois pagamentos. Se
 /// estivesse relacionado, um filtro de método de pagamento inflaria o
 /// faturamento em 9,3%. Serve para responder perguntas SOBRE pagamento
 /// (mix de método, parcelamento) e nada mais.
-///
+/// 
 /// A ausência do relacionamento está documentada aqui para que ninguém a
 /// 'conserte' depois.
 table fct_pagamento

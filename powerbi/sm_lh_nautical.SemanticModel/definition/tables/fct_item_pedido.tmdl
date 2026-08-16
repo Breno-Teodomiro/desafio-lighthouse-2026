@@ -1,5 +1,5 @@
 /// Grão: LINHA DE ITEM (147.320). Mix de produto, categoria e margem.
-///
+/// 
 /// NÃO contém `orders.total`, de propósito — se contivesse, alguém somaria.
 /// O desconto do pedido chega aqui já rateado por participação da linha, e
 /// a soma do rateio reproduz orders.discount_amount ao centavo.

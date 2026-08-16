@@ -1,16 +1,14 @@
 /// Dimensão de datas densa, cobrindo todos os dias entre o primeiro e o
-/// último pedido. Marcada como tabela de datas do modelo.
-///
+/// último pedido.
+/// 
 /// `eh_futuro` é a coluna que permite sombrear a área posterior a hoje nos
 /// visuais: 8,7% dos pedidos têm data futura, e apresentá-los como
 /// realizados é a armadilha nº 2 do diagnóstico da Questão 1.
 table dim_data
 	lineageTag: f78bd191-bdad-6363-8d76-d6f9934ca8c4
-	dataCategory: Time
 
 	column data
 		dataType: dateTime
-		isKey
 		formatString: yyyy-mm-dd
 		lineageTag: f1e168c3-5a9b-5fcb-84c5-51246c3b3189
 		summarizeBy: none

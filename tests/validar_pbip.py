@@ -46,7 +46,9 @@ def ler_modelo() -> tuple[dict[str, set[str]], set[str], dict[str, str]]:
     dax: dict[str, str] = {}
 
     for arquivo in sorted((MODELO / "tables").glob("*.tmdl")):
-        texto = arquivo.read_text(encoding="utf-8")
+        # Normaliza CRLF: os .tmdl são gravados com quebra do Windows, e sem
+        # isto todo grupo capturado terminaria com um '\r' pendurado.
+        texto = arquivo.read_text(encoding="utf-8").replace("\r\n", "\n")
         nome_tabela = None
         for linha in texto.split("\n"):
             m = re.match(r"^table\s+(.+)$", linha)
@@ -72,6 +74,85 @@ def ler_modelo() -> tuple[dict[str, set[str]], set[str], dict[str, str]]:
     return tabelas, medidas, dax
 
 
+# Vocabulário TMDL comprovado: só o que aparece em projetos PBIP que ABREM
+# no Power BI Desktop desta máquina. `dataCategory` e `isKey` foram removidos
+# do gerador justamente por não estarem nesta lista — eram os únicos
+# construtos sem referência funcional, e não dava para testá-los aqui.
+KEYWORDS_CONHECIDOS = frozenset({
+    "annotation", "column", "culture", "dataType", "database", "displayFolder",
+    "expression", "formatString", "hierarchy", "isHidden", "level", "lineageTag",
+    "measure", "mode", "model", "partition", "ref", "relationship",
+    "sortByColumn", "source", "sourceColumn", "summarizeBy", "table",
+    "compatibilityLevel", "defaultPowerBIDataSourceVersion",
+    "discourageImplicitMeasures", "sourceQueryCulture", "dataAccessOptions",
+    "legacyRedirects", "returnErrorValuesAsNull", "fromColumn", "toColumn",
+})
+
+RE_KEYWORD = re.compile(r"^\t*([a-zA-Z][a-zA-Z0-9_]*)\b")
+
+
+def validar_sintaxe_tmdl(erros: list[str], avisos: list[str]) -> None:
+    """Regras estruturais do TMDL que dá para checar sem o Power BI.
+
+    A regra 1 é a que derrubou a primeira tentativa de abrir o projeto:
+    `///` é a DESCRIÇÃO de um objeto, não um comentário livre, e uma linha em
+    branco entre o bloco e a declaração faz o parser abortar com
+    "Unexpected line type: Empty!".
+    """
+    arquivos = sorted(MODELO.glob("*.tmdl")) + sorted((MODELO / "tables").glob("*.tmdl"))
+    for arquivo in arquivos:
+        bruto = arquivo.read_bytes()
+        texto = bruto.decode("utf-8")
+        linhas = texto.split("\r\n") if b"\r\n" in bruto else texto.split("\n")
+        rotulo = arquivo.relative_to(MODELO)
+
+        # Regra 1 — bloco /// tem de vir COLADO à declaração que descreve.
+        em_doc = False
+        for i, linha in enumerate(linhas, start=1):
+            despido = linha.lstrip("\t")
+            if despido.startswith("///"):
+                em_doc = True
+                continue
+            if em_doc and not despido.strip():
+                erros.append(
+                    f"{rotulo}: linha {i} — linha em branco logo após bloco '///'. "
+                    f"O parser aborta com 'Unexpected line type: Empty!'"
+                )
+            em_doc = False
+
+        # Regra 2 — não existe comentário livre no TMDL.
+        for i, linha in enumerate(linhas, start=1):
+            despido = linha.lstrip("\t")
+            if despido.startswith("//") and not despido.startswith("///"):
+                erros.append(f"{rotulo}: linha {i} — comentário '//' não existe em TMDL")
+
+        # Regra 3 — só keywords com referência funcional comprovada.
+        for i, linha in enumerate(linhas, start=1):
+            despido = linha.lstrip("\t")
+            if not despido or despido.startswith("///") or linha.startswith("\t\t\t"):
+                continue
+            m = RE_KEYWORD.match(linha)
+            if m and m.group(1) not in KEYWORDS_CONHECIDOS:
+                avisos.append(
+                    f"{rotulo}: linha {i} — keyword '{m.group(1)}' sem referência "
+                    f"em projeto PBIP funcional conhecido"
+                )
+
+        # Regra 4 — CRLF, que é o que o Desktop escreve.
+        if b"\r\n" not in bruto and len(linhas) > 1:
+            avisos.append(f"{rotulo}: quebra de linha LF; o Desktop grava CRLF")
+
+    # Regra 5 — o parâmetro de pasta precisa de caminho WINDOWS.
+    expressoes = MODELO / "expressions.tmdl"
+    if expressoes.is_file():
+        texto = expressoes.read_text(encoding="utf-8")
+        if "/mnt/" in texto:
+            erros.append(
+                "expressions.tmdl: o parâmetro traz caminho do WSL (/mnt/...). "
+                "O Power BI roda no Windows e precisa de 'C:\\...'"
+            )
+
+
 def main() -> int:
     if not MODELO.exists():
         print(f"erro: {MODELO} não existe — rode powerbi/gerar_pbip.py", file=sys.stderr)
@@ -79,6 +160,8 @@ def main() -> int:
 
     erros: list[str] = []
     avisos: list[str] = []
+
+    validar_sintaxe_tmdl(erros, avisos)
 
     tabelas, medidas, dax = ler_modelo()
     print(f"Modelo: {len(tabelas)} tabelas, {len(medidas)} medidas")
@@ -93,7 +176,7 @@ def main() -> int:
             erros.append(f"{nome}: Parquet ausente em {PARQUET}")
 
     # --- 6. relacionamentos ------------------------------------------------
-    rel_texto = (MODELO / "relationships.tmdl").read_text(encoding="utf-8")
+    rel_texto = (MODELO / "relationships.tmdl").read_text(encoding="utf-8").replace("\r\n", "\n")
     n_rel = 0
     for m in re.finditer(r"^relationship\s+(\S+)\n\tfromColumn:\s+(\S+)\n\ttoColumn:\s+(\S+)",
                          rel_texto, re.M):

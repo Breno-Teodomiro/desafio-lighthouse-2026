@@ -28,5 +28,3 @@ ref table fct_previsao_bussola
 ref table fct_similaridade_produto
 ref table fct_venda_diaria_pos
 ref table _Medidas
-
-ref expression PastaDados

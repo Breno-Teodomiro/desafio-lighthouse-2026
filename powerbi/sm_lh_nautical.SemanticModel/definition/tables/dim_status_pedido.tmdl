@@ -1,5 +1,5 @@
 /// A dimensão que resolve toda a ambiguidade de status do projeto.
-///
+/// 
 /// 14,7% do GMV são pedidos `cancelled` ou `draft`, que nunca viraram
 /// receita. Em vez de enterrar essa decisão num WHERE, ela vira o atributo
 /// `eh_receita_efetivada` e o leitor decide no slicer.

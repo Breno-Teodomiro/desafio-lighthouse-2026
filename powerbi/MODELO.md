@@ -107,4 +107,37 @@ Todo **título de visual é uma frase de conclusão**, não um rótulo: *"Quinta
 
 Estado atual: **15 tabelas · 19 medidas · 16 relacionamentos · 5 páginas · 48 visuais · 65 referências, todas resolvidas.**
 
-> ⚠️ **O que a validação NÃO cobre:** se o TMDL de fato abre no Power BI Desktop. Isso exige o Desktop, que não está instalado nesta máquina. O projeto foi gerado seguindo o formato de projetos PBIP existentes do autor (mesma versão de schema, mesmas convenções de TMDL), mas **precisa ser aberto e conferido visualmente antes da entrega** — posicionamento de visuais e formatação são o tipo de coisa que só se vê renderizada.
+### O que a primeira tentativa de abrir ensinou
+
+A versão inicial **não abriu**. O Desktop reprovou com
+`InvalidLineType — Unexpected line type: Empty!` em `relationships.tmdl`, linha 9.
+
+Causa: **`///` no TMDL é a descrição de um objeto, não um comentário livre.** Eu
+havia posto um bloco `///` documentando o modelo no topo do arquivo, seguido de
+linha em branco. O parser espera a declaração do objeto logo após a descrição e
+aborta ao encontrar a linha vazia. TMDL **não tem comentário solto** — nota que
+não descreve um objeto vai no `.md` ou no gerador, não no arquivo.
+
+A auditoria que isso motivou — comparar cada construto contra os 5 projetos PBIP
+que comprovadamente abrem nesta máquina — encontrou mais quatro problemas que
+teriam causado falhas em sequência:
+
+| # | Problema | Correção |
+|---|---|---|
+| 1 | `///` seguido de linha em branco | cabeçalho removido; documentação vive aqui |
+| 2 | `ref expression PastaDados` no `model.tmdl` | removido — nenhum projeto funcional declara; o `expressions.tmdl` é descoberto sozinho |
+| 3 | `formatString: "R$ "#,##0` com aspas | `formatString: R$ #,##0`, a forma dos projetos que funcionam |
+| 4 | `dataCategory: Time` e `isKey` em `dim_data` | removidos — únicos construtos sem referência funcional, e nenhuma medida usa time intelligence |
+| 5 | Parâmetro com caminho WSL (`/mnt/c/...`) | convertido para `C:\...` — o Desktop roda no Windows |
+| 6 | Arquivos em LF | gravados em CRLF, como o Desktop faz |
+
+O problema 5 é o mais insidioso: o projeto **abriria** e falharia só na
+atualização, com mensagem que não aponta para a causa.
+
+As regras 1, 2, 5 e 6 viraram checagem automática no `validar_pbip.py`, e cada
+uma foi testada injetando o defeito que ela deve pegar.
+
+> ⚠️ **O que a validação ainda NÃO cobre:** se o TMDL abre de fato. Isso exige o
+> Desktop. O projeto agora usa **apenas** construtos presentes em projetos PBIP
+> que abrem nesta máquina, mas **precisa ser aberto e conferido visualmente** —
+> posicionamento e formatação de visuais só se veem renderizados.
