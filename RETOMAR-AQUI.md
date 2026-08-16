@@ -1,6 +1,10 @@
 # ▶ Retomar aqui
 
-**Atualizado:** 15/08/2026, 22h40 · **Prazo final: 17/08/2026 08h**
+**Atualizado:** 15/08/2026, 23h20 · **Prazo final: 17/08/2026 08h**
+
+> **Se esta sessão é nova porque o WSL foi reiniciado:** era esperado. O
+> `wsl --shutdown` foi executado de propósito para ativar a rede espelhada.
+> Confira `pg_isready -h localhost -p 5432` e siga para a Onda 1.
 
 > **Para uma sessão nova do Claude (sem histórico da conversa anterior):**
 > leia este arquivo inteiro, depois `CLAUDE.md`, depois `docs/MAPA_QUESTOES.md`.
@@ -27,28 +31,46 @@ Entregue: estrutura de pastas · `CLAUDE.md` · `docs/MAPA_QUESTOES.md` (control
 
 ---
 
-## ⛔ Bloqueio ativo — dois passos manuais do usuário
+## ✅ Banco pronto e verificado (15/08, 23h20)
 
-O projeto usa o **PostgreSQL 18 que já roda no Windows**, e essa instância é **compartilhada com outros projetos do usuário**.
+O projeto usa o **PostgreSQL 18 que roda no Windows**, instância **compartilhada** com o projeto `BD_ELINSA_COSMOS_EQTL`.
 
-**Diagnóstico já feito:** o servidor responde e `listen_addresses = '*'`, mas havia dois bloqueios entre o WSL e ele — o firewall do Windows, e o `pg_hba.conf`, que só aceita `127.0.0.1/32` e `::1/128`.
+**Estado confirmado por varredura em todos os bancos:**
 
-**Solução adotada:** rede espelhada, que resolve os dois sem privilégio de admin.
+| Banco | Schemas do projeto | ACL do `public` |
+|---|---|---|
+| `postgres` | nenhum | ok |
+| `BD_ELINSA_COSMOS_EQTL` | nenhum | **intacto** |
+| **`lh_nautical`** | **`raw`, `silver`, `gold`** | ok |
 
-### Passo 1 — usuário executa `sql/00_criar_banco_e_usuario.sql` no pgAdmin
-Cria o papel `lh_app` (sem SUPERUSER/CREATEDB/CREATEROLE) e o banco `lh_nautical` com os schemas `raw`, `silver`, `gold`. Só cria objetos novos.
-Da etapa 4 em diante o script precisa rodar **conectado ao `lh_nautical`**.
+Papel `lh_app` criado (sem SUPERUSER/CREATEDB/CREATEROLE), dono do banco. Credenciais em `.env` (gitignored).
 
-### Passo 2 — usuário roda `wsl.exe --shutdown`
-Já foi adicionado `networkingMode=mirrored` em `/mnt/c/Users/admbr/.wslconfig`. Falta reiniciar o WSL para valer.
+**Incidente resolvido:** a primeira versão do script de provisionamento criou os 3 schemas e aplicou um `REVOKE` no `public` do banco `postgres`. Corrigido por `sql/00d_corrigir_banco_postgres.sql` — schemas removidos (estavam vazios) e `GRANT USAGE ... TO PUBLIC` restaurado. Nenhum dado perdido.
 
-### Ao retomar, verifique nesta ordem
+### ⚠️ Única pendência: rede espelhada
+
+`networkingMode=mirrored` já está em `/mnt/c/Users/admbr/.wslconfig`, mas **só passa a valer após `wsl.exe --shutdown`**. Sem isso, o WSL fica em NAT (`172.22.x.x`) e **Python no WSL não conecta ao banco** — o que bloqueia o loader da Q3.
+
+Verificação ao retomar:
 ```bash
-pg_isready -h localhost -p 5432        # esperado: accepting connections
-psql -h localhost -U lh_app -d lh_nautical -c "select current_database(), current_user;"
-test -f .env || cp .env.example .env   # e pedir a senha do lh_app ao usuário
+pg_isready -h localhost -p 5432    # esperado: accepting connections
+ip -4 addr show eth0 | grep inet   # se ainda mostrar 172.22.x.x, o mirrored NÃO subiu
 ```
-Se `pg_isready` falhar, a rede espelhada não subiu — confirmar se o `wsl --shutdown` foi executado.
+
+### 🔧 Plano B se a rede espelhada não funcionar
+
+O `psql.exe` do Windows **conecta normalmente**, mesmo com o WSL em NAT. O truque é rodá-lo **a partir do próprio diretório `bin`** (senão ele falha com `could not find own program executable`) e repassar a senha via `WSLENV`:
+
+```bash
+export PGPASSWORD='...'                       # ler do .env
+export WSLENV="${WSLENV}:PGPASSWORD/w"        # repassa a var para processos Windows
+cd "/mnt/c/Program Files/PostgreSQL/18/bin"
+./psql.exe -U lh_app -h 127.0.0.1 -d lh_nautical -w -c "select 1;"
+# para arquivos, converter o caminho: PROJ=$(wslpath -w /caminho/do/projeto)
+./psql.exe ... -f "$PROJ\\sql\\arquivo.sql"
+```
+
+Isso resolve todo o SQL (Q1, Q4, Q5) sem rede. Só o loader Python da Q3 precisaria de Python do Windows (existe: 3.14.2 em `AppData/Local/Programs/Python/Python314`).
 
 ---
 
