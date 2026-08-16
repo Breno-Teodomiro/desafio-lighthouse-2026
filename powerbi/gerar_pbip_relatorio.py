@@ -122,7 +122,8 @@ def visual(
         "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/"
                    "definition/visualContainer/2.9.0/schema.json",
         "name": nome,
-        "position": {"x": x, "y": y, "z": z, "height": h, "width": w},
+        "position": {"x": x, "y": y, "z": z, "height": h, "width": w,
+                     "tabOrder": z},
         "visual": v,
     }
 
@@ -134,7 +135,8 @@ def texto_livre(nome: str, x: int, y: int, w: int, h: int,
         "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/"
                    "definition/visualContainer/2.9.0/schema.json",
         "name": nome,
-        "position": {"x": x, "y": y, "z": z, "height": h, "width": w},
+        "position": {"x": x, "y": y, "z": z, "height": h, "width": w,
+                     "tabOrder": z},
         "visual": {
             "visualType": "textbox",
             "objects": {
@@ -358,12 +360,12 @@ def pagina_clientes(vid: Callable[[str], str]) -> tuple[str, list[dict]]:
             header=titulo("Só os 10 de elite"),
         ),
         visual(
-            vid("c-disp"), "scatterChart", 960, 258, 288, 250,
+            vid("c-disp"), "clusteredBarChart", 960, 258, 288, 250,
             query={
-                "Category": {"projections": [coluna("dim_cliente", "customer_id",
+                "Category": {"projections": [coluna("dim_cliente", "cliente",
                                                     ativo=True)]},
-                "X": {"projections": [coluna("dim_cliente", "frequencia")]},
-                "Y": {"projections": [coluna("dim_cliente", "ticket_medio")]},
+                "Y": {"projections": [medida("Ticket Médio"),
+                                      medida("Receita Bruta")]},
             },
             header=titulo("Ticket alto não é o mesmo que cliente valioso"),
         ),
@@ -447,7 +449,7 @@ def pagina_sazonalidade(vid: Callable[[str], str]) -> tuple[str, list[dict]]:
             ],
         ),
         visual(
-            vid("z-ano"), "columnChart", 806, 516, 442, 176,
+            vid("z-ano"), "clusteredColumnChart", 806, 516, 442, 176,
             query={
                 "Category": {"projections": [coluna("dim_data", "ano", ativo=True)]},
                 "Y": {"projections": [medida("Dias sem Venda")]},
@@ -471,8 +473,14 @@ def pagina_modelos(vid: Callable[[str], str]) -> tuple[str, list[dict]]:
             query={
                 "Category": {"projections": [coluna("fct_previsao_bussola", "ano_mes",
                                                     ativo=True)]},
-                "Y": {"projections": [coluna("fct_previsao_bussola", "unidades")]},
-                "Series": {"projections": [coluna("fct_previsao_bussola", "serie")]},
+                # Quatro MEDIDAS em Y, não uma coluna com papel Series: é o
+                # padrão multi-série comprovado para lineChart.
+                "Y": {"projections": [
+                    medida("Unidades Realizadas"),
+                    medida("Previsão — Média Móvel 3m"),
+                    medida("Previsão — Seasonal Naive"),
+                    medida("Previsão — Naive"),
+                ]},
             },
             header=titulo("A média móvel prevê 116 unidades e o real foi 207 — "
                           "erra 44% porque uma média é um número plano e a série "
@@ -499,8 +507,7 @@ def pagina_modelos(vid: Callable[[str], str]) -> tuple[str, list[dict]]:
             query={
                 "Category": {"projections": [coluna("fct_similaridade_produto",
                                                     "produto", ativo=True)]},
-                "Y": {"projections": [coluna("fct_similaridade_produto",
-                                             "similaridade")]},
+                "Y": {"projections": [medida("Similaridade de Cosseno")]},
             },
             header=titulo("Top similares ao Motor de Popa 1949 — o 1º ganha do 2º "
                           "por 0,0003"),
@@ -510,8 +517,7 @@ def pagina_modelos(vid: Callable[[str], str]) -> tuple[str, list[dict]]:
             query={
                 "Category": {"projections": [coluna("fct_similaridade_produto",
                                                     "produto", ativo=True)]},
-                "Y": {"projections": [coluna("fct_similaridade_produto",
-                                             "pedidos_em_comum")]},
+                "Y": {"projections": [medida("Pedidos em Comum")]},
             },
             header=titulo("Co-ocorrência no mesmo pedido — a pergunta que a Marina "
                           "realmente fez, e a resposta muda"),
@@ -629,6 +635,14 @@ def gerar_relatorio(
                 "themeCollection": {
                     "customTheme": {
                         "name": "tema_lh_nautical.json",
+                        # Campo OBRIGATÓRIO. Sem ele o Desktop recusa o
+                        # report.json. As versões são as mesmas dos $schema
+                        # usados nos arquivos gerados aqui.
+                        "reportVersionAtImport": {
+                            "visual": "2.9.0",
+                            "report": "3.3.0",
+                            "page": "2.1.0",
+                        },
                         "type": "RegisteredResources",
                     }
                 },

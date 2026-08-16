@@ -153,6 +153,86 @@ def validar_sintaxe_tmdl(erros: list[str], avisos: list[str]) -> None:
             )
 
 
+# Tipos de visual e combinações papel→tipo-de-campo levantados dos projetos
+# PBIP que ABREM no Power BI Desktop desta máquina. Não é a lista do que o
+# Power BI suporta — é a lista do que está comprovado aqui.
+#
+# A regra que mais pega erro é a do papel `Y`: ele recebe MEDIDA, nunca coluna
+# crua. Um gráfico com coluna em Y é o tipo de coisa que o Desktop rejeita
+# depois de já ter carregado o modelo.
+VISUAIS_COMPROVADOS = frozenset({
+    "actionButton", "advancedSlicerVisual", "barChart", "card",
+    "clusteredBarChart", "clusteredColumnChart", "image", "lineChart",
+    "pageNavigator", "pivotTable", "shape", "slicer", "tableEx", "textbox",
+})
+
+PAPEIS_COMPROVADOS: dict[tuple[str, str], set[str]] = {
+    ("card", "Values"): {"Measure"},
+    ("slicer", "Values"): {"Column"},
+    ("tableEx", "Values"): {"Column", "Measure"},
+    ("barChart", "Category"): {"Column"},
+    ("barChart", "Y"): {"Measure"},
+    ("clusteredBarChart", "Category"): {"Column"},
+    ("clusteredBarChart", "Y"): {"Measure"},
+    ("clusteredColumnChart", "Category"): {"Column"},
+    ("clusteredColumnChart", "Series"): {"Column"},
+    ("clusteredColumnChart", "Y"): {"Measure"},
+    ("lineChart", "Category"): {"Column"},
+    ("lineChart", "Y"): {"Measure"},
+}
+
+
+def validar_report_json(erros: list[str]) -> None:
+    """Campos que o Desktop exige no report.json."""
+    caminho = RELATORIO / "report.json"
+    dados = json.loads(caminho.read_text(encoding="utf-8"))
+    tema = dados.get("themeCollection", {}).get("customTheme")
+    if tema is not None:
+        faltando = [c for c in ("name", "type", "reportVersionAtImport") if c not in tema]
+        for campo in faltando:
+            erros.append(
+                f"report.json: /themeCollection/customTheme sem '{campo}' — "
+                f"o Desktop recusa o arquivo"
+            )
+
+
+def validar_visuais(erros: list[str], avisos: list[str]) -> None:
+    """Tipo de visual e combinação papel→tipo-de-campo, contra o comprovado."""
+    for caminho in sorted(RELATORIO.rglob("visual.json")):
+        dados = json.loads(caminho.read_text(encoding="utf-8"))
+        v = dados.get("visual", {})
+        tipo = v.get("visualType", "?")
+        rotulo = caminho.parent.name
+
+        if tipo not in VISUAIS_COMPROVADOS:
+            erros.append(
+                f"{rotulo}: visualType '{tipo}' sem referência em projeto PBIP "
+                f"funcional conhecido"
+            )
+
+        if "tabOrder" not in dados.get("position", {}):
+            avisos.append(f"{rotulo}: position sem 'tabOrder'")
+
+        for papel, cfg in v.get("query", {}).get("queryState", {}).items():
+            esperado = PAPEIS_COMPROVADOS.get((tipo, papel))
+            if esperado is None:
+                avisos.append(
+                    f"{rotulo}: papel '{papel}' em '{tipo}' sem referência conhecida"
+                )
+                continue
+            for proj in cfg.get("projections", []):
+                campo = proj.get("field", {})
+                especie = "Measure" if "Measure" in campo else (
+                    "Column" if "Column" in campo else "outro"
+                )
+                if especie not in esperado:
+                    erros.append(
+                        f"{rotulo}: '{tipo}' recebe {especie} no papel '{papel}', "
+                        f"mas o comprovado é {'/'.join(sorted(esperado))} "
+                        f"({proj.get('queryRef', '?')})"
+                    )
+
+
 def main() -> int:
     if not MODELO.exists():
         print(f"erro: {MODELO} não existe — rode powerbi/gerar_pbip.py", file=sys.stderr)
@@ -162,6 +242,8 @@ def main() -> int:
     avisos: list[str] = []
 
     validar_sintaxe_tmdl(erros, avisos)
+    validar_report_json(erros)
+    validar_visuais(erros, avisos)
 
     tabelas, medidas, dax = ler_modelo()
     print(f"Modelo: {len(tabelas)} tabelas, {len(medidas)} medidas")

@@ -6,7 +6,8 @@
     "y": 398,
     "z": 100,
     "height": 294,
-    "width": 500
+    "width": 500,
+    "tabOrder": 100
   },
   "visual": {
     "visualType": "clusteredBarChart",
@@ -35,17 +36,17 @@
           "projections": [
             {
               "field": {
-                "Column": {
+                "Measure": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "fct_similaridade_produto"
+                      "Entity": "_Medidas"
                     }
                   },
-                  "Property": "similaridade"
+                  "Property": "Similaridade de Cosseno"
                 }
               },
-              "queryRef": "fct_similaridade_produto.similaridade",
-              "nativeQueryRef": "similaridade"
+              "queryRef": "_Medidas.Similaridade de Cosseno",
+              "nativeQueryRef": "Similaridade de Cosseno"
             }
           ]
         }

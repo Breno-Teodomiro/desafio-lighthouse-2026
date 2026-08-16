@@ -3,6 +3,11 @@
   "themeCollection": {
     "customTheme": {
       "name": "tema_lh_nautical.json",
+      "reportVersionAtImport": {
+        "visual": "2.9.0",
+        "report": "3.3.0",
+        "page": "2.1.0"
+      },
       "type": "RegisteredResources"
     }
   },

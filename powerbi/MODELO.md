@@ -137,6 +137,24 @@ atualização, com mensagem que não aponta para a causa.
 As regras 1, 2, 5 e 6 viraram checagem automática no `validar_pbip.py`, e cada
 uma foi testada injetando o defeito que ela deve pegar.
 
+### Segunda rodada: o report layer
+
+O TMDL passou, e o Desktop reprovou o `report.json` por falta do campo
+obrigatório `reportVersionAtImport`. A auditoria equivalente — desta vez do
+PBIR contra os mesmos 5 projetos — achou **mais quatro** problemas:
+
+| # | Problema | Correção |
+|---|---|---|
+| 1 | `reportVersionAtImport` ausente | adicionado (o erro reportado) |
+| 2 | `columnChart` e `scatterChart` | tipos sem nenhuma ocorrência nos projetos que abrem → trocados por `clusteredColumnChart` e `clusteredBarChart` |
+| 3 | **Coluna crua no papel `Y`** | `Y` recebe **sempre** medida. Atingia 4 visuais; virou 6 medidas novas |
+| 4 | `Series` num `lineChart` | `Series` só aparece em `clusteredColumnChart`. O fato da Q6 virou formato **largo** e o gráfico usa 4 medidas em `Y` — o padrão multi-série comprovado |
+| 5 | `position/tabOrder` ausente | adicionado |
+
+O item 3 é o mais instrutivo: não era erro de digitação, era um padrão errado
+repetido. Todas as 10 combinações tipo→papel→espécie-de-campo do relatório agora
+batem com o levantamento dos projetos funcionais.
+
 > ⚠️ **O que a validação ainda NÃO cobre:** se o TMDL abre de fato. Isso exige o
 > Desktop. O projeto agora usa **apenas** construtos presentes em projetos PBIP
 > que abrem nesta máquina, mas **precisa ser aberto e conferido visualmente** —

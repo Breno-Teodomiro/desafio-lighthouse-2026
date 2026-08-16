@@ -358,6 +358,59 @@ MEDIDAS: list[tuple[str, str, str, str, str]] = [
         "5 Pós-venda",
         "Quantidade em mãos avaliada ao custo.",
     ),
+    # --- Q6 e Q7 -------------------------------------------------------
+    # Estas existem porque o papel `Y` de um visual recebe MEDIDA, nunca
+    # coluna crua — é o padrão de todos os projetos Power BI que abrem nesta
+    # máquina. Sem elas, os gráficos das questões 6 e 7 apontariam colunas
+    # diretamente em Y.
+    (
+        "Unidades Realizadas",
+        "SUM(fct_previsao_bussola[realizado])",
+        "#,##0",
+        "6 Previsão",
+        "Vendas mensais efetivas da Bússola de Bordo 702, somando os dois\n"
+        "product_id homônimos (74 e 240).",
+    ),
+    (
+        "Previsão — Média Móvel 3m",
+        "SUM(fct_previsao_bussola[prev_mm3])",
+        "#,##0.0",
+        "6 Previsão",
+        "O baseline que o enunciado pede. Constante em 38,67 no horizonte,\n"
+        "somando 116 no trimestre contra 207 realizados.",
+    ),
+    (
+        "Previsão — Seasonal Naive",
+        "SUM(fct_previsao_bussola[prev_sazonal])",
+        "#,##0.0",
+        "6 Previsão",
+        "Repete o mesmo trimestre do ano anterior. MAE de 25,0 contra 30,33 da\n"
+        "média móvel — o baseline pedido perde para a regra mais simples que\n"
+        "existe.",
+    ),
+    (
+        "Previsão — Naive",
+        "SUM(fct_previsao_bussola[prev_naive])",
+        "#,##0.0",
+        "6 Previsão",
+        "Repete o último mês observado (dez/2025 = 22). MAE de 47,0.",
+    ),
+    (
+        "Similaridade de Cosseno",
+        "SUM(fct_similaridade_produto[similaridade])",
+        "0.0000",
+        "7 Recomendação",
+        "Cosseno contra o 'Motor de Popa 1949'. Há uma linha por produto, então\n"
+        "a soma no grão de produto é o próprio valor.",
+    ),
+    (
+        "Pedidos em Comum",
+        "SUM(fct_similaridade_produto[pedidos_em_comum])",
+        "#,##0",
+        "7 Recomendação",
+        "Co-ocorrência no MESMO pedido — a formulação correta do problema que a\n"
+        "Marina descreveu, e que devolve outro campeão: Tinta Antifouling 3228.",
+    ),
 ]
 
 

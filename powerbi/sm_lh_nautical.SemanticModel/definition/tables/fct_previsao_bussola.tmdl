@@ -19,18 +19,33 @@ table fct_previsao_bussola
 
 		annotation UnderlyingDateTimeDataType = Date
 
-	column serie
-		dataType: string
-		lineageTag: 08d20584-8299-8b77-9a02-2e3ebabd52e5
-		summarizeBy: none
-		sourceColumn: serie
-
-	column unidades
+	column realizado
 		dataType: double
 		formatString: #,##0.00
-		lineageTag: dc7b11f8-2ba6-31f4-7ae3-f9d7aa748b6d
+		lineageTag: cc510ed0-f0d6-fa23-b17d-e78f83648385
 		summarizeBy: sum
-		sourceColumn: unidades
+		sourceColumn: realizado
+
+	column prev_mm3
+		dataType: double
+		formatString: #,##0.00
+		lineageTag: fe32d276-a3ab-45e7-91a6-ced2d0944d18
+		summarizeBy: sum
+		sourceColumn: prev_mm3
+
+	column prev_sazonal
+		dataType: double
+		formatString: #,##0.00
+		lineageTag: 958e9224-4d88-2cfa-3f4f-af5c8b94e48c
+		summarizeBy: sum
+		sourceColumn: prev_sazonal
+
+	column prev_naive
+		dataType: double
+		formatString: #,##0.00
+		lineageTag: f56c7608-3723-57cf-fbb0-8c260e976ff2
+		summarizeBy: sum
+		sourceColumn: prev_naive
 
 	column eh_treino
 		dataType: boolean

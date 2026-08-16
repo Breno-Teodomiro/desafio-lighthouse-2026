@@ -67,43 +67,27 @@ def gerar_previsao(csv_dir: Path) -> pd.DataFrame:
     )
     ingenuo = pd.Series(historico.iloc[-1], index=real.index)
 
-    linhas = []
-    for periodo, valor in historico.items():
-        linhas.append(
-            {
-                "ano_mes": str(periodo),
-                "data": periodo.to_timestamp().date(),
-                "serie": "Realizado",
-                "unidades": float(valor),
-                "eh_treino": True,
-            }
-        )
-    for periodo, valor in real.items():
-        linhas.append(
-            {
-                "ano_mes": str(periodo),
-                "data": periodo.to_timestamp().date(),
-                "serie": "Realizado",
-                "unidades": float(valor),
-                "eh_treino": False,
-            }
-        )
-    for rotulo, serie in [
-        ("Previsto — média móvel 3m", mm3),
-        ("Previsto — seasonal naive", sazonal),
-        ("Previsto — naive", ingenuo),
-    ]:
-        for periodo, valor in serie.items():
-            linhas.append(
-                {
-                    "ano_mes": str(periodo),
-                    "data": periodo.to_timestamp().date(),
-                    "serie": rotulo,
-                    "unidades": float(valor),
-                    "eh_treino": False,
-                }
-            )
-
+    # FORMATO LARGO — uma coluna por série, não uma linha por série.
+    #
+    # O formato longo (uma coluna `unidades` discriminada por `serie`) seria
+    # mais natural em pandas, mas exigiria o papel `Series` num gráfico de
+    # linhas — e `Series` só aparece em `clusteredColumnChart` nos projetos
+    # Power BI que comprovadamente abrem nesta máquina. Com o formato largo,
+    # cada série vira uma medida e o visual usa `Category` + várias medidas em
+    # `Y`, que é o padrão multi-série comprovado.
+    todos = list(historico.items()) + list(real.items())
+    linhas = [
+        {
+            "ano_mes": str(periodo),
+            "data": periodo.to_timestamp().date(),
+            "realizado": float(valor),
+            "prev_mm3": float(mm3.get(periodo, float("nan"))),
+            "prev_sazonal": float(sazonal.get(periodo, float("nan"))),
+            "prev_naive": float(ingenuo.get(periodo, float("nan"))),
+            "eh_treino": periodo <= q6.FIM_TREINO,
+        }
+        for periodo, valor in todos
+    ]
     return pd.DataFrame(linhas)
 
 

@@ -166,6 +166,48 @@ table _Medidas
 		displayFolder: 5 Pós-venda
 		lineageTag: 4b7a5bd1-6dab-442e-3e2b-925a37a169f3
 
+	/// Vendas mensais efetivas da Bússola de Bordo 702, somando os dois
+	/// product_id homônimos (74 e 240).
+	measure 'Unidades Realizadas' = SUM(fct_previsao_bussola[realizado])
+		formatString: #,##0
+		displayFolder: 6 Previsão
+		lineageTag: 0e9d279e-7744-ad69-c8a6-05aac859999a
+
+	/// O baseline que o enunciado pede. Constante em 38,67 no horizonte,
+	/// somando 116 no trimestre contra 207 realizados.
+	measure 'Previsão — Média Móvel 3m' = SUM(fct_previsao_bussola[prev_mm3])
+		formatString: #,##0.0
+		displayFolder: 6 Previsão
+		lineageTag: f27490c4-5179-471f-24b2-995bb702c10f
+
+	/// Repete o mesmo trimestre do ano anterior. MAE de 25,0 contra 30,33 da
+	/// média móvel — o baseline pedido perde para a regra mais simples que
+	/// existe.
+	measure 'Previsão — Seasonal Naive' = SUM(fct_previsao_bussola[prev_sazonal])
+		formatString: #,##0.0
+		displayFolder: 6 Previsão
+		lineageTag: 3543e96e-0097-7805-8899-510b8dbe32e8
+
+	/// Repete o último mês observado (dez/2025 = 22). MAE de 47,0.
+	measure 'Previsão — Naive' = SUM(fct_previsao_bussola[prev_naive])
+		formatString: #,##0.0
+		displayFolder: 6 Previsão
+		lineageTag: 740b8e8d-c904-dc02-47ac-0d3d7f029e86
+
+	/// Cosseno contra o 'Motor de Popa 1949'. Há uma linha por produto, então
+	/// a soma no grão de produto é o próprio valor.
+	measure 'Similaridade de Cosseno' = SUM(fct_similaridade_produto[similaridade])
+		formatString: 0.0000
+		displayFolder: 7 Recomendação
+		lineageTag: 915c1c8b-10ec-bc88-c402-b8887909fa94
+
+	/// Co-ocorrência no MESMO pedido — a formulação correta do problema que a
+	/// Marina descreveu, e que devolve outro campeão: Tinta Antifouling 3228.
+	measure 'Pedidos em Comum' = SUM(fct_similaridade_produto[pedidos_em_comum])
+		formatString: #,##0
+		displayFolder: 7 Recomendação
+		lineageTag: 60990c74-193c-909e-2224-536c87377f0a
+
 	column Coluna
 		dataType: string
 		isHidden

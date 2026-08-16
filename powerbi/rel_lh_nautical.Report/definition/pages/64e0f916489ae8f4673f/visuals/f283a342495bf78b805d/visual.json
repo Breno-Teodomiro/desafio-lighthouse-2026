@@ -6,7 +6,8 @@
     "y": 96,
     "z": 100,
     "height": 288,
-    "width": 760
+    "width": 760,
+    "tabOrder": 100
   },
   "visual": {
     "visualType": "lineChart",
@@ -35,35 +36,59 @@
           "projections": [
             {
               "field": {
-                "Column": {
+                "Measure": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "fct_previsao_bussola"
+                      "Entity": "_Medidas"
                     }
                   },
-                  "Property": "unidades"
+                  "Property": "Unidades Realizadas"
                 }
               },
-              "queryRef": "fct_previsao_bussola.unidades",
-              "nativeQueryRef": "unidades"
-            }
-          ]
-        },
-        "Series": {
-          "projections": [
+              "queryRef": "_Medidas.Unidades Realizadas",
+              "nativeQueryRef": "Unidades Realizadas"
+            },
             {
               "field": {
-                "Column": {
+                "Measure": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "fct_previsao_bussola"
+                      "Entity": "_Medidas"
                     }
                   },
-                  "Property": "serie"
+                  "Property": "Previsão — Média Móvel 3m"
                 }
               },
-              "queryRef": "fct_previsao_bussola.serie",
-              "nativeQueryRef": "serie"
+              "queryRef": "_Medidas.Previsão — Média Móvel 3m",
+              "nativeQueryRef": "Previsão — Média Móvel 3m"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Medidas"
+                    }
+                  },
+                  "Property": "Previsão — Seasonal Naive"
+                }
+              },
+              "queryRef": "_Medidas.Previsão — Seasonal Naive",
+              "nativeQueryRef": "Previsão — Seasonal Naive"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Medidas"
+                    }
+                  },
+                  "Property": "Previsão — Naive"
+                }
+              },
+              "queryRef": "_Medidas.Previsão — Naive",
+              "nativeQueryRef": "Previsão — Naive"
             }
           ]
         }
