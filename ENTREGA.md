@@ -8,28 +8,60 @@
 
 ---
 
-## Mapa: campo do formulário → arquivo
+## Mapa: campo do formulário → o que fazer
 
-| Campo | O que enviar | Origem |
+Cada linha é um campo. **Anexo** = subir arquivo; o caminho é a partir da raiz
+do repositório. **Curta** = digitar. **Texto** = colar do
+[`RESPOSTAS-PARA-O-FORMULARIO.md`](RESPOSTAS-PARA-O-FORMULARIO.md).
+
+| Campo | Tipo | O que enviar |
 |---|---|---|
-| **1.1** Código SQL | `entregaveis/Q1_eda/q1_eda_orders.sql` | upload |
-| **1.2** Valor médio de `total` | **R$ 28.704,99** | resposta curta |
-| **1.3** Interpretação | [`RESPOSTAS-PARA-O-FORMULARIO.md`](RESPOSTAS-PARA-O-FORMULARIO.md) § 1.3 | texto |
-| **2.1** Código Python | `entregaveis/Q2_schema/q2_gerar_schema.py` | upload |
-| **2.2** `schema.sql` | `entregaveis/Q2_schema/schema.sql` | upload |
-| **3.1** Código Python | `entregaveis/Q3_carga/q3_carregar_csvs.py` | upload |
-| **3.2** Total de linhas | **251.864** | resposta curta |
-| **4.1** Código SQL | `entregaveis/Q4_clientes/q4_clientes_elite.sql` | upload |
-| **4.2** Explicação | [`RESPOSTAS-PARA-O-FORMULARIO.md`](RESPOSTAS-PARA-O-FORMULARIO.md) § 4.2 | texto |
-| **5.1** Código SQL | `entregaveis/Q5_calendario/q5_dim_calendario.sql` | upload |
-| **5.2** Explicação | [`RESPOSTAS-PARA-O-FORMULARIO.md`](RESPOSTAS-PARA-O-FORMULARIO.md) § 5.2 | texto |
-| **6.1** Código Python | `entregaveis/Q6_previsao/q6_previsao_demanda.py` | upload |
-| **6.2** Soma da previsão | **116** | resposta curta |
-| **6.3** Explicação | [`RESPOSTAS-PARA-O-FORMULARIO.md`](RESPOSTAS-PARA-O-FORMULARIO.md) § 6.3 | texto |
-| **7.1** Código Python | `entregaveis/Q7_recomendacao/q7_recomendacao.py` | upload |
-| **7.2** Produto mais similar | **Motor de Popa 5331** | resposta curta |
-| **7.3** Explicação | [`RESPOSTAS-PARA-O-FORMULARIO.md`](RESPOSTAS-PARA-O-FORMULARIO.md) § 7.3 | texto |
-| **Material complementar** | **`.pbix` exportado do PBIP** + PDF + link do repositório | upload · **obrigatório** |
+| **1.1** Código SQL da EDA | 📎 anexo | `entregaveis/Q1_eda/q1_eda_orders.sql` |
+| **1.2** Valor médio de `total` | ⌨ curta | **28.704,99** |
+| **1.3** Interpretação | 📋 texto | § **1.3** do consolidado |
+| **2.1** Código Python do schema | 📎 anexo | `entregaveis/Q2_schema/q2_gerar_schema.py` |
+| **2.2** Arquivo `schema.sql` | 📎 anexo | `entregaveis/Q2_schema/schema.sql` |
+| **3.1** Código Python da carga | 📎 anexo | `entregaveis/Q3_carga/q3_carregar_csvs.py` |
+| **3.2** Total de linhas carregadas | ⌨ curta | **251.864** |
+| **4.1** Código SQL dos clientes | 📎 anexo | `entregaveis/Q4_clientes/q4_clientes_elite.sql` |
+| **4.2** Explicação | 📋 texto | § **4.2** do consolidado |
+| **5.1** Código SQL do calendário | 📎 anexo | `entregaveis/Q5_calendario/q5_dim_calendario.sql` |
+| **5.2** Explicação | 📋 texto | § **5.2** do consolidado |
+| **6.1** Código Python da previsão | 📎 anexo | `entregaveis/Q6_previsao/q6_previsao_demanda.py` |
+| **6.2** Soma da previsão | ⌨ curta | **116** |
+| **6.3** Explicação | 📋 texto | § **6.3** do consolidado |
+| **7.1** Código Python da recomendação | 📎 anexo | `entregaveis/Q7_recomendacao/q7_recomendacao.py` |
+| **7.2** Produto mais similar | ⌨ curta | **Motor de Popa 5331** |
+| **7.3** Explicação | 📋 texto | § **7.3** do consolidado |
+| **Material complementar** ⛔ | 📎 anexo | `powerbi/lh_nautical.pbix` · `powerbi/lh_nautical.pdf` |
+| Campo de notas / links | ⌨ curta | os dois links abaixo |
+
+### Os 8 anexos de código, na ordem
+
+```
+entregaveis/Q1_eda/q1_eda_orders.sql
+entregaveis/Q2_schema/q2_gerar_schema.py
+entregaveis/Q2_schema/schema.sql
+entregaveis/Q3_carga/q3_carregar_csvs.py
+entregaveis/Q4_clientes/q4_clientes_elite.sql
+entregaveis/Q5_calendario/q5_dim_calendario.sql
+entregaveis/Q6_previsao/q6_previsao_demanda.py
+entregaveis/Q7_recomendacao/q7_recomendacao.py
+```
+
+Mais os **dois do material complementar**:
+
+```
+powerbi/lh_nautical.pbix     9,2 MB  ⛔ obrigatório
+powerbi/lh_nautical.pdf      676 KB  · 5 páginas
+```
+
+### Links para o campo de notas
+
+```
+Repositório: https://github.com/Breno-Teodomiro/desafio-lighthouse-2026
+Dashboard:   https://app.powerbi.com/view?r=eyJrIjoiMDY4MDQxM2ItYWI4Ni00ZjQ5LWJmOGMtMTlhNDgwNDAzNjQzIiwidCI6ImMyMGU3MTg4LTNkMzEtNGM1ZC05YWNlLTE4MzQyM2E2MGMxZCJ9
+```
 
 **Perguntas finais (opinião, sem resposta certa):**
 - *Em qual questão teve mais facilidade?* — sugestão: **Questão 1 (EDA)**, por ser a mais direta.

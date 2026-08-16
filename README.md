@@ -4,10 +4,47 @@ Resposta ao Desafio Técnico do Programa Lighthouse 2026 da **Indicium**, trilha
 
 Pipeline completo de dados sobre o dump relacional de uma varejista náutica fictícia: da ingestão bruta de 24 CSVs à modelagem dimensional, análises SQL, modelo preditivo, sistema de recomendação e dashboard executivo.
 
+**[▶ Abrir o dashboard publicado](https://app.powerbi.com/view?r=eyJrIjoiMDY4MDQxM2ItYWI4Ni00ZjQ5LWJmOGMtMTlhNDgwNDAzNjQzIiwidCI6ImMyMGU3MTg4LTNkMzEtNGM1ZC05YWNlLTE4MzQyM2E2MGMxZCJ9)**  ·  [PDF](powerbi/lh_nautical.pdf)  ·  por **[Breno Teodomiro](https://www.linkedin.com/in/breno-teodomiro-power-bi/)**
+
 > *"Eu valorizo mais a organização e a explicação do que o código rodando sem eu entender nada."*
 > — Gabriel Santos, Tech Lead (LH Nautical)
 >
 > Este repositório foi construído com essa frase como critério de projeto.
+
+---
+
+## O dashboard
+
+Cinco páginas, **21 componentes em HTML gerado por DAX** — 13 deles filtram a
+página inteira ao clique. Tema escuro, paleta validada para daltonismo, e cada
+título é uma frase de conclusão, não um rótulo.
+
+### Sumário executivo
+
+![Sumário executivo](docs/imagens/1-sumario-executivo.png)
+
+### Vendas e margem
+
+![Vendas e margem](docs/imagens/2-vendas-e-margem.png)
+
+### Clientes — Questão 4
+
+![Clientes](docs/imagens/3-clientes-q4.png)
+
+### Sazonalidade — Questão 5
+
+![Sazonalidade](docs/imagens/4-sazonalidade-q5.png)
+
+### Previsão e recomendação — Questões 6 e 7
+
+![Previsão e recomendação](docs/imagens/5-previsao-e-recomendacao-q6-q7.png)
+
+**Como ele é feito:** o projeto é versionado em **PBIP** — o modelo em TMDL e o
+relatório em PBIR, ambos texto. Dá para ler o diff de uma medida no GitHub. Os
+componentes visuais saem de [`powerbi/gerar_html_dax.py`](powerbi/gerar_html_dax.py),
+e [`tests/validar_pbip.py`](tests/validar_pbip.py) roda 20 regras contra o
+projeto antes de abrir o Desktop — cada uma testada injetando o defeito que ela
+deve pegar.
 
 ---
 
