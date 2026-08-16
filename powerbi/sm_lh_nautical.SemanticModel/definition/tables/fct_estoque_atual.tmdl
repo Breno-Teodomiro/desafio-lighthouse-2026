@@ -1,0 +1,55 @@
+table fct_estoque_atual
+	lineageTag: b590f749-f464-759c-8fe8-465ecefbad53
+
+	column product_variant_id
+		dataType: int64
+		isHidden
+		formatString: #,##0
+		lineageTag: 93802e5a-d07b-a7c4-68a3-1481dd36e91f
+		summarizeBy: none
+		sourceColumn: product_variant_id
+
+	column product_id
+		dataType: int64
+		formatString: #,##0
+		lineageTag: 1b27d895-0cf8-2b58-167d-0df4112fd659
+		summarizeBy: none
+		sourceColumn: product_id
+
+	column location_id
+		dataType: int64
+		formatString: #,##0
+		lineageTag: 01d93e07-eb8d-6af6-f161-096db839a6c2
+		summarizeBy: none
+		sourceColumn: location_id
+
+	column quantidade_em_maos
+		dataType: double
+		formatString: #,##0.00
+		lineageTag: 12a4cd4d-77a0-4377-bc4d-b91f4f050e1a
+		summarizeBy: sum
+		sourceColumn: quantidade_em_maos
+
+	column ponto_de_reposicao
+		dataType: string
+		lineageTag: f8cb3af4-e0a2-3303-5c91-0b15bce0e0ce
+		summarizeBy: none
+		sourceColumn: ponto_de_reposicao
+
+	column valor_em_estoque
+		dataType: double
+		formatString: #,##0.00
+		lineageTag: 82062c78-6fee-55b1-21ed-02cdd721247b
+		summarizeBy: sum
+		sourceColumn: valor_em_estoque
+
+	partition fct_estoque_atual = m
+		mode: import
+		source =
+				let
+					Arquivo = File.Contents(#"PastaDados" & "\fct_estoque_atual.parquet"),
+					Tabela = Parquet.Document(Arquivo)
+				in
+					Tabela
+
+	annotation PBI_ResultType = Table

@@ -1,0 +1,8 @@
+/// Pasta onde estão os Parquets da camada gold.
+/// 
+/// É um parâmetro para que abrir o projeto em outra máquina seja trocar
+/// UM valor, e não reescrever a origem de 14 tabelas.
+expression PastaDados = "/mnt/c/PROJETOS/INDICIUM_ACADEMY/DESAFIO_LIGHTHOUSE_2026/dados/gold" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+	lineageTag: dbc567a0-6961-6f74-af97-a065a2de5f06
+
+	annotation PBI_ResultType = Text

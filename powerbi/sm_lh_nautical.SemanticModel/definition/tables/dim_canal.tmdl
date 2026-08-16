@@ -1,0 +1,25 @@
+table dim_canal
+	lineageTag: 577f6c11-105d-35d3-93fd-9bfdb245343a
+
+	column canal
+		dataType: string
+		lineageTag: 173e71ed-219a-4bb7-084f-5e3a8fbf09b4
+		summarizeBy: none
+		sourceColumn: canal
+
+	column canal_exibicao
+		dataType: string
+		lineageTag: 21c2cbd5-593a-d817-a9aa-e2945d38da4b
+		summarizeBy: none
+		sourceColumn: canal_exibicao
+
+	partition dim_canal = m
+		mode: import
+		source =
+				let
+					Arquivo = File.Contents(#"PastaDados" & "\dim_canal.parquet"),
+					Tabela = Parquet.Document(Arquivo)
+				in
+					Tabela
+
+	annotation PBI_ResultType = Table

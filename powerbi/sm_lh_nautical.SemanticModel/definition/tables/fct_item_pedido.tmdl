@@ -1,0 +1,133 @@
+/// Grão: LINHA DE ITEM (147.320). Mix de produto, categoria e margem.
+///
+/// NÃO contém `orders.total`, de propósito — se contivesse, alguém somaria.
+/// O desconto do pedido chega aqui já rateado por participação da linha, e
+/// a soma do rateio reproduz orders.discount_amount ao centavo.
+table fct_item_pedido
+	lineageTag: a4968d73-45c5-5087-3e03-f2d1e7363515
+
+	column order_item_id
+		dataType: int64
+		isHidden
+		formatString: #,##0
+		lineageTag: 2ce8b446-4dae-c0f7-75d7-10d819bd17e3
+		summarizeBy: none
+		sourceColumn: order_item_id
+
+	column order_id
+		dataType: int64
+		isHidden
+		formatString: #,##0
+		lineageTag: 46b1b791-b47b-6618-cbb6-8d61a4bd5f5c
+		summarizeBy: none
+		sourceColumn: order_id
+
+	column data
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: 6f569c9a-0e59-ec82-e2f3-7bf9135f4e6d
+		summarizeBy: none
+		sourceColumn: data
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column customer_id
+		dataType: int64
+		formatString: #,##0
+		lineageTag: d8030a36-c53a-4bab-ec9d-e4234289aa68
+		summarizeBy: none
+		sourceColumn: customer_id
+
+	column location_id
+		dataType: int64
+		formatString: #,##0
+		lineageTag: 718142cf-3b98-78fc-1875-26c5b87e71ca
+		summarizeBy: none
+		sourceColumn: location_id
+
+	column canal
+		dataType: string
+		lineageTag: 7d0ecab3-92c1-0c1e-95f9-fb72e7f6710e
+		summarizeBy: none
+		sourceColumn: canal
+
+	column status
+		dataType: string
+		lineageTag: 84d23e08-3095-5411-dab1-f8d4c3f36199
+		summarizeBy: none
+		sourceColumn: status
+
+	column product_id
+		dataType: int64
+		formatString: #,##0
+		lineageTag: 3853f6e7-1862-20c0-cd67-13d654af813b
+		summarizeBy: none
+		sourceColumn: product_id
+
+	column product_variant_id
+		dataType: int64
+		isHidden
+		formatString: #,##0
+		lineageTag: 9b8748ca-ef91-09aa-fe04-ffcc5dfd6c94
+		summarizeBy: none
+		sourceColumn: product_variant_id
+
+	column quantidade
+		dataType: int64
+		formatString: #,##0
+		lineageTag: f730a436-79eb-f899-9022-83b531aab2be
+		summarizeBy: sum
+		sourceColumn: quantidade
+
+	column preco_unitario
+		dataType: double
+		formatString: #,##0.00
+		lineageTag: 41ea040f-c300-38fb-7651-5da65d58c178
+		summarizeBy: sum
+		sourceColumn: preco_unitario
+
+	column valor_linha
+		dataType: double
+		formatString: #,##0.00
+		lineageTag: 1523cba1-8717-7685-5620-8500347acd23
+		summarizeBy: sum
+		sourceColumn: valor_linha
+
+	column custo
+		dataType: double
+		formatString: #,##0.00
+		lineageTag: ad42f8a7-b2da-5707-5310-e6dc87109977
+		summarizeBy: sum
+		sourceColumn: custo
+
+	column desconto_rateado
+		dataType: double
+		formatString: #,##0.00
+		lineageTag: ed727ba7-0208-3376-4b3f-b61a06926268
+		summarizeBy: sum
+		sourceColumn: desconto_rateado
+
+	column margem_bruta
+		dataType: double
+		formatString: #,##0.00
+		lineageTag: fc22ed48-7471-526c-d79f-4c8fe1afb0a7
+		summarizeBy: sum
+		sourceColumn: margem_bruta
+
+	column margem_liquida
+		dataType: double
+		formatString: #,##0.00
+		lineageTag: 556cb597-2551-2faf-2632-7156800969e8
+		summarizeBy: sum
+		sourceColumn: margem_liquida
+
+	partition fct_item_pedido = m
+		mode: import
+		source =
+				let
+					Arquivo = File.Contents(#"PastaDados" & "\fct_item_pedido.parquet"),
+					Tabela = Parquet.Document(Arquivo)
+				in
+					Tabela
+
+	annotation PBI_ResultType = Table

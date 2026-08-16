@@ -1,0 +1,72 @@
+/// Relacionamentos do modelo.
+/// 
+/// fct_pagamento NÃO aparece aqui, e isso é deliberado: `payments` faz
+/// fan-out 2:1 e relacioná-lo inflaria o faturamento em 9,3%.
+/// 
+/// fct_pedido e fct_item_pedido também não se relacionam entre si. Eles
+/// são de grãos diferentes e conversam pelas dimensões compartilhadas —
+/// é o que impede que `total` seja somado uma vez por item.
+
+relationship dim_data_fct_pedido_data
+	fromColumn: fct_pedido.data
+	toColumn: dim_data.data
+
+relationship dim_data_fct_item_pedido_data
+	fromColumn: fct_item_pedido.data
+	toColumn: dim_data.data
+
+relationship dim_data_fct_venda_diaria_pos_data
+	fromColumn: fct_venda_diaria_pos.data
+	toColumn: dim_data.data
+
+relationship dim_data_fct_devolucao_data
+	fromColumn: fct_devolucao.data
+	toColumn: dim_data.data
+
+relationship dim_cliente_fct_pedido_customer_id
+	fromColumn: fct_pedido.customer_id
+	toColumn: dim_cliente.customer_id
+
+relationship dim_cliente_fct_item_pedido_customer_id
+	fromColumn: fct_item_pedido.customer_id
+	toColumn: dim_cliente.customer_id
+
+relationship dim_produto_fct_item_pedido_product_id
+	fromColumn: fct_item_pedido.product_id
+	toColumn: dim_produto.product_id
+
+relationship dim_produto_fct_devolucao_product_id
+	fromColumn: fct_devolucao.product_id
+	toColumn: dim_produto.product_id
+
+relationship dim_produto_fct_estoque_atual_product_id
+	fromColumn: fct_estoque_atual.product_id
+	toColumn: dim_produto.product_id
+
+relationship dim_local_fct_pedido_location_id
+	fromColumn: fct_pedido.location_id
+	toColumn: dim_local.location_id
+
+relationship dim_local_fct_item_pedido_location_id
+	fromColumn: fct_item_pedido.location_id
+	toColumn: dim_local.location_id
+
+relationship dim_local_fct_estoque_atual_location_id
+	fromColumn: fct_estoque_atual.location_id
+	toColumn: dim_local.location_id
+
+relationship dim_canal_fct_pedido_canal
+	fromColumn: fct_pedido.canal
+	toColumn: dim_canal.canal
+
+relationship dim_canal_fct_item_pedido_canal
+	fromColumn: fct_item_pedido.canal
+	toColumn: dim_canal.canal
+
+relationship dim_status_pedido_fct_pedido_status
+	fromColumn: fct_pedido.status
+	toColumn: dim_status_pedido.status
+
+relationship dim_status_pedido_fct_item_pedido_status
+	fromColumn: fct_item_pedido.status
+	toColumn: dim_status_pedido.status

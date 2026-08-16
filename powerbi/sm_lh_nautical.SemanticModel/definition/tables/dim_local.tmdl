@@ -1,0 +1,44 @@
+table dim_local
+	lineageTag: 5f24d6b0-85d7-5fbe-0626-f8c97bbd7363
+
+	column location_id
+		dataType: int64
+		formatString: #,##0
+		lineageTag: b9c7d8e4-c4d6-115d-4976-bd589069bdb3
+		summarizeBy: none
+		sourceColumn: location_id
+
+	column local
+		dataType: string
+		lineageTag: ba4ae785-d060-b656-e5b7-10db3fd10e79
+		summarizeBy: none
+		sourceColumn: local
+
+	column tipo_local
+		dataType: string
+		lineageTag: 47bd3f27-ad64-e714-8656-7f4273b1a50f
+		summarizeBy: none
+		sourceColumn: tipo_local
+
+	column cidade
+		dataType: string
+		lineageTag: 77f55b17-c6b8-c976-3d67-482250a67671
+		summarizeBy: none
+		sourceColumn: cidade
+
+	column uf
+		dataType: string
+		lineageTag: ca47e919-203e-9856-2da8-7d3158609abc
+		summarizeBy: none
+		sourceColumn: uf
+
+	partition dim_local = m
+		mode: import
+		source =
+				let
+					Arquivo = File.Contents(#"PastaDados" & "\dim_local.parquet"),
+					Tabela = Parquet.Document(Arquivo)
+				in
+					Tabela
+
+	annotation PBI_ResultType = Table

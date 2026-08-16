@@ -1,0 +1,182 @@
+/// Todas as medidas do modelo, agrupadas por displayFolder.
+///
+/// Ficam numa tabela própria para que a lista de campos mostre dimensões e
+/// medidas separadas, em vez de medidas espalhadas por seis fatos.
+///
+/// REGRA DESTE MODELO: medida que envolve grão ou fan-out explica na
+/// descrição de qual fato ela sai e por quê. Ticket médio sai sempre de
+/// fct_pedido; margem sai sempre de fct_item_pedido.
+table _Medidas
+	lineageTag: 39984912-0dfd-b13b-cedc-f922c62ec9f4
+
+	/// Contagem de transações. Sai de fct_pedido, nunca do fato de itens.
+	measure 'Nº Pedidos' = COUNTROWS(fct_pedido)
+		formatString: #,##0
+		displayFolder: 1 Vendas
+		lineageTag: cbad4bb5-6671-69e3-fa1c-248d481bb916
+
+	/// GMV: soma de orders.total, TODOS os status. É o número da leitura
+	/// literal do enunciado — inclui pedidos cancelados e rascunhos.
+	measure 'Receita Bruta' = SUM(fct_pedido[total])
+		formatString: "R$ "#,##0
+		displayFolder: 1 Vendas
+		lineageTag: 60cd3cd0-5699-947d-74b3-44db185bc5da
+
+	/// Só `paid` e `confirmed`. A diferença para a Receita Bruta é de
+	/// R$ 207,1 milhões (14,7%) — pedidos que nunca viraram receita.
+	measure 'Receita Efetivada' = CALCULATE([Receita Bruta], dim_status_pedido[eh_receita_efetivada] = TRUE())
+		formatString: "R$ "#,##0
+		displayFolder: 1 Vendas
+		lineageTag: 34d0da20-6ca4-2e9b-d38c-78a22d453f56
+
+	/// Receita dividida por número de PEDIDOS. Como as duas parcelas saem de
+	/// fct_pedido, é imune ao fan-out de itens e de pagamentos.
+	measure 'Ticket Médio' = DIVIDE([Receita Bruta], [Nº Pedidos])
+		formatString: "R$ "#,##0.00
+		displayFolder: 1 Vendas
+		lineageTag: 633689d5-5738-07b8-6646-83395b43542f
+
+	/// ALL(dim_status_pedido) no denominador para que a taxa continue correta
+	/// mesmo com o slicer de status aplicado.
+	measure 'Taxa de Cancelamento' =
+			DIVIDE(
+			    CALCULATE([Nº Pedidos], dim_status_pedido[status] = "cancelled"),
+			    CALCULATE([Nº Pedidos], ALL(dim_status_pedido))
+			)
+		formatString: 0.0%
+		displayFolder: 1 Vendas
+		lineageTag: 8eb0b1ba-7a0e-e308-7fd9-e6b55854a6e0
+
+	/// Soma de line_total. Difere da Receita Bruta porque não desconta o
+	/// desconto do pedido — é a base sobre a qual a margem é calculada.
+	measure 'Receita de Itens' = SUM(fct_item_pedido[valor_linha])
+		formatString: "R$ "#,##0
+		displayFolder: 2 Margem
+		lineageTag: d5422c28-f40c-51d4-5e27-e31a35fff164
+
+	/// valor_linha − (quantidade × custo), antes do desconto do pedido.
+	measure 'Margem Bruta R$' = SUM(fct_item_pedido[margem_bruta])
+		formatString: "R$ "#,##0
+		displayFolder: 2 Margem
+		lineageTag: 88077ed6-088d-cabb-98cc-0420577255fc
+
+	/// Margem bruta menos o desconto do pedido rateado pela participação da
+	/// linha. O rateio reproduz orders.discount_amount ao centavo.
+	measure 'Margem Líquida R$' = SUM(fct_item_pedido[margem_liquida])
+		formatString: "R$ "#,##0
+		displayFolder: 2 Margem
+		lineageTag: b51464ed-3ff2-c756-3610-fe9de7a549e0
+
+	/// Referência do dataset: 42,58%.
+	measure '% Margem Bruta' = DIVIDE([Margem Bruta R$], [Receita de Itens])
+		formatString: 0.00%
+		displayFolder: 2 Margem
+		lineageTag: de5f41a2-1030-8e1d-2ae5-263b87cb840a
+
+	/// Referência do dataset: 40,44%.
+	measure '% Margem Líquida' = DIVIDE([Margem Líquida R$], [Receita de Itens])
+		formatString: 0.00%
+		displayFolder: 2 Margem
+		lineageTag: bed07cc9-c5c9-d142-d95a-f56c0dd5b6a9
+
+	/// Unidades. É a medida da Questão 4 — Hélices lidera com 492 itens entre
+	/// os 10 clientes de elite.
+	measure 'Itens Vendidos' = SUM(fct_item_pedido[quantidade])
+		formatString: #,##0
+		displayFolder: 2 Margem
+		lineageTag: 7ed781b2-54c9-5adc-6bca-3cdee6ec0e8c
+
+	/// A MEDIDA DA QUESTÃO 5. O denominador é a contagem de linhas do fato
+	/// denso, ou seja, TODOS os dias do calendário — inclusive os 78 em que a
+	/// loja abriu e não vendeu nada.
+	///
+	/// Comparar com 'Média por Dia (só dias com venda)' é o argumento inteiro
+	/// da questão.
+	measure 'Média de Venda por Dia POS' =
+			DIVIDE(
+			    SUM(fct_venda_diaria_pos[valor_venda]),
+			    COUNTROWS(fct_venda_diaria_pos)
+			)
+		formatString: "R$ "#,##0
+		displayFolder: 3 Sazonalidade
+		lineageTag: a789f475-a2ae-c530-2331-96e22240e624
+
+	/// O ERRO DO ESTAGIÁRIO, reproduzido de propósito para a comparação lado a
+	/// lado. Divide só pelos dias em que houve venda — que é o que um GROUP BY
+	/// direto na tabela de vendas produz.
+	///
+	/// Aponta Segunda-feira como pior dia. A medida correta aponta
+	/// Quinta-feira.
+	measure 'Média por Dia (só dias com venda)' =
+			DIVIDE(
+			    SUM(fct_venda_diaria_pos[valor_venda]),
+			    CALCULATE(
+			        COUNTROWS(fct_venda_diaria_pos),
+			        fct_venda_diaria_pos[dia_sem_venda] = FALSE()
+			    )
+			)
+		formatString: "R$ "#,##0
+		displayFolder: 3 Sazonalidade
+		lineageTag: 4615d2f8-85e0-2311-f34b-76956999a89a
+
+	/// 78 no período. Concentrados nos anos iniciais: 25 em 2020, 1 em 2025 —
+	/// é fenômeno de operação em ramp-up, não característica atual.
+	measure 'Dias sem Venda' =
+			CALCULATE(
+			    COUNTROWS(fct_venda_diaria_pos),
+			    fct_venda_diaria_pos[dia_sem_venda] = TRUE()
+			)
+		formatString: #,##0
+		displayFolder: 3 Sazonalidade
+		lineageTag: 5eaef8e2-8168-a931-6f3a-436992e0df4c
+
+	/// O tamanho do erro por dia da semana. Não é uniforme: +5,78% na quinta
+	/// contra +1,96% na segunda. É essa desigualdade que inverte o ranking.
+	measure 'Inflação da Média (erro do estagiário)' =
+			DIVIDE(
+			    [Média por Dia (só dias com venda)] - [Média de Venda por Dia POS],
+			    [Média de Venda por Dia POS]
+			)
+		formatString: 0.00%
+		displayFolder: 3 Sazonalidade
+		lineageTag: 515ec3ad-855c-af34-2a3d-2ba8b1110d27
+
+	measure 'Clientes' = DISTINCTCOUNT(fct_pedido[customer_id])
+		formatString: #,##0
+		displayFolder: 4 Clientes
+		lineageTag: 0b383ed9-b9bb-c5b7-e363-c2078e69d33b
+
+	/// Categorias distintas no contexto atual. Só existem 14 na loja — e
+	/// 1.971 de 2.000 clientes compraram de 13 ou mais, o que é a razão de o
+	/// filtro de elite da Questão 4 não discriminar praticamente ninguém.
+	measure 'Diversidade de Categorias' = DISTINCTCOUNT(dim_produto[category_id])
+		formatString: #,##0
+		displayFolder: 4 Clientes
+		lineageTag: b04381e0-6127-b048-efde-efce52dbe6af
+
+	/// Unidades devolvidas sobre unidades vendidas.
+	measure 'Taxa de Devolução' = DIVIDE(SUM(fct_devolucao[quantidade]), [Itens Vendidos])
+		formatString: 0.00%
+		displayFolder: 5 Pós-venda
+		lineageTag: 2abc505c-7e84-b85a-7ead-700eea2794a2
+
+	/// Quantidade em mãos avaliada ao custo.
+	measure 'Valor em Estoque' = SUM(fct_estoque_atual[valor_em_estoque])
+		formatString: "R$ "#,##0
+		displayFolder: 5 Pós-venda
+		lineageTag: 4b7a5bd1-6dab-442e-3e2b-925a37a169f3
+
+	column Coluna
+		dataType: string
+		isHidden
+		lineageTag: e9dc395d-f55c-07df-6ab6-b22c46d359cf
+		summarizeBy: none
+		sourceColumn: Coluna
+
+	partition _Medidas = m
+		mode: import
+		source =
+				let
+					Fonte = #table(type table [Coluna = text], {})
+				in
+					Fonte

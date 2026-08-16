@@ -1,0 +1,32 @@
+model Model
+	culture: pt-BR
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	discourageImplicitMeasures
+	sourceQueryCulture: pt-BR
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation PBI_QueryOrder = ["dim_canal", "dim_cliente", "dim_data", "dim_local", "dim_produto", "dim_status_pedido", "fct_devolucao", "fct_estoque_atual", "fct_item_pedido", "fct_pagamento", "fct_pedido", "fct_previsao_bussola", "fct_similaridade_produto", "fct_venda_diaria_pos", "_Medidas", "PastaDados"]
+
+annotation __PBI_TimeIntelligenceEnabled = 0
+
+annotation PBI_ProTooling = ["DevMode"]
+
+ref table dim_canal
+ref table dim_cliente
+ref table dim_data
+ref table dim_local
+ref table dim_produto
+ref table dim_status_pedido
+ref table fct_devolucao
+ref table fct_estoque_atual
+ref table fct_item_pedido
+ref table fct_pagamento
+ref table fct_pedido
+ref table fct_previsao_bussola
+ref table fct_similaridade_produto
+ref table fct_venda_diaria_pos
+ref table _Medidas
+
+ref expression PastaDados

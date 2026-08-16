@@ -1,0 +1,48 @@
+/// Grão: DIA de loja física, denso — 2.557 linhas, incluindo os 78 dias em
+/// que a loja abriu e não vendeu nada.
+///
+/// É a densidade que torna a Questão 5 possível: sem os dias de valor zero,
+/// a média por dia da semana passa a ser média condicionada a ter havido
+/// venda, que é outra pergunta e aponta outro dia.
+table fct_venda_diaria_pos
+	lineageTag: 86b0b46c-c6c7-f6f9-afe1-c030812ee24a
+
+	column data
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: cebac9ac-e4c9-077a-9fca-dde25e099112
+		summarizeBy: none
+		sourceColumn: data
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column valor_venda
+		dataType: double
+		formatString: #,##0.00
+		lineageTag: 6794cbd7-ed58-8307-7e24-ec3caa782955
+		summarizeBy: sum
+		sourceColumn: valor_venda
+
+	column qtd_pedidos
+		dataType: int64
+		formatString: #,##0
+		lineageTag: f54a0d66-2670-3655-2c14-1c51626eba21
+		summarizeBy: sum
+		sourceColumn: qtd_pedidos
+
+	column dia_sem_venda
+		dataType: boolean
+		lineageTag: 448e0155-705f-2f81-f871-27e09726ba6c
+		summarizeBy: none
+		sourceColumn: dia_sem_venda
+
+	partition fct_venda_diaria_pos = m
+		mode: import
+		source =
+				let
+					Arquivo = File.Contents(#"PastaDados" & "\fct_venda_diaria_pos.parquet"),
+					Tabela = Parquet.Document(Arquivo)
+				in
+					Tabela
+
+	annotation PBI_ResultType = Table

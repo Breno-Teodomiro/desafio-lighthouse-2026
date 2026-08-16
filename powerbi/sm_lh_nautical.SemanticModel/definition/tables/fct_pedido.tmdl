@@ -1,0 +1,89 @@
+/// Grão: PEDIDO (48.998). Única origem de ticket médio e contagem de
+/// pedidos.
+///
+/// Existe separada de fct_item_pedido porque `total` é do grão pedido: se
+/// morasse no fato de itens, o valor se repetiria por item e qualquer soma
+/// inflaria 3,67x.
+table fct_pedido
+	lineageTag: f608e7cb-16ec-f7b8-3ceb-f53b3594ce06
+
+	column order_id
+		dataType: int64
+		isHidden
+		formatString: #,##0
+		lineageTag: 619c33e4-4afd-82b4-3eb5-3609e8cded2b
+		summarizeBy: none
+		sourceColumn: order_id
+
+	column data
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: f0a4cc92-0d18-45d7-6875-48aeae477709
+		summarizeBy: none
+		sourceColumn: data
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column customer_id
+		dataType: int64
+		formatString: #,##0
+		lineageTag: d1f5a7d6-af18-abdd-04ed-04ba7db24e1c
+		summarizeBy: none
+		sourceColumn: customer_id
+
+	column location_id
+		dataType: int64
+		formatString: #,##0
+		lineageTag: 170bdbce-92c5-d1d4-15bd-49801b953268
+		summarizeBy: none
+		sourceColumn: location_id
+
+	column canal
+		dataType: string
+		lineageTag: 48398f5a-cf38-4b8a-af41-3681b9243844
+		summarizeBy: none
+		sourceColumn: canal
+
+	column status
+		dataType: string
+		lineageTag: 1a8da81d-5dfa-a555-b2c1-da8a30031eb8
+		summarizeBy: none
+		sourceColumn: status
+
+	column subtotal
+		dataType: double
+		formatString: #,##0.00
+		lineageTag: 47442127-a58b-e789-5f90-9125871faa5d
+		summarizeBy: sum
+		sourceColumn: subtotal
+
+	column desconto
+		dataType: double
+		formatString: #,##0.00
+		lineageTag: 547f2a4d-11c3-b529-d178-0f0c72181b3e
+		summarizeBy: sum
+		sourceColumn: desconto
+
+	column total
+		dataType: double
+		formatString: #,##0.00
+		lineageTag: 6fa1e52f-c540-6a29-fcc9-b594f2ce0ec1
+		summarizeBy: sum
+		sourceColumn: total
+
+	column eh_futuro
+		dataType: boolean
+		lineageTag: 6bd2d7b5-d388-571a-4e15-0107953ecd85
+		summarizeBy: none
+		sourceColumn: eh_futuro
+
+	partition fct_pedido = m
+		mode: import
+		source =
+				let
+					Arquivo = File.Contents(#"PastaDados" & "\fct_pedido.parquet"),
+					Tabela = Parquet.Document(Arquivo)
+				in
+					Tabela
+
+	annotation PBI_ResultType = Table

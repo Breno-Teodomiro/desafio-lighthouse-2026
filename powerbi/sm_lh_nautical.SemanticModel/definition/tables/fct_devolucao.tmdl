@@ -1,0 +1,92 @@
+table fct_devolucao
+	lineageTag: 139f76b4-b203-8c41-2ab1-0ae6c17aba28
+
+	column return_item_id
+		dataType: int64
+		isHidden
+		formatString: #,##0
+		lineageTag: 7bcc60f0-b162-455a-1788-a2eccc34b8ab
+		summarizeBy: none
+		sourceColumn: return_item_id
+
+	column return_id
+		dataType: int64
+		isHidden
+		formatString: #,##0
+		lineageTag: bbf3e760-8f89-9e7e-2ca6-2a70864af0e8
+		summarizeBy: none
+		sourceColumn: return_id
+
+	column order_id
+		dataType: int64
+		isHidden
+		formatString: #,##0
+		lineageTag: 3ce7182c-43ef-7c92-fe54-e40d08f8ace7
+		summarizeBy: none
+		sourceColumn: order_id
+
+	column customer_id
+		dataType: int64
+		formatString: #,##0
+		lineageTag: 0becdf5d-7548-3982-cd0f-5193a57c16f9
+		summarizeBy: none
+		sourceColumn: customer_id
+
+	column data
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: cd3f2e75-d472-b942-bae1-8406c5796be7
+		summarizeBy: none
+		sourceColumn: data
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column product_id
+		dataType: int64
+		formatString: #,##0
+		lineageTag: b8a42dfc-3141-f2fa-f5f9-abee413a26ef
+		summarizeBy: none
+		sourceColumn: product_id
+
+	column quantidade
+		dataType: double
+		formatString: #,##0.00
+		lineageTag: e9081e3a-3077-3915-3ffa-42cefbc6ada5
+		summarizeBy: sum
+		sourceColumn: quantidade
+
+	column acao
+		dataType: string
+		lineageTag: ff385092-0f27-5cc9-3cfd-9de23875a03c
+		summarizeBy: none
+		sourceColumn: acao
+
+	column valor_reembolso
+		dataType: double
+		formatString: #,##0.00
+		lineageTag: cb28f2d8-f4c5-6f18-5fa6-ca158dc1e7f3
+		summarizeBy: sum
+		sourceColumn: valor_reembolso
+
+	column motivo
+		dataType: string
+		lineageTag: f24010de-8bc9-26b6-647a-620402c9d05a
+		summarizeBy: none
+		sourceColumn: motivo
+
+	column status
+		dataType: string
+		lineageTag: f176c412-303f-f09d-61dc-efbd69258c41
+		summarizeBy: none
+		sourceColumn: status
+
+	partition fct_devolucao = m
+		mode: import
+		source =
+				let
+					Arquivo = File.Contents(#"PastaDados" & "\fct_devolucao.parquet"),
+					Tabela = Parquet.Document(Arquivo)
+				in
+					Tabela
+
+	annotation PBI_ResultType = Table

@@ -1,0 +1,74 @@
+/// Um produto por linha (500). `produto` é o nome de exibição: recebe o id
+/// quando há homônimo, e vira '[sem nome]' quando o cadastro traz lixo.
+///
+/// `flag_nome_suspeito` preserva a evidência do problema de cadastro em vez
+/// de escondê-la — o item continua no modelo e continua visível.
+table dim_produto
+	lineageTag: 50a359f7-4ed8-1a4a-dbef-45b55bbd1f99
+
+	column product_id
+		dataType: int64
+		formatString: #,##0
+		lineageTag: 7735065e-ae0f-20f7-6608-e65b3e208217
+		summarizeBy: none
+		sourceColumn: product_id
+
+	column produto
+		dataType: string
+		lineageTag: 8957b47a-fb25-931f-87eb-ad413c4704b0
+		summarizeBy: none
+		sourceColumn: produto
+
+	column flag_nome_suspeito
+		dataType: boolean
+		lineageTag: 05c04005-fcfd-200e-b025-8bfa4762015a
+		summarizeBy: none
+		sourceColumn: flag_nome_suspeito
+
+	column flag_homonimo
+		dataType: boolean
+		lineageTag: 601dfa4c-b040-b2e6-03e3-884f3aaef2dd
+		summarizeBy: none
+		sourceColumn: flag_homonimo
+
+	column category_id
+		dataType: int64
+		formatString: #,##0
+		lineageTag: a7be86d5-b0a7-9500-6efa-ec5eb7485b98
+		summarizeBy: none
+		sourceColumn: category_id
+
+	column categoria
+		dataType: string
+		lineageTag: b06dd75f-7560-68f6-97a2-2cb8c98973e3
+		summarizeBy: none
+		sourceColumn: categoria
+
+	column flag_capitalizacao_corrigida
+		dataType: boolean
+		lineageTag: 7f027dea-3173-1c61-373c-0bd7391d115c
+		summarizeBy: none
+		sourceColumn: flag_capitalizacao_corrigida
+
+	column marca
+		dataType: string
+		lineageTag: ca12bf62-726a-89a3-1fc7-ab5d61d1c888
+		summarizeBy: none
+		sourceColumn: marca
+
+	column ativo
+		dataType: boolean
+		lineageTag: 319b1594-6a05-98d4-d560-03b1b1a72e1e
+		summarizeBy: none
+		sourceColumn: ativo
+
+	partition dim_produto = m
+		mode: import
+		source =
+				let
+					Arquivo = File.Contents(#"PastaDados" & "\dim_produto.parquet"),
+					Tabela = Parquet.Document(Arquivo)
+				in
+					Tabela
+
+	annotation PBI_ResultType = Table

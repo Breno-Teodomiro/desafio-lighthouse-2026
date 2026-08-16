@@ -1,0 +1,91 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "name": "7b7e3d65158fa6f871bb",
+  "position": {
+    "x": 32,
+    "y": 516,
+    "z": 100,
+    "height": 176,
+    "width": 760
+  },
+  "visual": {
+    "visualType": "textbox",
+    "objects": {
+      "general": [
+        {
+          "properties": {
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "Por que o erro é perigoso, e por que a recomendação é não fechar",
+                    "textStyle": {
+                      "fontSize": "12pt",
+                      "color": "#0F2B3D",
+                      "fontWeight": "bold",
+                      "fontFamily": "Segoe UI"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "Se o erro fosse uniforme, ele seria inofensivo para o ranking: todos os dias inflariam igual e a ordem sobreviveria. Ele não é. Remover 20 dias vazios do denominador da quinta sobe a média dela em R$ 9.084 (+5,78%) e a tira do último lugar; a segunda, com 7 vazios, sobe só R$ 3.094 (+1,96%) e cai para lá.",
+                    "textStyle": {
+                      "fontSize": "10pt",
+                      "color": "#5A6B78",
+                      "fontWeight": "normal",
+                      "fontFamily": "Segoe UI"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "Mas a diferença entre o pior dia e o melhor é de apenas 10,5%, e entre quinta e domingo é de 0,3%. Isso é ruído, não sazonalidade. Nenhum dia da semana justifica fechar a loja.",
+                    "textStyle": {
+                      "fontSize": "10pt",
+                      "color": "#E07A2F",
+                      "fontWeight": "normal",
+                      "fontFamily": "Segoe UI"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "visualContainerObjects": {
+      "background": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "visualHeader": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

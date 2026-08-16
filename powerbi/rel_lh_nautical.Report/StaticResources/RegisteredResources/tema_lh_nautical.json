@@ -1,0 +1,56 @@
+{
+  "name": "tema_lh_nautical",
+  "dataColors": [
+    "#0E5C7F",
+    "#E07A2F",
+    "#2E8AA8",
+    "#8FB4C4",
+    "#C46A1F",
+    "#54707F",
+    "#A9C3CE",
+    "#3D5666"
+  ],
+  "background": "#F7F9FA",
+  "foreground": "#0F2B3D",
+  "tableAccent": "#0E5C7F",
+  "textClasses": {
+    "title": {
+      "fontFace": "Segoe UI Semibold",
+      "fontSize": 13,
+      "color": "#0F2B3D"
+    },
+    "label": {
+      "fontFace": "Segoe UI",
+      "fontSize": 9,
+      "color": "#5A6B78"
+    }
+  },
+  "visualStyles": {
+    "*": {
+      "*": {
+        "background": [
+          {
+            "show": true,
+            "color": {
+              "solid": {
+                "color": "#FFFFFF"
+              }
+            },
+            "transparency": 0
+          }
+        ],
+        "border": [
+          {
+            "show": true,
+            "color": {
+              "solid": {
+                "color": "#DFE5E9"
+              }
+            },
+            "radius": 6
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,104 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "name": "50ff396ca43983a9c8ef",
+  "position": {
+    "x": 806,
+    "y": 96,
+    "z": 100,
+    "height": 288,
+    "width": 442
+  },
+  "visual": {
+    "visualType": "textbox",
+    "objects": {
+      "general": [
+        {
+          "properties": {
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "Questão 6 — por que o baseline não serve",
+                    "textStyle": {
+                      "fontSize": "12pt",
+                      "color": "#0F2B3D",
+                      "fontWeight": "bold",
+                      "fontFamily": "Segoe UI"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "Não é 'usou meses de baixa para prever meses de pico': out–dez vale 39,6 un./mês contra 35,9 de jan–mar. A janela estava do lado certo do ciclo.",
+                    "textStyle": {
+                      "fontSize": "10pt",
+                      "color": "#5A6B78",
+                      "fontWeight": "normal",
+                      "fontFamily": "Segoe UI"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "As causas reais são a tendência (o Q1 saiu de 64 unidades em 2020 para 207 em 2026) e dez/2025 ter vendido 22 contra uma média histórica de 45,6 — sozinho, esse mês derruba a previsão em 24 unidades no trimestre.",
+                    "textStyle": {
+                      "fontSize": "10pt",
+                      "color": "#5A6B78",
+                      "fontWeight": "normal",
+                      "fontFamily": "Segoe UI"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "O seasonal naive, que só repete o ano anterior, tem MAE de 25,0 contra 30,3 da média móvel. O baseline pedido perde para a regra mais simples que existe.",
+                    "textStyle": {
+                      "fontSize": "10pt",
+                      "color": "#E07A2F",
+                      "fontWeight": "normal",
+                      "fontFamily": "Segoe UI"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "visualContainerObjects": {
+      "background": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "visualHeader": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

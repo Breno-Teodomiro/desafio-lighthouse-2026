@@ -1,0 +1,91 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "name": "216ffc47830f5a89c2e0",
+  "position": {
+    "x": 32,
+    "y": 522,
+    "z": 100,
+    "height": 170,
+    "width": 1216
+  },
+  "visual": {
+    "visualType": "textbox",
+    "objects": {
+      "general": [
+        {
+          "properties": {
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "O que o ranking premia, e o que ele deixa passar",
+                    "textStyle": {
+                      "fontSize": "12pt",
+                      "color": "#0F2B3D",
+                      "fontWeight": "bold",
+                      "fontFamily": "Segoe UI"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "Ordenar por ticket médio premia quem compra caro e raro em cima de quem compra muito. O cliente 1116 tem o 4º maior ticket e R$ 655 mil de faturamento; o cliente 1722 tem o 10º ticket e R$ 1,15 milhão — 75% a mais.",
+                    "textStyle": {
+                      "fontSize": "10pt",
+                      "color": "#5A6B78",
+                      "fontWeight": "normal",
+                      "fontFamily": "Segoe UI"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "Se o objetivo declarado é replicar o comportamento em outros segmentos, o comportamento de 1722 provavelmente interessa mais. Um critério de RFM (recência, frequência, valor) discriminaria o que o filtro de 13 categorias não discrimina.",
+                    "textStyle": {
+                      "fontSize": "10pt",
+                      "color": "#5A6B78",
+                      "fontWeight": "normal",
+                      "fontFamily": "Segoe UI"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "visualContainerObjects": {
+      "background": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "visualHeader": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

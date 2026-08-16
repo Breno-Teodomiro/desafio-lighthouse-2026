@@ -1,0 +1,65 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "name": "2889264c822a6a350236",
+  "position": {
+    "x": 32,
+    "y": 104,
+    "z": 100,
+    "height": 46,
+    "width": 1216
+  },
+  "visual": {
+    "visualType": "textbox",
+    "objects": {
+      "general": [
+        {
+          "properties": {
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "Leia antes: R$ 207,1 milhões (14,7% do GMV) são pedidos cancelados ou em rascunho, e 8,7% dos pedidos têm data futura. Use os filtros de status e período — os números mudam, e é isso que a régua acima quer dizer.",
+                    "textStyle": {
+                      "fontSize": "10pt",
+                      "color": "#E07A2F",
+                      "fontWeight": "normal",
+                      "fontFamily": "Segoe UI"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "visualContainerObjects": {
+      "background": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "visualHeader": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

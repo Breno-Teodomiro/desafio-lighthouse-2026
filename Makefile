@@ -11,7 +11,7 @@ include .env
 export
 endif
 
-.PHONY: help setup schema db carga questoes pipeline check gate-q2 limpar
+.PHONY: help setup schema db carga questoes pipeline powerbi check gate-q2 limpar
 
 help:  ## Mostra os alvos disponíveis
 	@# firstword: MAKEFILE_LIST inclui o .env por causa do include acima, e o
@@ -44,24 +44,30 @@ carga:  ## Q3 — carrega os 24 CSVs em raw (transação única, idempotente)
 		--relatorio entregaveis/Q3_carga/relatorio_carga.md
 
 questoes:  ## Executa as 7 questões e confere os números
-	@echo "== Q1 =="; psql -d $(PGDB) -f entregaveis/Q1_eda/q1_eda_orders.sql
-	@echo "== Q4 =="; psql -d $(PGDB) -f entregaveis/Q4_clientes/q4_clientes_elite.sql
-	@echo "== Q5 =="; psql -d $(PGDB) -f entregaveis/Q5_calendario/q5_dim_calendario.sql
-	@echo "== Q6 =="; uv run python entregaveis/Q6_previsao/q6_previsao_demanda.py --csv-dir $(CSV_DIR)
-	@echo "== Q7 =="; uv run python entregaveis/Q7_recomendacao/q7_recomendacao.py --csv-dir $(CSV_DIR)
+	@echo "== Q1 =="; psql -d $(PGDB) -v ON_ERROR_STOP=1 -f entregaveis/Q1_eda/q1_eda_orders.sql
+	@echo "== Q4 =="; psql -d $(PGDB) -v ON_ERROR_STOP=1 -f entregaveis/Q4_clientes/q4_clientes_elite.sql
+	@echo "== Q5 =="; psql -d $(PGDB) -v ON_ERROR_STOP=1 -f entregaveis/Q5_calendario/q5_dim_calendario.sql
+	@echo "== Q6 =="; uv run python entregaveis/Q6_previsao/q6_previsao_demanda.py --csv-dir ./$(CSV_DIR)
+	@echo "== Q7 =="; uv run python entregaveis/Q7_recomendacao/q7_recomendacao.py --csv-dir ./$(CSV_DIR) --validar-sklearn
 
 pipeline:  ## raw -> silver -> gold + exporta Parquet para o Power BI
-	psql -d $(PGDB) -v ON_ERROR_STOP=1 -f sql/silver/build_silver.sql
-	psql -d $(PGDB) -v ON_ERROR_STOP=1 -f sql/gold/build_gold.sql
-	uv run python -m lh_nautical.gold.exportar_parquet --db $(PGDB) --saida dados/gold
+	@test "$$PGDATABASE" = "$(PGDB)" || { echo "ABORTADO: PGDATABASE='$$PGDATABASE'"; exit 1; }
+	psql -d $(PGDB) -v ON_ERROR_STOP=1 -q -f sql/silver/build_silver.sql
+	psql -d $(PGDB) -v ON_ERROR_STOP=1 -q -f sql/gold/build_gold.sql
+	PYTHONPATH=src uv run python -m lh_nautical.gold.exportar_parquet --saida dados/gold
+	PYTHONPATH=src uv run python -m lh_nautical.gold.exportar_modelos
+
+powerbi: pipeline  ## Gera o projeto PBIP (modelo TMDL + 5 páginas) a partir do gold
+	uv run python powerbi/gerar_pbip.py
+	uv run python tests/validar_pbip.py
 
 gate-q2:  ## Prova que a Q2 usa SOMENTE a stdlib (premissa eliminatória)
 	@uv run python tests/gate_stdlib.py entregaveis/Q2_schema/q2_gerar_schema.py
 
-check: gate-q2  ## ruff + mypy + pytest + gates de conformidade
-	uv run ruff check .
-	uv run mypy src/ || true
-	uv run pytest -q
+check: gate-q2  ## ruff + mypy + gates de conformidade
+	uv run ruff check entregaveis/ tests/ src/ powerbi/
+	uv run mypy entregaveis/ tests/ src/
+	uv run python tests/validar_pbip.py
 
 limpar:  ## Derruba SOMENTE o banco lh_nautical (destrutivo — pede confirmação)
 	@if [ "$(PGDB)" != "lh_nautical" ]; then echo "ABORTADO: alvo inesperado '$(PGDB)'"; exit 1; fi

@@ -1,0 +1,65 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "name": "a84e3eee58ded52dd438",
+  "position": {
+    "x": 32,
+    "y": 92,
+    "z": 100,
+    "height": 44,
+    "width": 1216
+  },
+  "visual": {
+    "visualType": "textbox",
+    "objects": {
+      "general": [
+        {
+          "properties": {
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "O filtro de diversidade não filtra: só existem 14 categorias na loja, e 1.971 de 2.000 clientes (98,5%) compraram de 13 ou mais. Na prática, o ranking é ordenado só pelo ticket médio.",
+                    "textStyle": {
+                      "fontSize": "10pt",
+                      "color": "#E07A2F",
+                      "fontWeight": "normal",
+                      "fontFamily": "Segoe UI"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "visualContainerObjects": {
+      "background": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "visualHeader": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

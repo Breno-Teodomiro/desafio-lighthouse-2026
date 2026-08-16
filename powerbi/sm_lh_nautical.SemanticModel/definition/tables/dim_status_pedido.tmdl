@@ -1,0 +1,49 @@
+/// A dimensão que resolve toda a ambiguidade de status do projeto.
+///
+/// 14,7% do GMV são pedidos `cancelled` ou `draft`, que nunca viraram
+/// receita. Em vez de enterrar essa decisão num WHERE, ela vira o atributo
+/// `eh_receita_efetivada` e o leitor decide no slicer.
+table dim_status_pedido
+	lineageTag: 2327a5a1-7295-4962-0aca-7766cefa427e
+
+	column status
+		dataType: string
+		lineageTag: 16699d18-8c1b-76ec-6164-cc2dab265da6
+		summarizeBy: none
+		sourceColumn: status
+
+	column status_exibicao
+		dataType: string
+		lineageTag: c9d3e832-9193-e385-7c0f-98957f5cc821
+		summarizeBy: none
+		sourceColumn: status_exibicao
+
+	column ordem
+		dataType: int64
+		formatString: #,##0
+		lineageTag: acf5df42-d2a9-b44f-49af-07f87366afe7
+		summarizeBy: sum
+		sourceColumn: ordem
+
+	column eh_receita_efetivada
+		dataType: boolean
+		lineageTag: 7da4fba5-ef31-2af9-768b-4db08eb21783
+		summarizeBy: none
+		sourceColumn: eh_receita_efetivada
+
+	column eh_pago
+		dataType: boolean
+		lineageTag: 3dd97e75-ae7c-37da-a19b-e1d9ae0a61a3
+		summarizeBy: none
+		sourceColumn: eh_pago
+
+	partition dim_status_pedido = m
+		mode: import
+		source =
+				let
+					Arquivo = File.Contents(#"PastaDados" & "\dim_status_pedido.parquet"),
+					Tabela = Parquet.Document(Arquivo)
+				in
+					Tabela
+
+	annotation PBI_ResultType = Table

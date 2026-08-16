@@ -1,0 +1,99 @@
+/// Dimensão de datas densa, cobrindo todos os dias entre o primeiro e o
+/// último pedido. Marcada como tabela de datas do modelo.
+///
+/// `eh_futuro` é a coluna que permite sombrear a área posterior a hoje nos
+/// visuais: 8,7% dos pedidos têm data futura, e apresentá-los como
+/// realizados é a armadilha nº 2 do diagnóstico da Questão 1.
+table dim_data
+	lineageTag: f78bd191-bdad-6363-8d76-d6f9934ca8c4
+	dataCategory: Time
+
+	column data
+		dataType: dateTime
+		isKey
+		formatString: yyyy-mm-dd
+		lineageTag: f1e168c3-5a9b-5fcb-84c5-51246c3b3189
+		summarizeBy: none
+		sourceColumn: data
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column num_dia_semana
+		dataType: int64
+		isHidden
+		formatString: #,##0
+		lineageTag: d943f741-cdde-4dd8-eef7-0bda64b13427
+		summarizeBy: none
+		sourceColumn: num_dia_semana
+
+	column dia_semana
+		dataType: string
+		lineageTag: 5c7f749e-58bf-4769-605a-8a4291b4090b
+		summarizeBy: none
+		sourceColumn: dia_semana
+		sortByColumn: num_dia_semana
+
+	column ano
+		dataType: int64
+		formatString: #,##0
+		lineageTag: ba269b0d-bd87-40ee-1d40-807852caeb18
+		summarizeBy: none
+		sourceColumn: ano
+
+	column num_mes
+		dataType: int64
+		isHidden
+		formatString: #,##0
+		lineageTag: b5aeed31-843b-4e6e-3e90-e4b61ad447d4
+		summarizeBy: none
+		sourceColumn: num_mes
+
+	column mes
+		dataType: string
+		lineageTag: cca41d32-b111-8e91-5ac9-9635b867f8c2
+		summarizeBy: none
+		sourceColumn: mes
+		sortByColumn: num_mes
+
+	column ano_mes
+		dataType: string
+		lineageTag: d289172d-35c1-cc61-fdb6-9cecd09bb31c
+		summarizeBy: none
+		sourceColumn: ano_mes
+
+	column num_trimestre
+		dataType: int64
+		isHidden
+		formatString: #,##0
+		lineageTag: 75d889ca-81de-5558-a336-6d0aad47e2ec
+		summarizeBy: none
+		sourceColumn: num_trimestre
+
+	column trimestre
+		dataType: string
+		lineageTag: 40b75d2c-74ad-ec50-2810-d00a9e02860b
+		summarizeBy: none
+		sourceColumn: trimestre
+
+	column eh_fim_de_semana
+		dataType: boolean
+		lineageTag: c4994128-ecdb-efe8-3a50-6a65d3e0eb9b
+		summarizeBy: none
+		sourceColumn: eh_fim_de_semana
+
+	column eh_futuro
+		dataType: boolean
+		lineageTag: 944f14d5-1da9-1379-bc6e-1d75c695f546
+		summarizeBy: none
+		sourceColumn: eh_futuro
+
+	partition dim_data = m
+		mode: import
+		source =
+				let
+					Arquivo = File.Contents(#"PastaDados" & "\dim_data.parquet"),
+					Tabela = Parquet.Document(Arquivo)
+				in
+					Tabela
+
+	annotation PBI_ResultType = Table

@@ -1,0 +1,66 @@
+/// As 499 similaridades de cosseno do 'Motor de Popa 1949' (Questão 7).
+///
+/// `desvios_da_media` é a coluna que sustenta a conclusão honesta: os três
+/// primeiros estão a 2,40 / 2,39 / 2,38 sigma, ou seja, estatisticamente
+/// indistinguíveis. `pedidos_em_comum` traz a co-ocorrência de cesta, que é
+/// a formulação correta do problema.
+table fct_similaridade_produto
+	lineageTag: 589d6e48-8a33-db8b-35c4-06b181bd7d9d
+
+	column product_id
+		dataType: int64
+		formatString: #,##0
+		lineageTag: ce1f9089-1377-d534-e185-a41a4824ed23
+		summarizeBy: none
+		sourceColumn: product_id
+
+	column produto
+		dataType: string
+		lineageTag: 5f735318-0928-dcd2-3a85-38ca1326f40d
+		summarizeBy: none
+		sourceColumn: produto
+
+	column similaridade
+		dataType: double
+		formatString: #,##0.00
+		lineageTag: 0ecb2134-e13e-7d81-8188-6609313ee03c
+		summarizeBy: sum
+		sourceColumn: similaridade
+
+	column desvios_da_media
+		dataType: double
+		formatString: #,##0.00
+		lineageTag: 97780558-8795-4f3d-ca6b-551bbda821bb
+		summarizeBy: sum
+		sourceColumn: desvios_da_media
+
+	column posicao
+		dataType: int64
+		formatString: #,##0
+		lineageTag: 98f21e6a-1f1f-655c-d20a-7226ea925fa5
+		summarizeBy: none
+		sourceColumn: posicao
+
+	column pedidos_em_comum
+		dataType: int64
+		formatString: #,##0
+		lineageTag: 44619be3-5eab-c1a9-7872-4de1a85c124e
+		summarizeBy: sum
+		sourceColumn: pedidos_em_comum
+
+	column produto_referencia
+		dataType: string
+		lineageTag: 8eeac3bc-d97e-08f9-6af9-669477fd47f5
+		summarizeBy: none
+		sourceColumn: produto_referencia
+
+	partition fct_similaridade_produto = m
+		mode: import
+		source =
+				let
+					Arquivo = File.Contents(#"PastaDados" & "\fct_similaridade_produto.parquet"),
+					Tabela = Parquet.Document(Arquivo)
+				in
+					Tabela
+
+	annotation PBI_ResultType = Table

@@ -1,0 +1,50 @@
+/// Série mensal da Bússola de Bordo 702 (Questão 6), em formato longo:
+/// realizado e três modelos na mesma coluna `unidades`, discriminados por
+/// `serie`. Formato longo para que um único visual de linhas compare todos.
+table fct_previsao_bussola
+	lineageTag: 80dd2f04-43ae-2b44-794f-2e3fa6214c4b
+
+	column ano_mes
+		dataType: string
+		lineageTag: 3e14f833-941e-5c28-52a3-9820bc78d602
+		summarizeBy: none
+		sourceColumn: ano_mes
+
+	column data
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: 347bd377-f73f-c8c9-0623-b51b19255a41
+		summarizeBy: none
+		sourceColumn: data
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column serie
+		dataType: string
+		lineageTag: 08d20584-8299-8b77-9a02-2e3ebabd52e5
+		summarizeBy: none
+		sourceColumn: serie
+
+	column unidades
+		dataType: double
+		formatString: #,##0.00
+		lineageTag: dc7b11f8-2ba6-31f4-7ae3-f9d7aa748b6d
+		summarizeBy: sum
+		sourceColumn: unidades
+
+	column eh_treino
+		dataType: boolean
+		lineageTag: 2f506fe4-8689-c715-589c-2aa50145cbf1
+		summarizeBy: none
+		sourceColumn: eh_treino
+
+	partition fct_previsao_bussola = m
+		mode: import
+		source =
+				let
+					Arquivo = File.Contents(#"PastaDados" & "\fct_previsao_bussola.parquet"),
+					Tabela = Parquet.Document(Arquivo)
+				in
+					Tabela
+
+	annotation PBI_ResultType = Table

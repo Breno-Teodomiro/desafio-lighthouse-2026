@@ -1,0 +1,73 @@
+/// ISOLADO DO MODELO, sem nenhum relacionamento. É deliberado.
+///
+/// `payments` faz fan-out 2:1 — 6.999 pedidos têm dois pagamentos. Se
+/// estivesse relacionado, um filtro de método de pagamento inflaria o
+/// faturamento em 9,3%. Serve para responder perguntas SOBRE pagamento
+/// (mix de método, parcelamento) e nada mais.
+///
+/// A ausência do relacionamento está documentada aqui para que ninguém a
+/// 'conserte' depois.
+table fct_pagamento
+	lineageTag: d9acadce-f347-227e-c335-6a4f71a133a0
+
+	column payment_id
+		dataType: int64
+		isHidden
+		formatString: #,##0
+		lineageTag: 17b60848-82b9-af17-d8b3-e02abddca340
+		summarizeBy: none
+		sourceColumn: payment_id
+
+	column order_id
+		dataType: int64
+		isHidden
+		formatString: #,##0
+		lineageTag: 5687e8f1-8399-72bd-9f2c-7af8e60b75fb
+		summarizeBy: none
+		sourceColumn: order_id
+
+	column data
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: 2bfc7a3f-e99e-d544-6131-8b370020a518
+		summarizeBy: none
+		sourceColumn: data
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column metodo
+		dataType: string
+		lineageTag: ffc824a3-0975-92d6-381c-90ac3b7588f3
+		summarizeBy: none
+		sourceColumn: metodo
+
+	column parcelas
+		dataType: int64
+		formatString: #,##0
+		lineageTag: 482ea2a4-2561-cecb-7462-a962880adeb2
+		summarizeBy: sum
+		sourceColumn: parcelas
+
+	column valor
+		dataType: double
+		formatString: #,##0.00
+		lineageTag: 50df3be9-913a-bbef-6f31-3c052b4aa078
+		summarizeBy: sum
+		sourceColumn: valor
+
+	column status
+		dataType: string
+		lineageTag: 98c795e6-7d28-4072-3f65-eb17443e4741
+		summarizeBy: none
+		sourceColumn: status
+
+	partition fct_pagamento = m
+		mode: import
+		source =
+				let
+					Arquivo = File.Contents(#"PastaDados" & "\fct_pagamento.parquet"),
+					Tabela = Parquet.Document(Arquivo)
+				in
+					Tabela
+
+	annotation PBI_ResultType = Table

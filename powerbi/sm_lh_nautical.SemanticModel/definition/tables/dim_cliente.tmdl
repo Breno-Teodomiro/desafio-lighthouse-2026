@@ -1,0 +1,78 @@
+/// Um cliente por linha, com as métricas da Questão 4 pré-calculadas.
+///
+/// `flag_elite` marca os 10 clientes fiéis. Ele vem do SQL, não de DAX:
+/// a regra de desempate (ticket médio desc, customer_id asc) já está
+/// resolvida na camada gold, e reimplementá-la em DAX seria a segunda
+/// implementação da mesma regra.
+table dim_cliente
+	lineageTag: d0bd5e39-c39c-1148-ae20-e928556c0641
+
+	column customer_id
+		dataType: int64
+		formatString: #,##0
+		lineageTag: e385a93d-ba8b-e8f0-d3a8-622fef8f4cd0
+		summarizeBy: none
+		sourceColumn: customer_id
+
+	column cliente
+		dataType: string
+		lineageTag: d43109ae-c705-239e-162b-9d80e3729053
+		summarizeBy: none
+		sourceColumn: cliente
+
+	column tipo_pessoa
+		dataType: string
+		lineageTag: 7b511f5c-943b-abc3-db34-bcf9adf32269
+		summarizeBy: none
+		sourceColumn: tipo_pessoa
+
+	column flag_nome_suspeito
+		dataType: boolean
+		lineageTag: 94b657b1-05b1-284f-8974-a82990d67cc0
+		summarizeBy: none
+		sourceColumn: flag_nome_suspeito
+
+	column faturamento_total
+		dataType: double
+		formatString: #,##0.00
+		lineageTag: b1dddd16-3481-cb7c-82bc-ff3fe32d1a7f
+		summarizeBy: sum
+		sourceColumn: faturamento_total
+
+	column frequencia
+		dataType: int64
+		formatString: #,##0
+		lineageTag: 349a129f-07ec-c7a8-5249-392865fccef0
+		summarizeBy: sum
+		sourceColumn: frequencia
+
+	column ticket_medio
+		dataType: double
+		formatString: #,##0.00
+		lineageTag: 667d91ff-cbca-9c14-a871-9a9ef5cc8563
+		summarizeBy: sum
+		sourceColumn: ticket_medio
+
+	column diversidade_categorias
+		dataType: int64
+		formatString: #,##0
+		lineageTag: b823dc75-d712-27c0-4779-026603e4daa5
+		summarizeBy: sum
+		sourceColumn: diversidade_categorias
+
+	column flag_elite
+		dataType: boolean
+		lineageTag: 30a17ea8-61af-2164-1f6d-e0ef9596cef6
+		summarizeBy: none
+		sourceColumn: flag_elite
+
+	partition dim_cliente = m
+		mode: import
+		source =
+				let
+					Arquivo = File.Contents(#"PastaDados" & "\dim_cliente.parquet"),
+					Tabela = Parquet.Document(Arquivo)
+				in
+					Tabela
+
+	annotation PBI_ResultType = Table
