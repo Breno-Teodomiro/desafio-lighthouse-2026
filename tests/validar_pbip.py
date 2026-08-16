@@ -21,6 +21,14 @@ O que dá para checar sem o Power BI, e é checado aqui:
   6. Todo lado de todo relacionamento aponta para coluna existente.
   7. Toda tabela do TMDL tem partição, e o Parquet correspondente existe.
   8. As páginas listadas em pages.json existem no disco.
+  9. Todo tipo físico do Parquet é importável, e bate com o `dataType` do TMDL.
+ 10. Todo relacionamento tem lado-1 único e sem órfãos NOS DADOS.
+
+As regras 9 e 10 nasceram da terceira tentativa de abrir o projeto: ele abriu,
+mas a atualização morreu em `Argumento 'dataType' não pode ser nulo` e todos os
+visuais exibiram "(Em branco)". A causa eram tipos Arrow que o conector do
+Power BI não mapeia — `large_string` e `null` — invisíveis para qualquer
+checagem que só lesse o TMDL.
 
 O que NÃO dá para checar: se o TMDL abre. Isso exige o Desktop.
 """
@@ -31,6 +39,7 @@ import json
 import re
 import sys
 from pathlib import Path
+from typing import Any
 
 RAIZ = Path(__file__).resolve().parent.parent
 PBI = RAIZ / "powerbi"
@@ -233,6 +242,114 @@ def validar_visuais(erros: list[str], avisos: list[str]) -> None:
                     )
 
 
+# Tipo físico do Parquet -> `dataType` que o TMDL tem de declarar. O que não
+# está aqui, o conector `Parquet.Document` não sabe importar: ele devolve um
+# tipo nulo e o Desktop aborta a atualização inteira, sem dizer qual coluna.
+TIPO_PARQUET_PARA_TMDL = {
+    "int8": "int64", "int16": "int64", "int32": "int64", "int64": "int64",
+    "float": "double", "double": "double",
+    "string": "string", "bool": "boolean",
+}
+
+
+def _tmdl_esperado(tipo: str) -> str | None:
+    if tipo.startswith(("timestamp", "date")):
+        return "dateTime"
+    if tipo.startswith("decimal"):
+        return "double"
+    return TIPO_PARQUET_PARA_TMDL.get(tipo)
+
+
+def validar_parquets(tabelas_tmdl: dict[str, list[tuple[str, str]]],
+                     erros: list[str], avisos: list[str]) -> None:
+    """Regras 9 e 10 — checam os DADOS, não só a definição do modelo."""
+    try:
+        import pyarrow.compute as pc
+        import pyarrow.parquet as pq
+    except ImportError:
+        avisos.append("pyarrow ausente: regras 9 e 10 (Parquet) não rodaram")
+        return
+
+    # --- 9. tipo físico importável e coerente com o TMDL ------------------
+    for tabela, colunas in tabelas_tmdl.items():
+        caminho = PARQUET / f"{tabela}.parquet"
+        if not caminho.is_file():
+            continue
+        schema = {c.name: str(c.type) for c in pq.read_schema(caminho)}
+        for origem, tipo_tmdl in colunas:
+            if origem not in schema:
+                continue  # já coberto pela regra 3
+            esperado = _tmdl_esperado(schema[origem])
+            if esperado is None:
+                erros.append(
+                    f"{tabela}.{origem}: tipo Parquet '{schema[origem]}' não é "
+                    f"importável pelo Power BI (grave via gold.parquet_compat)"
+                )
+            elif esperado != tipo_tmdl:
+                erros.append(
+                    f"{tabela}.{origem}: Parquet é '{schema[origem]}', que chega "
+                    f"como '{esperado}', mas o TMDL declara '{tipo_tmdl}'"
+                )
+
+    # --- 10. cardinalidade e integridade nos dados ------------------------
+    rel_texto = (MODELO / "relationships.tmdl").read_text(encoding="utf-8").replace("\r\n", "\n")
+    # `Any` porque o pyarrow é importado dentro da função (a validação degrada
+    # para aviso quando ele não está instalado) e não tem stubs para o mypy.
+    cache: dict[str, Any] = {}
+
+    def coluna(tabela: str, nome: str) -> Any:
+        caminho = PARQUET / f"{tabela}.parquet"
+        if not caminho.is_file():
+            return None
+        if tabela not in cache:
+            cache[tabela] = pq.read_table(caminho)
+        tabela_pa = cache[tabela]
+        return tabela_pa.column(nome) if nome in tabela_pa.column_names else None
+
+    for m in re.finditer(r"^relationship\s+(\S+)\n\tfromColumn:\s+(\S+)\n\ttoColumn:\s+(\S+)",
+                         rel_texto, re.M):
+        nome_rel, ref_n, ref_um = m.group(1), m.group(2), m.group(3)
+        tab_n, _, col_n = ref_n.partition(".")
+        tab_um, _, col_um = ref_um.partition(".")
+        lado_um, lado_n = coluna(tab_um, col_um), coluna(tab_n, col_n)
+        if lado_um is None or lado_n is None:
+            continue
+
+        if pc.count_distinct(lado_um).as_py() != lado_um.length():
+            erros.append(f"relação {nome_rel}: '{ref_um}' não é único — "
+                         f"o Desktop recusa a cardinalidade muitos-para-um")
+        if lado_um.null_count:
+            erros.append(f"relação {nome_rel}: '{ref_um}' tem "
+                         f"{lado_um.null_count} nulos no lado 1")
+
+        # Órfão não impede a relação: o Power BI os agrupa num membro "Em
+        # branco" da dimensão, e eles somem de todo visual filtrado por ela.
+        # Falha silenciosa — por isso é erro aqui, e não aviso.
+        conhecidos = set(lado_um.to_pylist())
+        orfaos = sum(1 for v in lado_n.to_pylist() if v is not None and v not in conhecidos)
+        orfaos = int(orfaos)
+        if orfaos:
+            erros.append(f"relação {nome_rel}: {orfaos} valores de '{ref_n}' "
+                         f"não existem em '{ref_um}' (virariam linha em branco)")
+
+
+def ler_colunas_de_origem() -> dict[str, list[tuple[str, str]]]:
+    """Devolve {tabela: [(sourceColumn, dataType), ...]} — só colunas de fonte."""
+    saida: dict[str, list[tuple[str, str]]] = {}
+    for arquivo in sorted((MODELO / "tables").glob("*.tmdl")):
+        texto = arquivo.read_text(encoding="utf-8").replace("\r\n", "\n")
+        colunas = []
+        for _, corpo in re.findall(r"\n\tcolumn ([^\n]+)\n((?:\t\t[^\n]*\n)+)", texto):
+            if "type: calculated" in corpo:
+                continue  # coluna DAX não tem contrapartida no Parquet
+            tipo = re.search(r"dataType: (\S+)", corpo)
+            origem = re.search(r"sourceColumn: (\S+)", corpo)
+            if tipo and origem:
+                colunas.append((origem.group(1), tipo.group(1)))
+        saida[arquivo.stem] = colunas
+    return saida
+
+
 def main() -> int:
     if not MODELO.exists():
         print(f"erro: {MODELO} não existe — rode powerbi/gerar_pbip.py", file=sys.stderr)
@@ -244,6 +361,7 @@ def main() -> int:
     validar_sintaxe_tmdl(erros, avisos)
     validar_report_json(erros)
     validar_visuais(erros, avisos)
+    validar_parquets(ler_colunas_de_origem(), erros, avisos)
 
     tabelas, medidas, dax = ler_modelo()
     print(f"Modelo: {len(tabelas)} tabelas, {len(medidas)} medidas")

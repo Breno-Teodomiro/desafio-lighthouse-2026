@@ -29,22 +29,55 @@ foram refeitas em SQL sobre o banco.
 
 ---
 
-## ⛔ A única pendência: abrir o dashboard e exportar o `.pbix`
+## ⛔ A única pendência: atualizar o dashboard e exportar o `.pbix`
 
 O projeto `powerbi/lh_nautical.pbip` é gerado e validado por script. **Não há
 Power BI Desktop nesta máquina (WSL)** — quem abre é o usuário, no Windows.
 
-**Duas tentativas de abrir, duas correções (16/08):**
+**O projeto já ABRE.** A 3ª tentativa passou do parser; o que faltava era a
+carga dos dados, corrigida abaixo. O próximo passo é abrir, clicar em
+**Atualizar** e exportar o `.pbix`.
+
+**Três tentativas, três correções (16/08):**
 
 | Tentativa | Erro do Desktop | Causa |
 |---|---|---|
 | 1ª | `InvalidLineType — Unexpected line type: Empty!` em `relationships.tmdl:9` | `///` no TMDL é **descrição de objeto**, não comentário livre; linha em branco entre o bloco e a declaração aborta o parser |
 | 2ª | `reportVersionAtImport` ausente em `/themeCollection/customTheme` | campo obrigatório do `report.json` |
+| 3ª | Abriu, mas a atualização morreu em `Argumento 'dataType' não pode ser nulo` e todo visual mostrou **"(Em branco)"** | tipos físicos do **Parquet** que o conector não importa — ver abaixo |
+
+### A 3ª: o erro não estava no Power BI, estava no `to_parquet`
+
+O `pandas` **3.0** tornou o dtype `str` nativo do Arrow o padrão, e ele grava
+`large_string` (LargeUtf8) em vez de `string`. Somado a isso,
+`ponto_de_reposicao` — vazia nas 24.000 linhas de origem — não dava ao pyarrow
+evidência nenhuma de tipo e saía como tipo `null`. **Nenhum dos dois tem
+equivalente no motor Mashup**: o conector devolve tipo nulo e o Desktop aborta
+a atualização inteira, sem citar arquivo nem coluna.
+
+Eram **30 colunas** em 13 dos 14 Parquets — 29 `large_string` e 1 `null`.
+Nada disso era visível pelo TMDL: a auditoria de definição dava tudo certo.
+
+Correção em `src/lh_nautical/gold/parquet_compat.py`, agora o único caminho de
+gravação dos dois exportadores. É um *cast* de schema antes de gravar — só
+metadado, os dados não são reescritos.
+
+**Achado extra da mesma auditoria:** `dim_data` ia só até 2026-12-31, o último
+pedido — mas devolução acontece **depois** do pedido, e 27 delas caem em
+janeiro de 2027. Ficariam órfãs, caindo num membro "Em branco" da dimensão e
+sumindo de qualquer visual filtrado por data, **sem erro nenhum**. O
+`build_gold.sql` agora tira o limite do `least`/`greatest` entre pedidos e
+devoluções: 2.557 → **2.584 dias**.
+
+As duas regras viraram as verificações **9 e 10** do `tests/validar_pbip.py`, e
+cada uma foi testada injetando o defeito que deve pegar — as 5 injeções
+(large_string, null, tipo divergente do TMDL, órfão de calendário, lado-1
+duplicado) reprovaram o projeto como esperado.
 
 Cada erro motivou uma **auditoria completa** da camada contra os **5 projetos
 PBIP do usuário que comprovadamente abrem** (`/mnt/c/PROJETOS/*/`), e cada
-auditoria achou 4 problemas adicionais além do reportado — 10 no total. Os mais
-sérios:
+auditoria achou problemas adicionais além do reportado. Os mais sérios das
+duas primeiras rodadas:
 
 - **Coluna crua no papel `Y`** de 4 visuais. Nos projetos funcionais, `Y` recebe
   **sempre** medida. Não era erro de digitação, era padrão errado repetido →
@@ -55,12 +88,17 @@ sérios:
   em `lineChart`** — construtos sem nenhuma ocorrência nos projetos funcionais.
   Todos removidos ou trocados por equivalentes comprovados.
 
-### 🔑 O método, se houver uma 3ª tentativa
+### 🔑 O método, se houver uma 4ª tentativa
 
 **Não corrija só o erro reportado.** Audite a camada inteira contra os projetos
-de referência. O `tests/validar_pbip.py` já automatiza 8 dessas regras, e **cada
-uma foi testada injetando o defeito que ela deve pegar** — inclusive as duas que
-teriam evitado os erros acima.
+de referência. O `tests/validar_pbip.py` já automatiza 10 dessas regras, e
+**cada uma foi testada injetando o defeito que ela deve pegar** — inclusive as
+três que teriam evitado os erros acima.
+
+E lembre da lição da 3ª rodada: **a mensagem do Desktop pode não ser sobre o
+Power BI.** Ali ela apontava para o modelo e o defeito estava no `pandas`.
+Quando a definição inteira valida e mesmo assim não carrega, desconfie dos
+**dados**, não do TMDL.
 
 ```bash
 python3 - <<'EOF'   # levanta o vocabulário comprovado

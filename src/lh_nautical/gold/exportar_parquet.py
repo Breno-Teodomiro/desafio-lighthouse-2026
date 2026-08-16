@@ -27,6 +27,8 @@ from pathlib import Path
 import pandas as pd
 import psycopg
 
+from lh_nautical.gold.parquet_compat import gravar
+
 BANCO_ESPERADO = "lh_nautical"
 
 # Objetos exportados, na ordem em que fazem sentido para quem lê a pasta.
@@ -79,9 +81,11 @@ def exportar(conn: psycopg.Connection, objeto: str, saida: Path) -> tuple[int, i
         elif isinstance(primeiro, date):
             df[coluna] = pd.to_datetime(df[coluna])
 
+    # A gravação passa por `parquet_compat.gravar` e não pelo `to_parquet` do
+    # pandas: o pandas 3.0 grava texto como `large_string`, tipo que o
+    # conector Parquet do Power BI não sabe importar. Ver o módulo.
     caminho = saida / f"{objeto}.parquet"
-    df.to_parquet(caminho, index=False, compression="snappy")
-    return len(df), caminho.stat().st_size
+    return len(df), gravar(df, caminho)
 
 
 def main(argv: list[str] | None = None) -> int:

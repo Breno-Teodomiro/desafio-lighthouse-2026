@@ -54,12 +54,22 @@ DROP VIEW  IF EXISTS gold.vw_venda_diaria_pos CASCADE;
 -- ============================================================================
 
 -- ----------------------------------------------------------------------------
--- dim_data — cobre todo o período de pedidos, denso.
+-- dim_data — cobre todo o período de TODOS os fatos datados, denso.
+--
+-- O limite não sai só de `silver.pedidos`: a devolução acontece DEPOIS do
+-- pedido que a originou, e 27 delas caem em janeiro de 2027, além do último
+-- pedido (2026-12-31). Um calendário fechado em pedidos deixaria essas 27
+-- linhas órfãs — no Power BI elas cairiam num membro "Em branco" da dimensão
+-- e sumiriam de qualquer visual filtrado por data, sem erro nenhum.
 -- ----------------------------------------------------------------------------
 DROP TABLE IF EXISTS gold.dim_data CASCADE;
 CREATE TABLE gold.dim_data AS
 WITH limites AS (
-    SELECT min(data) AS ini, max(data) AS fim FROM silver.pedidos
+    SELECT
+        least(   (SELECT min(data) FROM silver.pedidos),
+                 (SELECT min(data) FROM silver.devolucoes)) AS ini,
+        greatest((SELECT max(data) FROM silver.pedidos),
+                 (SELECT max(data) FROM silver.devolucoes)) AS fim
 )
 SELECT
     d::date                                AS data,

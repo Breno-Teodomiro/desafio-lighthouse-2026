@@ -30,6 +30,8 @@ from types import ModuleType
 import numpy as np
 import pandas as pd
 
+from lh_nautical.gold.parquet_compat import gravar
+
 RAIZ = Path(__file__).resolve().parents[3]
 
 
@@ -145,7 +147,7 @@ def main(argv: list[str] | None = None) -> int:
             if df[coluna].dtype == "object" and len(df) and hasattr(df[coluna].iloc[0], "year"):
                 df[coluna] = pd.to_datetime(df[coluna])
         caminho = args.saida / f"{nome}.parquet"
-        df.to_parquet(caminho, index=False, compression="snappy")
+        gravar(df, caminho)  # dialeto que o Power BI lê; ver `parquet_compat`
         print(f"  {nome:<28} {len(df):>6} linhas  ->  {caminho}")
 
     return 0
