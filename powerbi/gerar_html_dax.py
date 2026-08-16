@@ -139,7 +139,7 @@ def faixa(itens: list[tuple], tam: int = 30, coluna: bool = False) -> list[str]:
     # a primeira deixa todas as outras abaixo dela — e o parser recusa o
     # arquivo inteiro com "Invalid indentation".
     saida = [f'{s(f"<div style={A}display:flex;flex-direction:{direcao};"
-                  f"gap:10px;font-family:{FONTE};{A}>")}']
+                  f"gap:15px;font-family:{FONTE};{A}>")}']
     for rotulo, valor, nota, cor, barra in itens:
         saida += [
             f'& {s(f"<div style={A}{CAIXA}{A}>")}',
@@ -266,7 +266,8 @@ def ranking(tabela: str, coluna: str, med: str, fmt: str, n: int, cor: str,
 
 # ═══════════════════════════════════════════════════════ tipo SÉRIE (bloco) ══
 def serie(tabela: str, coluna: str, series: list[tuple[str, str]],
-          altura: int = 96, base_zero: bool = True) -> list[str]:
+          altura: int = 96, base_zero: bool = True,
+          indice_numerico: bool = False) -> list[str]:
     """Linha do tempo em SVG. `series` = [(expressão da medida, cor)].
 
     O eixo X é o índice do período e o `preserveAspectRatio=none` estica o
@@ -278,11 +279,13 @@ def serie(tabela: str, coluna: str, series: list[tuple[str, str]],
         "VAR _T =",
         "    ADDCOLUMNS(",
         "        _Base,",
-        # Índice do mês a partir do próprio rótulo "AAAA-MM". RANKX sobre
-        # texto não deu ordem estável e a série saiu embaralhada — os pontos
-        # do polyline vinham fora de sequência.
-        f'        "@i", VALUE(LEFT({tabela}[{coluna}], 4)) * 12'
-        f' + VALUE(MID({tabela}[{coluna}], 6, 2)),',
+        # Índice do período. Para "AAAA-MM" sai do próprio rótulo — RANKX
+        # sobre texto não deu ordem estável e a série saía embaralhada. Numa
+        # coluna já numérica (o ano), o valor é o índice: LEFT/MID sobre um
+        # inteiro faz o visual devolver "Erro ao buscar os dados".
+        (f'        "@i", {tabela}[{coluna}],' if indice_numerico else
+         f'        "@i", VALUE(LEFT({tabela}[{coluna}], 4)) * 12'
+         f' + VALUE(MID({tabela}[{coluna}], 6, 2)),'),
     ]
     for k, (med, _) in enumerate(series, 1):
         corpo.append(f'        "@v{k}", {med},')
@@ -583,7 +586,8 @@ add("HTML — Linha de Dia Vazio",
     (705, 302, 560, 221), ("dim_data", "dia_semana"), [])
 
 add("HTML — Série de Dias Vazios",
-    serie("dim_data", "ano", [("[Dias sem Venda]", ROXO)], 100),
+    serie("dim_data", "ano", [("[Dias sem Venda]", ROXO)], 100,
+          indice_numerico=True),
     ["DIAS SEM VENDA POR ANO, em SVG.",
      "",
      "Era uma lista, e virou série porque a lista só cabia com quatro anos —",
@@ -714,6 +718,11 @@ def json_visual(nome_visual: str, medida: str, caixa: tuple,
                 "show": lit("false" if e_faixa else "true"),
                 "color": cor_json(BORDA), "radius": lit("10D")}}],
             "visualHeader": [{"properties": {"show": lit("false")}}],
+            # Preenchimento zero: o respiro já vem do CSS da medida, e o do
+            # container só encolhia a área útil por dentro.
+            "padding": [{"properties": {
+                "left": lit("0D"), "right": lit("0D"),
+                "top": lit("0D"), "bottom": lit("0D")}}],
         },
     }
     if titulo:
@@ -806,6 +815,9 @@ def navegador(pagina: str) -> dict:
                     "background": [{"properties": {"show": lit("false")}}],
                     "border": [{"properties": {"show": lit("false")}}],
                     "visualHeader": [{"properties": {"show": lit("false")}}],
+                    "padding": [{"properties": {
+                        "left": lit("0D"), "right": lit("0D"),
+                        "top": lit("0D"), "bottom": lit("0D")}}],
                 },
             }}
 
@@ -824,6 +836,12 @@ def reposicionar() -> None:
                 continue
             x, y, w, h = caixa
             dados["position"].update(x=x, y=y, width=w, height=h)
+            # preenchimento zero também aqui, para o slicer e as caixas de
+            # texto ficarem no mesmo padrão dos componentes
+            dados["visual"].setdefault("visualContainerObjects", {})["padding"] = [
+                {"properties": {lado: lit("0D")
+                                for lado in ("left", "right", "top", "bottom")}}
+            ]
             caminho.write_text(json.dumps(dados, ensure_ascii=False, indent=2)
                                + "\n", encoding="utf-8", newline="\r\n")
 
