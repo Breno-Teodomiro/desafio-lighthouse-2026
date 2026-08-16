@@ -450,6 +450,35 @@ def main() -> int:
     tabelas, medidas, dax = ler_modelo()
     print(f"Modelo: {len(tabelas)} tabelas, {len(medidas)} medidas")
 
+    # --- 17. indentação do bloco de expressão -----------------------------
+    # A PRIMEIRA linha de uma expressão define a indentação base do bloco. Se
+    # ela vier mais recuada que as seguintes, o parser TMDL recusa o arquivo
+    # inteiro com "Invalid indentation" e o Desktop nem abre o projeto —
+    # apontando o número da linha errada, a que está "fora", não a culpada.
+    for arquivo in sorted((MODELO / "tables").glob("*.tmdl")):
+        linhas = arquivo.read_text(encoding="utf-8").replace("\r\n", "\n").split("\n")
+        for i, linha in enumerate(linhas):
+            if not re.match(r"^\t(?:measure|column) .* =\s*$", linha):
+                continue
+            corpo = []
+            for seguinte in linhas[i + 1:]:
+                if not seguinte.startswith("\t\t\t") or not seguinte.strip():
+                    break
+                corpo.append(seguinte)
+            if len(corpo) < 2:
+                continue
+            def recuo(texto: str) -> int:
+                return len(texto) - len(texto.lstrip("\t "))
+            primeira = recuo(corpo[0])
+            menor = min(recuo(c) for c in corpo[1:])
+            if primeira > menor:
+                nome_obj = linha.strip().split(" ", 1)[1].rstrip(" =").strip("'")
+                erros.append(
+                    f"{arquivo.name}: '{nome_obj}' — a 1ª linha da expressão "
+                    f"tem recuo {primeira} e as seguintes {menor}; o parser "
+                    f"TMDL recusa o arquivo com 'Invalid indentation'"
+                )
+
     # --- 15. nome declarado duas vezes ------------------------------------
     # Um gerador que insere sem remover o bloco anterior duplica a medida, e
     # nada reclama: o TMDL carrega, a segunda definição sobrescreve a primeira
@@ -471,11 +500,11 @@ def main() -> int:
     # uma linha vazia onde não há, e ele aborta com "Unexpected line type".
     # Custou uma rodada: o erro reportado aponta o TMDL, não a gravação.
     for arquivo in sorted(MODELO.rglob("*.tmdl")):
-        linhas = arquivo.read_bytes().split(b"\n")[:-1]
-        soltas = sum(1 for linha in linhas if not linha.endswith(b"\r"))
-        if soltas and len(linhas) - soltas:
+        cruas = arquivo.read_bytes().split(b"\n")[:-1]
+        soltas = sum(1 for crua in cruas if not crua.endswith(b"\r"))
+        if soltas and len(cruas) - soltas:
             erros.append(
-                f"{arquivo.name}: {soltas} de {len(linhas)} linhas em LF num "
+                f"{arquivo.name}: {soltas} de {len(cruas)} linhas em LF num "
                 f"arquivo CRLF — normalize antes de salvar"
             )
 

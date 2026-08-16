@@ -116,8 +116,12 @@ def _num(cor: str, tam: int) -> str:
 def faixa(itens: list[tuple], tam: int = 30, coluna: bool = False) -> list[str]:
     """`itens` = [(rótulo, expr valor, expr nota, cor, expr barra|None)]."""
     direcao = "column" if coluna else "row"
-    saida = [f'    {s(f"<div style={A}display:flex;flex-direction:{direcao};"
-                      f"gap:10px;font-family:{FONTE};{A}>")}']
+    # Sem recuo na primeira linha: no TMDL ela define a indentação base do
+    # bloco de expressão, e as seguintes começam com "&" sem recuo. Recuar só
+    # a primeira deixa todas as outras abaixo dela — e o parser recusa o
+    # arquivo inteiro com "Invalid indentation".
+    saida = [f'{s(f"<div style={A}display:flex;flex-direction:{direcao};"
+                  f"gap:10px;font-family:{FONTE};{A}>")}']
     for rotulo, valor, nota, cor, barra in itens:
         saida += [
             f'& {s(f"<div style={A}{CAIXA}{A}>")}',

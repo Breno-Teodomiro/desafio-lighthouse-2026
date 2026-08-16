@@ -217,7 +217,7 @@ table _Medidas
 			VAR _Efetivada = [Receita Efetivada]
 			VAR _Pct       = DIVIDE(_Efetivada, _Bruta)
 			RETURN
-			    "<div style=""display:flex;flex-direction:row;gap:10px;font-family:Segoe UI,-apple-system,Roboto,sans-serif;"">"
+			"<div style=""display:flex;flex-direction:row;gap:10px;font-family:Segoe UI,-apple-system,Roboto,sans-serif;"">"
 			& "<div style=""flex:1;min-width:0;background:#12203366;border:1px solid #1E2E42;border-radius:14px;padding:14px 16px;"">"
 			& "<div style=""font-size:10px;letter-spacing:.10em;text-transform:uppercase;color:#93A5B8;font-weight:600;white-space:nowrap;"">Receita Bruta</div>"
 			& "<div style=""font-size:30px;line-height:1.1;font-weight:200;color:#E8EEF4;margin-top:10px;white-space:nowrap;"">" & FORMAT(_Bruta / 1000000, "R$ #,##0") & " Mi" & "</div>"
@@ -378,7 +378,7 @@ table _Medidas
 	/// FORMA BLOCO — devolve o componente inteiro, então o visual recebe uma
 	/// linha só e não emite filtro. Recebe filtro normalmente.
 	measure 'HTML — Faixa de Margem' =
-			    "<div style=""display:flex;flex-direction:row;gap:10px;font-family:Segoe UI,-apple-system,Roboto,sans-serif;"">"
+			"<div style=""display:flex;flex-direction:row;gap:10px;font-family:Segoe UI,-apple-system,Roboto,sans-serif;"">"
 			& "<div style=""flex:1;min-width:0;background:#12203366;border:1px solid #1E2E42;border-radius:14px;padding:14px 16px;"">"
 			& "<div style=""font-size:10px;letter-spacing:.10em;text-transform:uppercase;color:#93A5B8;font-weight:600;white-space:nowrap;"">Receita de Itens</div>"
 			& "<div style=""font-size:30px;line-height:1.1;font-weight:200;color:#E8EEF4;margin-top:10px;white-space:nowrap;"">" & FORMAT([Receita de Itens] / 1000000, "R$ #,##0") & " Mi" & "</div>"
@@ -514,7 +514,7 @@ table _Medidas
 	/// FORMA BLOCO — devolve o componente inteiro, então o visual recebe uma
 	/// linha só e não emite filtro. Recebe filtro normalmente.
 	measure 'HTML — Faixa de Clientes' =
-			    "<div style=""display:flex;flex-direction:row;gap:10px;font-family:Segoe UI,-apple-system,Roboto,sans-serif;"">"
+			"<div style=""display:flex;flex-direction:row;gap:10px;font-family:Segoe UI,-apple-system,Roboto,sans-serif;"">"
 			& "<div style=""flex:1;min-width:0;background:#12203366;border:1px solid #1E2E42;border-radius:14px;padding:14px 16px;"">"
 			& "<div style=""font-size:10px;letter-spacing:.10em;text-transform:uppercase;color:#93A5B8;font-weight:600;white-space:nowrap;"">Clientes</div>"
 			& "<div style=""font-size:30px;line-height:1.1;font-weight:200;color:#E8EEF4;margin-top:10px;white-space:nowrap;"">" & FORMAT([Clientes], "#,##0") & "</div>"
@@ -637,7 +637,7 @@ table _Medidas
 	/// FORMA BLOCO — devolve o componente inteiro, então o visual recebe uma
 	/// linha só e não emite filtro. Recebe filtro normalmente.
 	measure 'HTML — Faixa de Sazonalidade' =
-			    "<div style=""display:flex;flex-direction:row;gap:10px;font-family:Segoe UI,-apple-system,Roboto,sans-serif;"">"
+			"<div style=""display:flex;flex-direction:row;gap:10px;font-family:Segoe UI,-apple-system,Roboto,sans-serif;"">"
 			& "<div style=""flex:1;min-width:0;background:#12203366;border:1px solid #1E2E42;border-radius:14px;padding:14px 16px;"">"
 			& "<div style=""font-size:10px;letter-spacing:.10em;text-transform:uppercase;color:#93A5B8;font-weight:600;white-space:nowrap;"">Média Correta</div>"
 			& "<div style=""font-size:30px;line-height:1.1;font-weight:200;color:#2D9CDB;margin-top:10px;white-space:nowrap;"">" & FORMAT([Média de Venda por Dia POS], "R$ #,##0") & "</div>"
@@ -801,7 +801,7 @@ table _Medidas
 	/// FORMA BLOCO — devolve o componente inteiro, então o visual recebe uma
 	/// linha só e não emite filtro. Recebe filtro normalmente.
 	measure 'HTML — Faixa da Previsão' =
-			    "<div style=""display:flex;flex-direction:column;gap:10px;font-family:Segoe UI,-apple-system,Roboto,sans-serif;"">"
+			"<div style=""display:flex;flex-direction:column;gap:10px;font-family:Segoe UI,-apple-system,Roboto,sans-serif;"">"
 			& "<div style=""flex:1;min-width:0;background:#12203366;border:1px solid #1E2E42;border-radius:14px;padding:14px 16px;"">"
 			& "<div style=""font-size:10px;letter-spacing:.10em;text-transform:uppercase;color:#93A5B8;font-weight:600;white-space:nowrap;"">Realizado</div>"
 			& "<div style=""font-size:26px;line-height:1.1;font-weight:200;color:#2D9CDB;margin-top:10px;white-space:nowrap;"">" & FORMAT([Realizado no Trimestre], "#,##0") & " un" & "</div>"
