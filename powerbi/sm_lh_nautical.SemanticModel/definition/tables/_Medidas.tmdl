@@ -226,7 +226,7 @@ table _Medidas
 			& "<div style=""flex:1;min-width:0;background:#12203366;border:1px solid #1E2E42;border-radius:14px;padding:14px 16px;"">"
 			& "<div style=""font-size:10px;letter-spacing:.10em;text-transform:uppercase;color:#93A5B8;font-weight:600;white-space:nowrap;"">Receita Efetivada</div>"
 			& "<div style=""font-size:30px;line-height:1.1;font-weight:200;color:#2D9CDB;margin-top:10px;white-space:nowrap;"">" & FORMAT(_Efetivada / 1000000, "R$ #,##0") & " Mi" & "</div>"
-			& "<div style=""height:3px;background:#16233A;border-radius:2px;margin-top:12px;overflow:hidden;""><div style=""height:3px;border-radius:2px;background:linear-gradient(90deg,#2D9CDB,#8B7AE8);width:" & FORMAT(_Pct * 100, "0") & "%""></div></div>"
+			& "<div style=""height:3px;background:#16233A;border-radius:2px;margin-top:12px;overflow:hidden;""><div style=""height:3px;border-radius:2px;background:linear-gradient(90deg,#2D9CDB,#8B7AE8);width:" & SUBSTITUTE(FORMAT(_Pct * 100, "0"), ",", ".") & "%""></div></div>"
 			& "<div style=""font-size:11px;color:#6F8299;margin-top:8px;white-space:nowrap;"">" & FORMAT(_Pct, "0.0%") & " do GMV virou receita" & "</div>"
 			& "</div>"
 			& "<div style=""flex:1;min-width:0;background:#12203366;border:1px solid #1E2E42;border-radius:14px;padding:14px 16px;"">"
@@ -271,13 +271,13 @@ table _Medidas
 			VAR _P1 =
 			    CONCATENATEX(
 			        FILTER(_T, NOT ISBLANK([@v1])),
-			        FORMAT([@i] - _Ini, "0") & "," & FORMAT(96 - DIVIDE([@v1] - _Min, _Max - _Min) * 90, "0.00"),
+			        SUBSTITUTE(FORMAT([@i] - _Ini, "0"), ",", ".") & "," & SUBSTITUTE(FORMAT(96 - DIVIDE([@v1] - _Min, _Max - _Min) * 90, "0.00"), ",", "."),
 			        " ", [@i], ASC
 			    )
 			VAR _P2 =
 			    CONCATENATEX(
 			        FILTER(_T, NOT ISBLANK([@v2])),
-			        FORMAT([@i] - _Ini, "0") & "," & FORMAT(96 - DIVIDE([@v2] - _Min, _Max - _Min) * 90, "0.00"),
+			        SUBSTITUTE(FORMAT([@i] - _Ini, "0"), ",", ".") & "," & SUBSTITUTE(FORMAT(96 - DIVIDE([@v2] - _Min, _Max - _Min) * 90, "0.00"), ",", "."),
 			        " ", [@i], ASC
 			    )
 			RETURN
@@ -309,7 +309,7 @@ table _Medidas
 			      & "<div style=""width:104px;font-size:12px;color:#E8EEF4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:none;"">"
 			      & SELECTEDVALUE(dim_status_pedido[status_exibicao]) & "</div>"
 			      & "<div style=""flex:1;height:8px;background:#16233A;border-radius:4px;overflow:hidden;min-width:26px;""><div style=""height:8px;border-radius:4px;background:linear-gradient(90deg,#2D9CDB,#2D9CDB66);width:"
-			      & FORMAT(DIVIDE(_V, _Max) * 100, "0.0")
+			      & SUBSTITUTE(FORMAT(DIVIDE(_V, _Max) * 100, "0.0"), ",", ".")
 			      & "%""></div></div>"
 			      & "<div style=""width:78px;text-align:right;font-size:12px;color:#93A5B8;flex:none;line-height:1.35;"">" & FORMAT(_V, "R$ #,##0,, "" Mi""") & "</div>"
 			      & "</div>"
@@ -335,7 +335,7 @@ table _Medidas
 			      & "<div style=""width:92px;font-size:12px;color:#E8EEF4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:none;"">"
 			      & SELECTEDVALUE(dim_canal[canal_exibicao]) & "</div>"
 			      & "<div style=""flex:1;height:8px;background:#16233A;border-radius:4px;overflow:hidden;min-width:26px;""><div style=""height:8px;border-radius:4px;background:linear-gradient(90deg,#8B7AE8,#8B7AE866);width:"
-			      & FORMAT(DIVIDE(_V, _Max) * 100, "0.0")
+			      & SUBSTITUTE(FORMAT(DIVIDE(_V, _Max) * 100, "0.0"), ",", ".")
 			      & "%""></div></div>"
 			      & "<div style=""width:78px;text-align:right;font-size:12px;color:#93A5B8;flex:none;line-height:1.35;"">" & FORMAT(_V, "#,##0") & "</div>"
 			      & "</div>"
@@ -361,7 +361,7 @@ table _Medidas
 			      & "<div style=""width:120px;font-size:12px;color:#E8EEF4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:none;"">"
 			      & SELECTEDVALUE(dim_produto[categoria]) & "</div>"
 			      & "<div style=""flex:1;height:8px;background:#16233A;border-radius:4px;overflow:hidden;min-width:26px;""><div style=""height:8px;border-radius:4px;background:linear-gradient(90deg,#D9772A,#D9772A66);width:"
-			      & FORMAT(DIVIDE(_V, _Max) * 100, "0.0")
+			      & SUBSTITUTE(FORMAT(DIVIDE(_V, _Max) * 100, "0.0"), ",", ".")
 			      & "%""></div></div>"
 			      & "<div style=""width:78px;text-align:right;font-size:12px;color:#93A5B8;flex:none;line-height:1.35;"">" & FORMAT(_V, "R$ #,##0,, "" Mi""") & "</div>"
 			      & "</div>"
@@ -433,10 +433,10 @@ table _Medidas
 			      & SELECTEDVALUE(dim_produto[categoria]) & "</div>"
 			      & "<div style=""flex:1;min-width:40px;"">"
 			      & "<div style=""flex:1;height:7px;background:#16233A;border-radius:3px;overflow:hidden;min-width:26px;""><div style=""height:7px;border-radius:3px;background:linear-gradient(90deg,#2D9CDB,#2D9CDB66);width:"
-			      & FORMAT(DIVIDE(_V, _Max) * 100, "0.0")
+			      & SUBSTITUTE(FORMAT(DIVIDE(_V, _Max) * 100, "0.0"), ",", ".")
 			      & "%""></div></div>"
 			      & "<div style=""flex:1;height:7px;background:#16233A;border-radius:3px;overflow:hidden;min-width:26px;margin-top:3px;""><div style=""height:7px;border-radius:3px;background:linear-gradient(90deg,#D9772A,#D9772A66);width:"
-			      & FORMAT(DIVIDE(_V2, _Max2) * 100, "0.0")
+			      & SUBSTITUTE(FORMAT(DIVIDE(_V2, _Max2) * 100, "0.0"), ",", ".")
 			      & "%""></div></div></div>"
 			      & "<div style=""width:68px;text-align:right;font-size:12px;color:#93A5B8;flex:none;line-height:1.35;"">" & FORMAT(_V, "R$ #,##0,, "" Mi""")
 			      & "<br><span style=""color:#D9772A;"">" & FORMAT(_V2, "R$ #,##0,, "" Mi""") & "</span></div>"
@@ -467,7 +467,7 @@ table _Medidas
 			      & "<div style=""width:168px;font-size:12px;color:#E8EEF4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:none;"">"
 			      & SELECTEDVALUE(dim_produto[produto]) & "</div>"
 			      & "<div style=""flex:1;height:8px;background:#16233A;border-radius:4px;overflow:hidden;min-width:26px;""><div style=""height:8px;border-radius:4px;background:linear-gradient(90deg,#D9772A,#D9772A66);width:"
-			      & FORMAT(DIVIDE(_V, _Max) * 100, "0.0")
+			      & SUBSTITUTE(FORMAT(DIVIDE(_V, _Max) * 100, "0.0"), ",", ".")
 			      & "%""></div></div>"
 			      & "<div style=""width:78px;text-align:right;font-size:12px;color:#93A5B8;flex:none;line-height:1.35;"">" & FORMAT(_V, "0.00%") & "</div>"
 			      & "</div>"
@@ -497,7 +497,7 @@ table _Medidas
 			VAR _P1 =
 			    CONCATENATEX(
 			        FILTER(_T, NOT ISBLANK([@v1])),
-			        FORMAT([@i] - _Ini, "0") & "," & FORMAT(96 - DIVIDE([@v1] - _Min, _Max - _Min) * 90, "0.00"),
+			        SUBSTITUTE(FORMAT([@i] - _Ini, "0"), ",", ".") & "," & SUBSTITUTE(FORMAT(96 - DIVIDE([@v1] - _Min, _Max - _Min) * 90, "0.00"), ",", "."),
 			        " ", [@i], ASC
 			    )
 			RETURN
@@ -562,7 +562,7 @@ table _Medidas
 			      & "<div style=""width:168px;font-size:12px;color:#E8EEF4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:none;"">"
 			      & SELECTEDVALUE(dim_cliente[cliente]) & "</div>"
 			      & "<div style=""flex:1;height:8px;background:#16233A;border-radius:4px;overflow:hidden;min-width:26px;""><div style=""height:8px;border-radius:4px;background:linear-gradient(90deg,#8B7AE8,#8B7AE866);width:"
-			      & FORMAT(DIVIDE(_V, _Max) * 100, "0.0")
+			      & SUBSTITUTE(FORMAT(DIVIDE(_V, _Max) * 100, "0.0"), ",", ".")
 			      & "%""></div></div>"
 			      & "<div style=""width:78px;text-align:right;font-size:12px;color:#93A5B8;flex:none;line-height:1.35;"">" & FORMAT(_V, "R$ #,##0") & "</div>"
 			      & "</div>"
@@ -594,10 +594,10 @@ table _Medidas
 			      & SELECTEDVALUE(dim_cliente[cliente]) & "</div>"
 			      & "<div style=""flex:1;min-width:40px;"">"
 			      & "<div style=""flex:1;height:7px;background:#16233A;border-radius:3px;overflow:hidden;min-width:26px;""><div style=""height:7px;border-radius:3px;background:linear-gradient(90deg,#2D9CDB,#2D9CDB66);width:"
-			      & FORMAT(DIVIDE(_V, _Max) * 100, "0.0")
+			      & SUBSTITUTE(FORMAT(DIVIDE(_V, _Max) * 100, "0.0"), ",", ".")
 			      & "%""></div></div>"
 			      & "<div style=""flex:1;height:7px;background:#16233A;border-radius:3px;overflow:hidden;min-width:26px;margin-top:3px;""><div style=""height:7px;border-radius:3px;background:linear-gradient(90deg,#D9772A,#D9772A66);width:"
-			      & FORMAT(DIVIDE(_V2, _Max2) * 100, "0.0")
+			      & SUBSTITUTE(FORMAT(DIVIDE(_V2, _Max2) * 100, "0.0"), ",", ".")
 			      & "%""></div></div></div>"
 			      & "<div style=""width:62px;text-align:right;font-size:12px;color:#93A5B8;flex:none;line-height:1.35;"">" & FORMAT(_V, "R$ #,##0")
 			      & "<br><span style=""color:#D9772A;"">" & FORMAT(_V2, "R$ #,##0.00,, "" Mi""") & "</span></div>"
@@ -624,7 +624,7 @@ table _Medidas
 			      & "<div style=""width:88px;font-size:12px;color:#E8EEF4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:none;"">"
 			      & SELECTEDVALUE(dim_produto[categoria]) & "</div>"
 			      & "<div style=""flex:1;height:8px;background:#16233A;border-radius:4px;overflow:hidden;min-width:26px;""><div style=""height:8px;border-radius:4px;background:linear-gradient(90deg,#2D9CDB,#2D9CDB66);width:"
-			      & FORMAT(DIVIDE(_V, _Max) * 100, "0.0")
+			      & SUBSTITUTE(FORMAT(DIVIDE(_V, _Max) * 100, "0.0"), ",", ".")
 			      & "%""></div></div>"
 			      & "<div style=""width:62px;text-align:right;font-size:12px;color:#93A5B8;flex:none;line-height:1.35;"">" & FORMAT(_V, "#,##0") & "</div>"
 			      & "</div>"
@@ -686,10 +686,10 @@ table _Medidas
 			      & SELECTEDVALUE(dim_data[dia_semana]) & "</div>"
 			      & "<div style=""flex:1;min-width:40px;"">"
 			      & "<div style=""flex:1;height:7px;background:#16233A;border-radius:3px;overflow:hidden;min-width:26px;""><div style=""height:7px;border-radius:3px;background:linear-gradient(90deg,#2D9CDB,#2D9CDB66);width:"
-			      & FORMAT(DIVIDE(_V, _Max) * 100, "0.0")
+			      & SUBSTITUTE(FORMAT(DIVIDE(_V, _Max) * 100, "0.0"), ",", ".")
 			      & "%""></div></div>"
 			      & "<div style=""flex:1;height:7px;background:#16233A;border-radius:3px;overflow:hidden;min-width:26px;margin-top:3px;""><div style=""height:7px;border-radius:3px;background:linear-gradient(90deg,#D9772A,#D9772A66);width:"
-			      & FORMAT(DIVIDE(_V2, _Max2) * 100, "0.0")
+			      & SUBSTITUTE(FORMAT(DIVIDE(_V2, _Max2) * 100, "0.0"), ",", ".")
 			      & "%""></div></div></div>"
 			      & "<div style=""width:72px;text-align:right;font-size:12px;color:#93A5B8;flex:none;line-height:1.35;"">" & FORMAT(_V, "R$ #,##0")
 			      & "<br><span style=""color:#D9772A;"">" & FORMAT(_V2, "R$ #,##0") & "</span></div>"
@@ -717,7 +717,7 @@ table _Medidas
 			      & "<div style=""width:116px;font-size:12px;color:#E8EEF4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:none;"">"
 			      & SELECTEDVALUE(dim_data[dia_semana]) & "</div>"
 			      & "<div style=""flex:1;height:8px;background:#16233A;border-radius:4px;overflow:hidden;min-width:26px;""><div style=""height:8px;border-radius:4px;background:linear-gradient(90deg,#D9772A,#D9772A66);width:"
-			      & FORMAT(DIVIDE(_V, _Max) * 100, "0.0")
+			      & SUBSTITUTE(FORMAT(DIVIDE(_V, _Max) * 100, "0.0"), ",", ".")
 			      & "%""></div></div>"
 			      & "<div style=""width:44px;text-align:right;font-size:12px;color:#93A5B8;flex:none;line-height:1.35;"">" & FORMAT(_V, "#,##0") & "</div>"
 			      & "</div>"
@@ -744,7 +744,7 @@ table _Medidas
 			      & "<div style=""width:52px;font-size:12px;color:#E8EEF4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:none;"">"
 			      & SELECTEDVALUE(dim_data[ano]) & "</div>"
 			      & "<div style=""flex:1;height:8px;background:#16233A;border-radius:4px;overflow:hidden;min-width:26px;""><div style=""height:8px;border-radius:4px;background:linear-gradient(90deg,#8B7AE8,#8B7AE866);width:"
-			      & FORMAT(DIVIDE(_V, _Max) * 100, "0.0")
+			      & SUBSTITUTE(FORMAT(DIVIDE(_V, _Max) * 100, "0.0"), ",", ".")
 			      & "%""></div></div>"
 			      & "<div style=""width:44px;text-align:right;font-size:12px;color:#93A5B8;flex:none;line-height:1.35;"">" & FORMAT(_V, "#,##0") & "</div>"
 			      & "</div>"
@@ -776,13 +776,13 @@ table _Medidas
 			VAR _P1 =
 			    CONCATENATEX(
 			        FILTER(_T, NOT ISBLANK([@v1])),
-			        FORMAT([@i] - _Ini, "0") & "," & FORMAT(96 - DIVIDE([@v1] - _Min, _Max - _Min) * 90, "0.00"),
+			        SUBSTITUTE(FORMAT([@i] - _Ini, "0"), ",", ".") & "," & SUBSTITUTE(FORMAT(96 - DIVIDE([@v1] - _Min, _Max - _Min) * 90, "0.00"), ",", "."),
 			        " ", [@i], ASC
 			    )
 			VAR _P2 =
 			    CONCATENATEX(
 			        FILTER(_T, NOT ISBLANK([@v2])),
-			        FORMAT([@i] - _Ini, "0") & "," & FORMAT(96 - DIVIDE([@v2] - _Min, _Max - _Min) * 90, "0.00"),
+			        SUBSTITUTE(FORMAT([@i] - _Ini, "0"), ",", ".") & "," & SUBSTITUTE(FORMAT(96 - DIVIDE([@v2] - _Min, _Max - _Min) * 90, "0.00"), ",", "."),
 			        " ", [@i], ASC
 			    )
 			RETURN
@@ -843,7 +843,7 @@ table _Medidas
 			      & "<div style=""width:150px;font-size:12px;color:#E8EEF4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:none;"">"
 			      & SELECTEDVALUE(fct_similaridade_produto[produto]) & "</div>"
 			      & "<div style=""flex:1;height:8px;background:#16233A;border-radius:4px;overflow:hidden;min-width:26px;""><div style=""height:8px;border-radius:4px;background:linear-gradient(90deg,#2D9CDB,#2D9CDB66);width:"
-			      & FORMAT(DIVIDE(_V, _Max) * 100, "0.0")
+			      & SUBSTITUTE(FORMAT(DIVIDE(_V, _Max) * 100, "0.0"), ",", ".")
 			      & "%""></div></div>"
 			      & "<div style=""width:78px;text-align:right;font-size:12px;color:#93A5B8;flex:none;line-height:1.35;"">" & FORMAT(_V, "0.0000") & "</div>"
 			      & "</div>"
@@ -870,7 +870,7 @@ table _Medidas
 			      & "<div style=""width:150px;font-size:12px;color:#E8EEF4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:none;"">"
 			      & SELECTEDVALUE(fct_similaridade_produto[produto]) & "</div>"
 			      & "<div style=""flex:1;height:8px;background:#16233A;border-radius:4px;overflow:hidden;min-width:26px;""><div style=""height:8px;border-radius:4px;background:linear-gradient(90deg,#8B7AE8,#8B7AE866);width:"
-			      & FORMAT(DIVIDE(_V, _Max) * 100, "0.0")
+			      & SUBSTITUTE(FORMAT(DIVIDE(_V, _Max) * 100, "0.0"), ",", ".")
 			      & "%""></div></div>"
 			      & "<div style=""width:52px;text-align:right;font-size:12px;color:#93A5B8;flex:none;line-height:1.35;"">" & FORMAT(_V, "#,##0") & "</div>"
 			      & "</div>"

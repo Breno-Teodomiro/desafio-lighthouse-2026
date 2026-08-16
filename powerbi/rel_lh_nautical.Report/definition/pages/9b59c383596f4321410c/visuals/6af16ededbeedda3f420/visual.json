@@ -3,9 +3,9 @@
   "name": "6af16ededbeedda3f420",
   "position": {
     "x": 826,
-    "y": 306,
+    "y": 296,
     "z": 100,
-    "height": 250,
+    "height": 220,
     "width": 422,
     "tabOrder": 100
   },
@@ -46,6 +46,24 @@
               },
               "queryRef": "dim_status_pedido.status_exibicao",
               "nativeQueryRef": "status_exibicao"
+            }
+          ]
+        },
+        "tooltips": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Medidas"
+                    }
+                  },
+                  "Property": "Receita Bruta"
+                }
+              },
+              "queryRef": "_Medidas.Receita Bruta",
+              "nativeQueryRef": "Receita Bruta"
             }
           ]
         }

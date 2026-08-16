@@ -5,7 +5,7 @@
     "x": 686,
     "y": 292,
     "z": 100,
-    "height": 250,
+    "height": 220,
     "width": 260,
     "tabOrder": 100
   },
@@ -46,6 +46,24 @@
               },
               "queryRef": "dim_produto.categoria",
               "nativeQueryRef": "categoria"
+            }
+          ]
+        },
+        "tooltips": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Medidas"
+                    }
+                  },
+                  "Property": "Itens Vendidos"
+                }
+              },
+              "queryRef": "_Medidas.Itens Vendidos",
+              "nativeQueryRef": "Itens Vendidos"
             }
           ]
         }

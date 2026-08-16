@@ -202,6 +202,10 @@ PAPEIS_COMPROVADOS: dict[tuple[str, str], set[str]] = {
     # aqui, `hasGranularity` é falso e a opção de cross-filter nem aparece
     # no painel de formatação. Conferido em src/view-model.ts do visual.
     (HTML_CONTENT, "sampling"): {"Column"},
+    # `tooltips` carrega a medida de ordenação. Ela precisa estar no visual
+    # para o sortDefinition valer — o Power BI descarta sort por campo
+    # ausente e devolve as linhas na ordem alfabética da coluna.
+    (HTML_CONTENT, "tooltips"): {"Measure"},
 }
 
 
@@ -449,6 +453,31 @@ def main() -> int:
 
     tabelas, medidas, dax = ler_modelo()
     print(f"Modelo: {len(tabelas)} tabelas, {len(medidas)} medidas")
+
+    # --- 18. número decimal indo cru para CSS ou SVG ----------------------
+    # O modelo é pt-BR: FORMAT(52.74, "0.0") devolve "52,7". Em CSS,
+    # `width:52,7%` é inválido e o navegador descarta a regra — a barra vai a
+    # 100% e TODAS ficam iguais. Em SVG, `points="3,96,50"` vira três números
+    # soltos e a linha vira um emaranhado. Todo número que entra em markup
+    # tem de passar por SUBSTITUTE(...,",",".").
+    for arquivo in sorted((MODELO / "tables").glob("*.tmdl")):
+        texto_tab = arquivo.read_text(encoding="utf-8").replace("\r\n", "\n")
+        for m in re.finditer(r"^\tmeasure\s+'([^']+)'\s*=(.*?)(?=^\t\tdisplayFolder:|\Z)",
+                             texto_tab, re.S | re.M):
+            nome_med, corpo_med = m.group(1), m.group(2)
+            if "<div" not in corpo_med and "<svg" not in corpo_med:
+                continue
+            # Só interessa o FORMAT concatenado logo DEPOIS de uma string
+            # que termina em `width:` ou `points=` — aí o número entra na
+            # propriedade. Um FORMAT que vira rótulo de texto pode ter
+            # vírgula à vontade; é assim que se escreve número em pt-BR.
+            for _ in re.finditer(r'(?:width:|points=)"\s*\n\s*&\s*FORMAT\(',
+                                 corpo_med):
+                    erros.append(
+                        f"{arquivo.name}: '{nome_med}' — FORMAT indo cru para CSS/SVG. "
+                        f"Em pt-BR o decimal é vírgula e a regra fica inválida; "
+                        f"use SUBSTITUTE(FORMAT(...), \",\", \".\")"
+                    )
 
     # --- 17. indentação do bloco de expressão -----------------------------
     # A PRIMEIRA linha de uma expressão define a indentação base do bloco. Se

@@ -82,6 +82,24 @@ def s(t: str) -> str:
     return '"' + t.replace('"', Q) + '"'
 
 
+
+def dec(expr: str, fmt: str) -> str:
+    """Número para CSS ou SVG, com PONTO decimal.
+
+    O modelo é pt-BR, então FORMAT(52.74, "0.0") devolve "52,7". Isso quebra
+    das duas maneiras possíveis:
+
+      · em CSS  — `width:52,7%` é inválido, o navegador descarta a regra e a
+        barra vai a 100%. Era por isso que TODAS as barras apareciam cheias.
+      · em SVG  — `points="3,96,50 4,88,20"` faz o parser ler seis números
+        soltos em vez de três pares, e a linha vira um emaranhado de riscos.
+
+    Um FORMAT com máscara não resolve: a máscara controla os dígitos, não o
+    separador, que vem da cultura do modelo.
+    """
+    return f'SUBSTITUTE(FORMAT({expr}, {s(fmt)}), ",", ".")'
+
+
 def guid(semente: str) -> str:
     h = hashlib.sha1(f"lh_nautical::{semente}".encode()).hexdigest()
     return f"{h[0:8]}-{h[8:12]}-{h[12:16]}-{h[16:20]}-{h[20:32]}"
@@ -205,11 +223,11 @@ def ranking(tabela: str, coluna: str, med: str, fmt: str, n: int, cor: str,
         corpo += [
             f"      & {s(f'<div style={A}flex:1;min-width:40px;{A}>')}",
             f"      & {s(f'<div style={A}{_tri(7)}{A}><div style={A}{_barra(cor, 7)}')}",
-            '      & FORMAT(DIVIDE(_V, _Max) * 100, "0.0")',
+            f'      & {dec("DIVIDE(_V, _Max) * 100", "0.0")}',
             f"      & {s(f'%{A}></div></div>')}",
             f"      & {s(f'<div style={A}{_tri(7, ESPACO_ENTRE_BARRAS)}{A}>'
                         f'<div style={A}{_barra(cor2, 7)}')}",
-            '      & FORMAT(DIVIDE(_V2, _Max2) * 100, "0.0")',
+            f'      & {dec("DIVIDE(_V2, _Max2) * 100", "0.0")}',
             f"      & {s(f'%{A}></div></div></div>')}",
             f"      & {s(f'<div style={A}{_val(larg_val)}{A}>')} & FORMAT(_V, {s(fmt)})",
             f"      & {s(f'<br><span style={A}color:{cor2};{A}>')}"
@@ -218,7 +236,7 @@ def ranking(tabela: str, coluna: str, med: str, fmt: str, n: int, cor: str,
     else:
         corpo += [
             f"      & {s(f'<div style={A}{_tri(8)}{A}><div style={A}{_barra(cor, 8)}')}",
-            '      & FORMAT(DIVIDE(_V, _Max) * 100, "0.0")',
+            f'      & {dec("DIVIDE(_V, _Max) * 100", "0.0")}',
             f"      & {s(f'%{A}></div></div>')}",
             f"      & {s(f'<div style={A}{_val(larg_val)}{A}>')}"
             f" & FORMAT(_V, {s(fmt)}) & {s('</div>')}",
@@ -278,8 +296,8 @@ def serie(tabela: str, coluna: str, series: list[tuple[str, str]],
             f"VAR _P{k} =",
             "    CONCATENATEX(",
             f"        FILTER(_T, NOT ISBLANK([@v{k}])),",
-            f'        FORMAT([@i] - _Ini, "0") & "," & '
-            f'FORMAT({altura} - DIVIDE([@v{k}] - _Min, _Max - _Min) * {altura - 6}, "0.00"),',
+            f'        {dec("[@i] - _Ini", "0")} & "," & '
+            f'{dec(f"{altura} - DIVIDE([@v{k}] - _Min, _Max - _Min) * {altura - 6}", "0.00")},',
             '        " ", [@i], ASC',
             "    )",
         ]
@@ -366,7 +384,7 @@ add("HTML — Faixa de KPIs",
          s("GMV — todos os status"), TEXTO, None),
         ("Receita Efetivada", 'FORMAT(_Efetivada / 1000000, "R$ #,##0") & " Mi"',
          'FORMAT(_Pct, "0.0%") & " do GMV virou receita"', AZUL,
-         'FORMAT(_Pct * 100, "0")'),
+         'SUBSTITUTE(FORMAT(_Pct * 100, "0"), ",", ".")'),
         ("Pedidos", 'FORMAT([Nº Pedidos], "#,##0")', s("2020 a 2026"), TEXTO, None),
         ("Ticket Médio", 'FORMAT([Ticket Médio], "R$ #,##0.00")',
          s("a resposta da Questão 1"), TEXTO, None),
@@ -374,7 +392,7 @@ add("HTML — Faixa de KPIs",
          s("já líquida de desconto"), LARANJA, None),
     ]),
     ["OS CINCO INDICADORES DA CAPA."] + DOC_BLOCO,
-    P1, None, (32, 162, 1216, 100), None, ["14bbe354ad1b1c4d5f5f"])
+    P1, None, (32, 190, 1216, 100), None, [])
 
 add("HTML — Série de Receita",
     serie("dim_data", "ano_mes",
@@ -384,28 +402,27 @@ add("HTML — Série de Receita",
      "A distância entre as duas linhas é o dinheiro que nunca virou receita —",
      "R$ 207,1 milhões no período inteiro."] + DOC_BLOCO,
     P1, "A receita cresce todo ano — e a faixa entre as linhas é o que se perde",
-    (32, 272, 780, 250), None, ["08a8b95020955a6cfff2"])
+    (32, 296, 780, 220), None, [])
 
 add("HTML — Linha de Status",
     ranking("dim_status_pedido", "status_exibicao", "[Receita Bruta]",
             'R$ #,##0,, " Mi"', 4, AZUL, 104),
     ["RECEITA POR STATUS DO PEDIDO."] + DOC_CROSS,
     P1, "Um em cada sete reais nunca virou receita",
-    (826, 272, 422, 250), ("dim_status_pedido", "status_exibicao"),
-    ["7f9c74f6ab90cdb128b1"])
+    (826, 296, 422, 220), ("dim_status_pedido", "status_exibicao"), [])
 
 add("HTML — Linha de Canal",
     ranking("dim_canal", "canal_exibicao", "[Nº Pedidos]", "#,##0", 2, ROXO, 92),
     ["PEDIDOS POR CANAL."] + DOC_CROSS,
     P1, "E-commerce responde por 70% dos pedidos",
-    (32, 534, 592, 158), ("dim_canal", "canal_exibicao"), ["649f66a46725abff8ec5"])
+    (32, 522, 592, 170), ("dim_canal", "canal_exibicao"), [])
 
 add("HTML — Linha de Categoria",
     ranking("dim_produto", "categoria", "[Margem Líquida R$]",
             'R$ #,##0,, " Mi"', 5, LARANJA, 120),
     ["AS CINCO MAIORES CATEGORIAS POR MARGEM LÍQUIDA."] + DOC_CROSS,
     P1, "Margem líquida por categoria — as cinco maiores",
-    (656, 534, 592, 158), ("dim_produto", "categoria"), ["74da21ed1ccad7ce7954"])
+    (656, 522, 592, 170), ("dim_produto", "categoria"), [])
 
 # ── vendas e margem ─────────────────────────────────────────────────────────
 add("HTML — Faixa de Margem",
@@ -430,9 +447,7 @@ add("HTML — Faixa de Margem",
      "O terceiro cartão troca o `% Margem Bruta` do desenho antigo pelo",
      "DESCONTO em reais — a diferença entre as duas margens, que é o número",
      "que ninguém olha e explica o resto da página."] + DOC_BLOCO,
-    P2, None, (32, 96, 1216, 100), None,
-    ["86bd2d1a878bb01a28de", "0942fb2b8c2ed856679b", "97e04d009a559ffb2420",
-     "dc474a897e08e28f7760", "2da145560069913d032f"])
+    P2, None, (32, 130, 1216, 100), None, [])
 
 add("HTML — Linha de Categoria Dupla",
     ranking("dim_produto", "categoria", "[Receita de Itens]", 'R$ #,##0,, " Mi"',
@@ -444,7 +459,7 @@ add("HTML — Linha de Categoria Dupla",
      "mesma categoria, não entre categorias — e é a proporção constante entre",
      "elas que sustenta o título da página."] + DOC_CROSS,
     P2, "Margem homogênea (37,8% a 41,5%): o lucro repete o ranking de receita",
-    (32, 206, 608, 290), ("dim_produto", "categoria"), ["f41f5fed1beae784b907"])
+    (32, 236, 608, 290), ("dim_produto", "categoria"), [])
 
 add("HTML — Linha de Produto",
     ranking("dim_produto", "produto", "[% Margem Líquida]", "0.00%", 10, LARANJA,
@@ -455,14 +470,14 @@ add("HTML — Linha de Produto",
      "37% a 53%, e num eixo de 0 a 100 nada se distinguiria. O valor absoluto",
      "vai no rótulo, então a escala relativa não engana."] + DOC_CROSS,
     P2, "Produtos por margem — clique para filtrar a página",
-    (654, 206, 594, 290), ("dim_produto", "produto"), ["60017aa09e90e8383d05"])
+    (654, 236, 594, 290), ("dim_produto", "produto"), [])
 
 add("HTML — Série de Margem",
     serie("dim_data", "ano_mes", [("[% Margem Líquida]", AZUL)], 96,
           base_zero=False),
     ["MARGEM PERCENTUAL MÊS A MÊS, em SVG."] + DOC_BLOCO,
     P2, "A margem percentual é estável no tempo — o crescimento vem de volume",
-    (32, 510, 1216, 182), None, ["adf3da49728681a7a490"])
+    (32, 532, 1216, 160), None, [])
 
 # ── clientes (Q4) ───────────────────────────────────────────────────────────
 add("HTML — Faixa de Clientes",
@@ -478,16 +493,14 @@ add("HTML — Faixa de Clientes",
          s("sobre itens vendidos"), LARANJA, None),
     ]),
     ["INDICADORES DE CLIENTE."] + DOC_BLOCO,
-    P3, None, (32, 148, 1216, 100), None,
-    ["e34e09e690469ad21b9c", "1d210e226b7df23b2a3a", "b3f419d540761592d5a0",
-     "653d7ceea4149af060b9", "83615857b1d1e882acac"])
+    P3, None, (32, 186, 1216, 100), None, [])
 
 add("HTML — Linha de Cliente",
     ranking("dim_cliente", "cliente", "[Ticket Médio]", "R$ #,##0", 10, ROXO, 168),
     ["TOP 10 CLIENTES POR TICKET MÉDIO — o ranking literal da Questão 4."]
     + DOC_CROSS,
     P3, "Os 10 de maior ticket — clique para filtrar a página",
-    (32, 258, 640, 250), ("dim_cliente", "cliente"), ["20e60e4241e69b7591bc"])
+    (32, 292, 640, 220), ("dim_cliente", "cliente"), [])
 
 add("HTML — Linha de Cliente Dupla",
     ranking("dim_cliente", "cliente", "[Ticket Médio]", "R$ #,##0", 10, AZUL, 96,
@@ -498,14 +511,14 @@ add("HTML — Linha de Cliente Dupla",
      "As duas barras raramente acompanham uma à outra, e é esse descompasso",
      "que mostra que ticket alto não é o mesmo que cliente valioso."] + DOC_CROSS,
     P3, "Ticket alto não é cliente valioso",
-    (960, 258, 288, 250), ("dim_cliente", "cliente"), ["6b83e06018435b48c816"])
+    (960, 292, 288, 220), ("dim_cliente", "cliente"), [])
 
 add("HTML — Linha de Categoria Itens",
     ranking("dim_produto", "categoria", "[Itens Vendidos]", "#,##0", 8, AZUL, 88,
             larg_val=62),
     ["CATEGORIAS POR ITENS VENDIDOS."] + DOC_CROSS,
     P3, "Hélices lidera o grupo",
-    (686, 258, 260, 250), ("dim_produto", "categoria"), ["8dd4bd284e6dfc2a6573"])
+    (686, 292, 260, 220), ("dim_produto", "categoria"), [])
 
 # ── sazonalidade (Q5) ───────────────────────────────────────────────────────
 add("HTML — Faixa de Sazonalidade",
@@ -522,9 +535,7 @@ add("HTML — Faixa de Sazonalidade",
          s("e não é uniforme entre os dias"), LARANJA, None),
     ]),
     ["OS QUATRO NÚMEROS DA QUESTÃO 5."] + DOC_BLOCO,
-    P4, None, (32, 92, 1216, 100), None,
-    ["a670e3e2e2618ebe11dd", "2949bb6144eed05d9756", "35a9445dd117e7f4ab98",
-     "13ba3e8a52365c5d7239"])
+    P4, None, (32, 126, 1216, 100), None, [])
 
 add("HTML — Linha de Dia",
     ranking("dim_data", "dia_semana", "[Média de Venda por Dia POS]",
@@ -538,7 +549,7 @@ add("HTML — Linha de Dia",
      "a laranja se estica mais, o erro é maior — e ele é maior justamente na",
      "quinta-feira, que é o que inverte o ranking."] + DOC_CROSS,
     P4, "As duas médias lado a lado: a correta (azul) põe a quinta em último",
-    (32, 202, 760, 300), ("dim_data", "dia_semana"), ["95999cbea26ffa863dcb"])
+    (32, 232, 760, 280), ("dim_data", "dia_semana"), [])
 
 add("HTML — Linha de Dia Vazio",
     ranking("dim_data", "dia_semana", "[Dias sem Venda]", "#,##0", 7, LARANJA,
@@ -549,7 +560,7 @@ add("HTML — Linha de Dia Vazio",
      "ingênua inflar mais um dia que outro e trocar o pior dia da semana."]
     + DOC_CROSS,
     P4, "20 dias vazios na quinta contra 7 na segunda",
-    (806, 202, 442, 300), ("dim_data", "dia_semana"), ["d0401fb0db54c66a2b47"])
+    (806, 232, 442, 280), ("dim_data", "dia_semana"), [])
 
 add("HTML — Linha de Ano",
     ranking("dim_data", "ano", "[Dias sem Venda]", "#,##0", 8, ROXO, 52,
@@ -559,7 +570,7 @@ add("HTML — Linha de Ano",
      "25 em 2020 e 1 em 2025: dia sem venda é característica de operação",
      "nova, não de sazonalidade."] + DOC_CROSS,
     P4, "Dia sem venda é fenômeno de ramp-up: 25 em 2020, 1 em 2025",
-    (806, 516, 442, 176), ("dim_data", "ano"), ["55a073aa849c3353cc23"])
+    (806, 520, 442, 172), ("dim_data", "ano"), [])
 
 # ── previsão e recomendação (Q6-Q7) ─────────────────────────────────────────
 add("HTML — Série da Bússola",
@@ -573,7 +584,7 @@ add("HTML — Série da Bússola",
      "do gráfico nativo aqui: a previsão ficava fora da janela visível."]
     + DOC_BLOCO,
     P5, "A série da Bússola: alta constante e um dez/2025 fora da curva",
-    (32, 96, 528, 288), None, ["f283a342495bf78b805d"])
+    (32, 130, 528, 254), None, [])
 
 add("HTML — Faixa da Previsão",
     faixa([
@@ -586,8 +597,7 @@ add("HTML — Faixa da Previsão",
     ], tam=26, coluna=True),
     ["O CONFRONTO DA QUESTÃO 6: 207 realizadas contra 116 previstas."]
     + DOC_BLOCO,
-    P5, None, (572, 96, 220, 288), None,
-    ["a0b9432e39b9c9b1a01e", "7e1158aa1cbbb2fa5a71", "b8343cef7c8ec1ac16be"])
+    P5, None, (572, 130, 220, 254), None, [])
 
 add("HTML — Linha de Similar",
     ranking("fct_similaridade_produto", "produto", "[Similaridade de Cosseno]",
@@ -598,8 +608,7 @@ add("HTML — Linha de Similar",
      "arredondar para duas empataria os três primeiros — que é exatamente o",
      "argumento da resposta."] + DOC_CROSS,
     P5, "Top similares ao Motor de Popa 1949 — clique para filtrar",
-    (32, 398, 500, 294), ("fct_similaridade_produto", "produto"),
-    ["d14e1875d38241c62ead"])
+    (32, 398, 500, 294), ("fct_similaridade_produto", "produto"), [])
 
 add("HTML — Linha de Cesta",
     ranking("fct_similaridade_produto", "produto", "[Pedidos em Comum]", "#,##0",
@@ -607,8 +616,7 @@ add("HTML — Linha de Cesta",
     ["CO-OCORRÊNCIA NO MESMO PEDIDO — a formulação correta do problema da",
      "Marina, que devolve outro campeão: Tinta Antifouling."] + DOC_CROSS,
     P5, "Co-ocorrência no pedido — a pergunta que a Marina fez",
-    (546, 398, 500, 294), ("fct_similaridade_produto", "produto"),
-    ["9107e2511f4b3299206a"])
+    (546, 398, 500, 294), ("fct_similaridade_produto", "produto"), [])
 
 
 # ═══════════════════════════════════════════════════════════════ gravação ══
@@ -641,6 +649,11 @@ def json_visual(nome_visual: str, medida: str, caixa: tuple,
         estado["sampling"] = {"projections": [campo_coluna(*gran)]}
     consulta: dict = {"queryState": estado}
     if ordenar_por:
+        # A medida de ordenação precisa ESTAR no visual, senão o Power BI
+        # descarta o sort e devolve as linhas na ordem da coluna — alfabética.
+        # `tooltips` é o papel certo para carregá-la sem aparecer no desenho:
+        # ela ainda vira dica de tela ao passar o mouse.
+        estado["tooltips"] = {"projections": [campo_medida(ordenar_por)]}
         # Sem isto o visual recebe as linhas na ordem da coluna de `sampling`
         # — alfabética — e o ranking aparece 3, 2, 1, 5, 4 na tela, com os
         # números certos e a sequência errada. A ordem de exibição é do
@@ -693,19 +706,34 @@ def json_visual(nome_visual: str, medida: str, caixa: tuple,
 
 
 # ══════════════════════════════════════════════════ navegação e filtros ════
-# Onde ficam os segmentadores de cada página, depois do deslocamento. Filtro
-# no rodapé, abaixo dos gráficos, era o que estava errado: quem usa procura o
-# controle antes de ler, não depois.
-SLICERS = {
-    P1: (948, 58, 300, 76),    # status do pedido
-    P3: (948, 58, 300, 68),    # flag de elite
+# POSIÇÕES ABSOLUTAS, não deslocamento. A primeira versão somava +34 ao Y a
+# cada execução do gerador, e como ele roda várias vezes durante o
+# desenvolvimento os títulos foram parar no meio da página — oito execuções,
+# 272px. Posição absoluta é idempotente por construção.
+#
+# Os textbox não são gerados aqui (o conteúdo deles é narrativa escrita à
+# mão), então as caixas ficam nesta tabela, já com a faixa de navegação
+# descontada.
+TEXTOS = {
+    "391e2a649b1f1d77900b": (32, 52, 1100, 72),     # Q6-Q7, cabeçalho
+    "50ff396ca43983a9c8ef": (806, 130, 442, 254),   # Q6, nota lateral
+    "7abdf216958fcde92469": (1060, 398, 188, 294),  # Q7, nota lateral
+    "216ffc47830f5a89c2e0": (32, 526, 1216, 166),   # Q4, rodapé
+    "a84e3eee58ded52dd438": (32, 126, 1216, 54),    # Q4, tarja
+    "bd7aaef7f0bfcc1ef7d9": (32, 52, 900, 68),      # Q4, cabeçalho
+    "da871194ce722756e472": (32, 52, 900, 72),      # Vendas, cabeçalho
+    "2889264c822a6a350236": (32, 132, 1216, 52),    # Capa, tarja
+    "b7207488563d8e774de8": (32, 52, 900, 74),      # Capa, cabeçalho
+    "7b7e3d65158fa6f871bb": (32, 520, 760, 172),    # Q5, rodapé
+    "c23191ed5a16409fc4c2": (32, 52, 1100, 68),     # Q5, cabeçalho
 }
 
-# Larguras de cabeçalho que precisam encolher para abrir espaço ao lado.
-CABECALHO_ESTREITO = 900
-
-DESLOCAMENTO = 34   # altura da faixa de navegação + respiro
-LIMITE_Y = 702      # canvas de 720 menos uma margem
+# Onde ficam os segmentadores. Filtro no rodapé, abaixo dos gráficos, era o
+# que estava errado: quem usa procura o controle antes de ler, não depois.
+SLICERS = {
+    "9b59c383596f4321410c": (948, 52, 300, 74),
+    "7063cddba223efdc191f": (948, 52, 300, 68),
+}
 
 
 def navegador(pagina: str, largura: int) -> dict:
@@ -715,7 +743,7 @@ def navegador(pagina: str, largura: int) -> dict:
     return {"$schema": "https://developer.microsoft.com/json-schemas/fabric/item/"
                        "report/definition/visualContainer/2.9.0/schema.json",
             "name": nome,
-            "position": {"x": 32, "y": 10, "z": 900, "height": 28,
+            "position": {"x": 32, "y": 12, "z": 900, "height": 30,
                          "width": largura, "tabOrder": 1},
             "visual": {
                 "visualType": "pageNavigator",
@@ -742,28 +770,18 @@ def navegador(pagina: str, largura: int) -> dict:
 
 
 def reposicionar() -> None:
-    """Abre a faixa de navegação no topo e tira os filtros do rodapé."""
+    """Aplica as posições absolutas e cria a faixa de navegação."""
     for pagina in (P1, P2, P3, P4, P5):
         base = PAGES / pagina / "visuals"
-        arquivos = sorted(base.glob("*/visual.json"))
-        for caminho in arquivos:
+        for caminho in sorted(base.glob("*/visual.json")):
             dados = json.loads(caminho.read_text(encoding="utf-8"))
-            tipo = dados["visual"].get("visualType")
-            pos = dados["position"]
-
-            if tipo == "slicer" and pagina in SLICERS:
-                x, y, w, h = SLICERS[pagina]
-                pos.update(x=x, y=y, width=w, height=h)
-            else:
-                pos["y"] += DESLOCAMENTO
-                # o cabeçalho encolhe para o segmentador caber ao lado
-                if (tipo == "textbox" and pos["y"] < 100
-                        and pagina in SLICERS and pos["width"] > CABECALHO_ESTREITO):
-                    pos["width"] = CABECALHO_ESTREITO
-                # quem passou do rodapé cede a altura, em vez de sair da tela
-                if pos["y"] + pos["height"] > LIMITE_Y:
-                    pos["height"] = LIMITE_Y - pos["y"]
-
+            nome, tipo = dados["name"], dados["visual"].get("visualType")
+            caixa = TEXTOS.get(nome) or (SLICERS.get(pagina)
+                                         if tipo == "slicer" else None)
+            if not caixa:
+                continue
+            x, y, w, h = caixa
+            dados["position"].update(x=x, y=y, width=w, height=h)
             caminho.write_text(json.dumps(dados, ensure_ascii=False, indent=2)
                                + "\n", encoding="utf-8", newline="\r\n")
 

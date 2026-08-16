@@ -3,9 +3,9 @@
   "name": "98009a23ad4ca60fa234",
   "position": {
     "x": 32,
-    "y": 432,
+    "y": 398,
     "z": 100,
-    "height": 270,
+    "height": 294,
     "width": 500,
     "tabOrder": 100
   },
@@ -46,6 +46,24 @@
               },
               "queryRef": "fct_similaridade_produto.produto",
               "nativeQueryRef": "produto"
+            }
+          ]
+        },
+        "tooltips": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Medidas"
+                    }
+                  },
+                  "Property": "Similaridade de Cosseno"
+                }
+              },
+              "queryRef": "_Medidas.Similaridade de Cosseno",
+              "nativeQueryRef": "Similaridade de Cosseno"
             }
           ]
         }

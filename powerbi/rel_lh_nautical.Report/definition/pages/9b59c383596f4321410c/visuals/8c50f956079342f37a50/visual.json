@@ -3,9 +3,9 @@
   "name": "8c50f956079342f37a50",
   "position": {
     "x": 656,
-    "y": 568,
+    "y": 522,
     "z": 100,
-    "height": 134,
+    "height": 170,
     "width": 592,
     "tabOrder": 100
   },
@@ -46,6 +46,24 @@
               },
               "queryRef": "dim_produto.categoria",
               "nativeQueryRef": "categoria"
+            }
+          ]
+        },
+        "tooltips": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Medidas"
+                    }
+                  },
+                  "Property": "Margem Líquida R$"
+                }
+              },
+              "queryRef": "_Medidas.Margem Líquida R$",
+              "nativeQueryRef": "Margem Líquida R$"
             }
           ]
         }
