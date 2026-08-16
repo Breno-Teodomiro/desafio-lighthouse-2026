@@ -197,6 +197,11 @@ PAPEIS_COMPROVADOS: dict[tuple[str, str], set[str]] = {
     # displayName na UI é "Values" — quem procura por "Values" no JSON não
     # acha nada. Conferido no capabilities.json do visual.
     (HTML_CONTENT, "content"): {"Measure", "Column"},
+    # `sampling` é a granularidade: é ele que faz o visual criar um
+    # selectionId POR LINHA e, com isso, cross-filtrar a página. Sem campo
+    # aqui, `hasGranularity` é falso e a opção de cross-filter nem aparece
+    # no painel de formatação. Conferido em src/view-model.ts do visual.
+    (HTML_CONTENT, "sampling"): {"Column"},
 }
 
 
@@ -243,6 +248,29 @@ def validar_visuais(erros: list[str], avisos: list[str]) -> None:
 
         if "tabOrder" not in dados.get("position", {}):
             avisos.append(f"{rotulo}: position sem 'tabOrder'")
+
+        # --- 16. cross-filter do HTML Content coerente com a granularidade --
+        # O visual só cross-filtra se houver campo em `sampling` — é dali que
+        # sai um selectionId por linha. Ligar `enabled` sem `sampling` não faz
+        # nada e passa despercebido; e ter `sampling` com `enabled` desligado
+        # joga fora a interatividade de graça. Foi o erro da primeira versão.
+        if tipo == HTML_CONTENT:
+            tem_sampling = "sampling" in v.get("query", {}).get("queryState", {})
+            ligado = any(
+                item.get("properties", {}).get("enabled", {})
+                .get("expr", {}).get("Literal", {}).get("Value") == "true"
+                for item in (v.get("objects") or {}).get("crossFilter", [])
+            )
+            if ligado and not tem_sampling:
+                erros.append(
+                    f"{rotulo}: crossFilter ligado sem campo em 'sampling' — "
+                    f"não filtra nada, o visual vira um ponto de seleção só"
+                )
+            if tem_sampling and not ligado:
+                avisos.append(
+                    f"{rotulo}: tem 'sampling' mas crossFilter desligado — "
+                    f"a interatividade está disponível e não foi usada"
+                )
 
         # Título que não cabe na largura do visual. O Power BI trunca com "…"
         # e a conclusão morre justamente no fim da frase, que é onde ela está

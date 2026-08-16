@@ -1,5 +1,44 @@
 #!/usr/bin/env python3
-"""Gera as medidas DAX que devolvem HTML para o visual HTML Content (lite)."""
+"""
+Gera as medidas DAX que devolvem HTML para o visual "HTML Content (lite)".
+
+    python3 powerbi/gerar_html_dax.py
+
+POR QUE UM GERADOR, E NÃO DAX ESCRITO À MÃO
+-------------------------------------------
+Em DAX, aspa dupla dentro de string se escapa dobrando (""). Um HTML com
+dezenas de atributos vira um campo minado onde um `"` a mais quebra a medida
+inteira, e o erro que o Desktop mostra não aponta a coluna. Aqui o escape é
+feito uma vez, na função `s()`, e o resto é template.
+
+DUAS FORMAS DE MEDIDA, E A DIFERENÇA IMPORTA
+--------------------------------------------
+· BLOCO — uma medida devolve o componente inteiro (a faixa de KPIs). O visual
+  recebe UMA linha, e o dataset de uma linha só tem um ponto de seleção: o
+  componente todo. Não há o que clicar, e está certo assim — uma faixa de KPIs
+  não é para filtrar.
+
+· LINHA — a medida devolve UMA linha da lista, e a coluna que dá a
+  granularidade entra no papel `sampling` do visual. Aí o visual monta uma
+  entrada por item, cada uma com seu próprio selectionId, e o clique
+  CROSS-FILTRA a página como um gráfico nativo.
+
+  A regra está no fonte do visual (`src/view-model.ts`):
+
+      const hasGranularity = columns.some((c) => c.roles?.sampling);
+      const hasCrossFiltering = hasGranularity && settings.crossFilter.enabled;
+
+  Sem campo em `sampling`, a opção de cross-filter nem aparece no painel.
+
+O TOP N SEM FILTRO DE VISUAL
+----------------------------
+A medida de linha devolve BLANK() fora do top N. O Power BI descarta a linha
+cujas medidas são todas vazias, então a lista se limita sozinha — sem depender
+de `filterConfig`, que não tem uma única ocorrência nos projetos PBIR de
+referência desta máquina.
+
+Autor: Breno Teodomiro · Desafio Técnico Lighthouse 2026 (Indicium)
+"""
 
 from __future__ import annotations
 
@@ -15,6 +54,7 @@ TRILHO, BORDA = "#16233A", "#1E2E42"
 FONTE = "Segoe UI,-apple-system,Roboto,sans-serif"
 
 Q = '""'          # aspa dupla dentro de string DAX
+A = chr(34)       # aspa dupla literal, para montar os atributos HTML
 
 
 def s(texto: str) -> str:
@@ -31,14 +71,15 @@ def bloco(nome: str, corpo: list[str], doc: list[str]) -> str:
     linhas = [("\t/// " + d).rstrip() for d in doc]
     linhas.append(f"\tmeasure '{nome}' =")
     linhas += ["\t\t\t" + c for c in corpo]
-    linhas += ["\t\tdisplayFolder: 0 HTML", f"\t\tlineageTag: {guid('med:' + nome)}", ""]
+    linhas += ["\t\tdisplayFolder: 0 HTML",
+               f"\t\tlineageTag: {guid('med:' + nome)}", ""]
     return "\r\n".join(linhas) + "\r\n"
 
 
-# ─────────────────────────────────────────────────────────── faixa de KPIs ──
+# ═════════════════════════════════════════════════ faixa de KPIs (BLOCO) ════
 CAIXA = (f"flex:1;min-width:0;background:#12203366;border:1px solid {BORDA};"
          "border-radius:14px;padding:14px 16px;")
-ROTULO = (f"font-size:10px;letter-spacing:.10em;text-transform:uppercase;"
+ROTULO = ("font-size:10px;letter-spacing:.10em;text-transform:uppercase;"
           f"color:{SUAVE};font-weight:600;white-space:nowrap;")
 NOTA = f"font-size:11px;color:{FRACO};margin-top:8px;white-space:nowrap;"
 
@@ -51,19 +92,19 @@ def num(cor: str) -> str:
 def cartao(rotulo: str, valor: str, nota: str, cor: str = TEXTO,
            barra: str | None = None) -> list[str]:
     saida = [
-        f'& {s(f"<div style={chr(34)}{CAIXA}{chr(34)}>")}',
-        f'& {s(f"<div style={chr(34)}{ROTULO}{chr(34)}>{rotulo}</div>")}',
-        f'& {s(f"<div style={chr(34)}{num(cor)}{chr(34)}>")} & {valor} & {s("</div>")}',
+        f'& {s(f"<div style={A}{CAIXA}{A}>")}',
+        f'& {s(f"<div style={A}{ROTULO}{A}>{rotulo}</div>")}',
+        f'& {s(f"<div style={A}{num(cor)}{A}>")} & {valor} & {s("</div>")}',
     ]
     if barra:
-        t = f"height:3px;background:{TRILHO};border-radius:2px;margin-top:12px;overflow:hidden;"
-        f = f"height:3px;border-radius:2px;background:linear-gradient(90deg,{AZUL},{ROXO});width:"
-        saida.append(
-            f'& {s(f"<div style={chr(34)}{t}{chr(34)}><div style={chr(34)}{f}")}'
-            f' & {barra} & {s(f"%{chr(34)}></div></div>")}'
-        )
+        t = (f"height:3px;background:{TRILHO};border-radius:2px;"
+             "margin-top:12px;overflow:hidden;")
+        f = (f"height:3px;border-radius:2px;"
+             f"background:linear-gradient(90deg,{AZUL},{ROXO});width:")
+        saida.append(f'& {s(f"<div style={A}{t}{A}><div style={A}{f}")}'
+                     f' & {barra} & {s(f"%{A}></div></div>")}')
     saida += [
-        f'& {s(f"<div style={chr(34)}{NOTA}{chr(34)}>")} & {nota} & {s("</div>")}',
+        f'& {s(f"<div style={A}{NOTA}{A}>")} & {nota} & {s("</div>")}',
         f'& {s("</div>")}',
     ]
     return saida
@@ -74,11 +115,12 @@ faixa = [
     "VAR _Efetivada = [Receita Efetivada]",
     "VAR _Pct       = DIVIDE(_Efetivada, _Bruta)",
     "RETURN",
-    f'    {s(f"<div style={chr(34)}display:flex;gap:10px;font-family:{FONTE};{chr(34)}>")}',
+    f'    {s(f"<div style={A}display:flex;gap:10px;font-family:{FONTE};{A}>")}',
 ]
 faixa += cartao("Receita Bruta", 'FORMAT(_Bruta / 1000000, "R$ #,##0") & " Mi"',
                 s("GMV — todos os status"))
-faixa += cartao("Receita Efetivada", 'FORMAT(_Efetivada / 1000000, "R$ #,##0") & " Mi"',
+faixa += cartao("Receita Efetivada",
+                'FORMAT(_Efetivada / 1000000, "R$ #,##0") & " Mi"',
                 'FORMAT(_Pct, "0.0%") & " do GMV virou receita"', AZUL,
                 barra='FORMAT(_Pct * 100, "0")')
 faixa += cartao("Pedidos", 'FORMAT([Nº Pedidos], "#,##0")', s("2020 a 2026"))
@@ -89,95 +131,113 @@ faixa += cartao("Margem Líquida", 'FORMAT([% Margem Líquida], "0.00%")',
 faixa.append(f'& {s("</div>")}')
 
 DOC_FAIXA = [
-    'FAIXA DE KPIs — para o visual "HTML Content (lite)".',
+    'FAIXA DE KPIs — visual "HTML Content (lite)", forma BLOCO.',
     "",
-    "Os cinco indicadores da capa num bloco HTML: número em peso 200,",
-    "rótulo em versalete espaçado, barra de proporção na receita efetivada e",
-    "uma linha de contexto por indicador, que o cartão nativo não comporta.",
+    "Os cinco indicadores da capa: número em peso 200, rótulo em versalete",
+    "espaçado, barra de proporção na receita efetivada e uma linha de contexto",
+    "por indicador, que o cartão nativo não comporta.",
     "",
-    "REAGE AOS FILTROS como qualquer medida: trocar o status no segmentador",
-    "reescreve os cinco números e a largura da barra.",
+    "RECEBE filtro como qualquer medida — mexer no segmentador de status",
+    "reescreve os cinco números e a largura da barra. NÃO EMITE filtro, e é",
+    "deliberado: uma faixa de KPIs é para ler, não para clicar.",
     "",
-    "CSS INLINE POR OBRIGAÇÃO, não por gosto — o visual roda num iframe com",
-    "apenas `allow-scripts`, que bloqueia toda tag <script> externa. Nenhum",
-    "CDN carrega ali: nem Tailwind, nem fonte do Google.",
+    "CSS INLINE POR OBRIGAÇÃO: o visual roda num iframe com apenas",
+    "`allow-scripts`, que bloqueia toda tag <script> externa. Nenhum CDN",
+    "carrega ali — nem Tailwind, nem fonte do Google.",
 ]
 
 
-# ────────────────────────────────────────────────────────────────── ranking ──
-LINHA = f"display:flex;align-items:center;gap:10px;padding:7px 2px;border-bottom:1px solid {BORDA};"
+# ══════════════════════════════════════════════════ linha de ranking (LINHA) ═
+LINHA = ("display:flex;align-items:center;gap:10px;padding:2px 2px;"
+         f"font-family:{FONTE};")
 POS = f"width:18px;font-size:11px;color:{FRACO};text-align:right;flex:none;"
-NOME = (f"width:148px;font-size:12px;color:{TEXTO};overflow:hidden;"
+NOME = (f"width:150px;font-size:12px;color:{TEXTO};overflow:hidden;"
         "text-overflow:ellipsis;white-space:nowrap;flex:none;")
-TRI = f"flex:1;height:8px;background:{TRILHO};border-radius:4px;overflow:hidden;min-width:30px;"
-RODAPE = f"font-size:11px;color:{FRACO};margin-top:10px;"
+TRI = (f"flex:1;height:8px;background:{TRILHO};border-radius:4px;"
+       "overflow:hidden;min-width:30px;")
 VAL = f"width:78px;text-align:right;font-size:12px;color:{SUAVE};flex:none;"
 
 
-def ranking(tabela: str, coluna: str, med: str, fmt: str, n: int,
-            cor: str, rodape: str) -> list[str]:
-    topn = f"TOPN({n}, VALUES({tabela}[{coluna}]), {med}, DESC)"
+def linha_rank(tabela: str, coluna: str, med: str, fmt: str, n: int,
+               cor: str) -> list[str]:
+    """Uma linha da lista. A coluna vai no papel `sampling` do visual."""
+    escopo = f"ALLSELECTED({tabela}[{coluna}])"
     barra = (f"height:8px;border-radius:4px;"
              f"background:linear-gradient(90deg,{cor},{cor}66);width:")
     return [
-        f"VAR _Top = {topn}",
-        f"VAR _Max = MAXX(_Top, {med})",
-        "VAR _Corpo =",
-        "    CONCATENATEX(",
-        "        _Top,",
-        f"        VAR _V = {med}",
-        f"        VAR _P = RANKX(_Top, {med},, DESC)",
-        "        VAR _L = DIVIDE(_V, _Max) * 100",
-        "        RETURN",
-        f"            {s(f'<div style={chr(34)}{LINHA}{chr(34)}>')}",
-        f"          & {s(f'<div style={chr(34)}{POS}{chr(34)}>')} & _P & {s('</div>')}",
-        f"          & {s(f'<div style={chr(34)}{NOME}{chr(34)}>')}"
-        f" & {tabela}[{coluna}] & {s('</div>')}",
-        f"          & {s(f'<div style={chr(34)}{TRI}{chr(34)}><div style={chr(34)}{barra}')}"
-        f" & FORMAT(_L, \"0.0\") & {s(f'%{chr(34)}></div></div>')}",
-        f"          & {s(f'<div style={chr(34)}{VAL}{chr(34)}>')}"
-        f" & FORMAT(_V, {s(fmt)}) & {s('</div>')}",
-        f"          & {s('</div>')},",
-        f"        \"\", {med}, DESC",
-        "    )",
+        f"VAR _V   = {med}",
+        f"VAR _Pos = RANKX({escopo}, {med},, DESC)",
+        f"VAR _Max = MAXX(TOPN({n}, {escopo}, {med}, DESC), {med})",
         "RETURN",
-        f'    {s(f"<div style={chr(34)}font-family:{FONTE};{chr(34)}>")} & _Corpo'
-        f' & {s(f"<div style={chr(34)}{RODAPE}{chr(34)}>{rodape}</div></div>")}',
+        # BLANK fora do top N: o Power BI descarta a linha toda vazia, e a
+        # lista se limita sem filtro de visual.
+        "    IF(",
+        f"        _Pos <= {n},",
+        f"        {s(f'<div style={A}{LINHA}{A}>')}",
+        f"      & {s(f'<div style={A}{POS}{A}>')} & _Pos & {s('</div>')}",
+        f"      & {s(f'<div style={A}{NOME}{A}>')}",
+        f"      & SELECTEDVALUE({tabela}[{coluna}]) & {s('</div>')}",
+        f"      & {s(f'<div style={A}{TRI}{A}><div style={A}{barra}')}",
+        "      & FORMAT(DIVIDE(_V, _Max) * 100, \"0.0\")",
+        f"      & {s(f'%{A}></div></div>')}",
+        f"      & {s(f'<div style={A}{VAL}{A}>')} & FORMAT(_V, {s(fmt)})",
+        f"      & {s('</div></div>')}",
+        "    )",
     ]
 
+
+DOC_CROSS = [
+    "",
+    "FORMA LINHA — devolve UMA linha, e a coluna de granularidade entra no",
+    "papel `sampling` do visual. É isso que dá cross-filter: o visual cria um",
+    "selectionId por linha, e clicar filtra a página como um gráfico nativo.",
+    "Sem campo em `sampling`, a opção de cross-filter nem aparece.",
+    "",
+    "O top N sai do BLANK: fora do corte a medida devolve vazio e o Power BI",
+    "descarta a linha, sem precisar de filtro de visual.",
+]
 
 blocos = [
     bloco("HTML — Faixa de KPIs", faixa, DOC_FAIXA),
     bloco(
-        "HTML — Top Produtos por Margem",
-        ranking("dim_produto", "produto", "[% Margem Líquida]", "0.00%", 10, LARANJA,
-                "Percentual sobre a receita de itens, líquido do desconto rateado."),
-        ["TOP 10 PRODUTOS POR MARGEM — visual HTML.",
+        "HTML — Linha de Produto",
+        linha_rank("dim_produto", "produto", "[% Margem Líquida]", "0.00%", 10, LARANJA),
+        ["TOP PRODUTOS POR MARGEM, uma linha por produto.",
          "",
          "A barra é proporcional ao MAIOR DA LISTA, não a 100%: as margens vão",
          "de 37% a 53%, e num eixo de 0 a 100 nada se distinguiria. O valor",
-         "absoluto vai no rótulo, então a escala relativa não engana ninguém."],
+         "absoluto vai no rótulo, então a escala relativa não engana."] + DOC_CROSS,
     ),
     bloco(
-        "HTML — Top Similares Q7",
-        ranking("fct_similaridade_produto", "produto", "[Similaridade de Cosseno]",
-                "0.0000", 10, AZUL,
-                "Cosseno sobre a matriz cliente x produto. O 1o ganha do 2o por 0,0003."),
-        ["RANKING DA QUESTÃO 7 — visual HTML.",
+        "HTML — Linha de Similar",
+        linha_rank("fct_similaridade_produto", "produto",
+                   "[Similaridade de Cosseno]", "0.0000", 10, AZUL),
+        ["RANKING DA QUESTÃO 7, uma linha por produto.",
          "",
-         "Quatro casas decimais de propósito: o 1º lugar ganha do 2º por",
-         "0,0003, e arredondar para duas casas empataria os três primeiros —",
-         "que é exatamente o argumento da resposta."],
+         "Quatro casas decimais de propósito: o 1º ganha do 2º por 0,0003, e",
+         "arredondar para duas empataria os três primeiros — que é exatamente",
+         "o argumento da resposta."] + DOC_CROSS,
+    ),
+    bloco(
+        "HTML — Linha de Cliente",
+        linha_rank("dim_cliente", "cliente", "[Ticket Médio]", "R$ #,##0", 10, ROXO),
+        ["TOP CLIENTES POR TICKET MÉDIO, uma linha por cliente.",
+         "",
+         "É o ranking literal da Questão 4 — ticket médio, sem RFM. Clicar num",
+         "cliente filtra a página e mostra o que o ranking premiou nele."] + DOC_CROSS,
     ),
 ]
 
 with open(TMDL, encoding="utf-8", newline="") as fh:
     texto = fh.read()
-# IDEMPOTENTE: remove os blocos já gravados antes de inserir. Sem isto, rodar o
-# script duas vezes deixa duas cópias de cada medida — e o TMDL aceita, porque
-# a segunda simplesmente sobrescreve a primeira na hora de carregar.
+
+# IDEMPOTENTE: remove os blocos já gravados antes de inserir. Sem isto, rodar
+# duas vezes deixa duas cópias de cada medida — e o TMDL aceita, porque a
+# segunda sobrescreve a primeira em silêncio na hora de carregar.
 for _nome in ("HTML — Faixa de KPIs", "HTML — Top Produtos por Margem",
-              "HTML — Top Similares Q7"):
+              "HTML — Top Similares Q7", "HTML — Linha de Produto",
+              "HTML — Linha de Similar", "HTML — Linha de Cliente",
+              "HTML — Linha de Dia"):
     texto = re.sub(
         r"\t///[^\r\n]*(?:\r\n\t///[^\r\n]*)*\r\n\tmeasure '" + re.escape(_nome)
         + r"' =(?:\r\n(?!\t///|\tmeasure |\tcolumn |\tpartition )[^\r\n]*)*\r\n\r\n",

@@ -48,21 +48,37 @@
         "background": [
           {
             "show": true,
-            "color": { "solid": { "color": "#0E1826" } },
+            "color": {
+              "solid": {
+                "color": "#0E1826"
+              }
+            },
             "transparency": 0
           }
         ],
         "border": [
           {
             "show": true,
-            "color": { "solid": { "color": "#1E2E42" } },
+            "color": {
+              "solid": {
+                "color": "#1E2E42"
+              }
+            },
             "radius": 10
           }
         ],
-        "visualHeader": [{ "show": false }],
+        "visualHeader": [
+          {
+            "show": false
+          }
+        ],
         "title": [
           {
-            "fontColor": { "solid": { "color": "#E8EEF4" } },
+            "fontColor": {
+              "solid": {
+                "color": "#E8EEF4"
+              }
+            },
             "fontSize": 11,
             "alignment": "left"
           }
@@ -72,7 +88,11 @@
             "show": true,
             "showAxisTitle": false,
             "gridlineShow": false,
-            "labelColor": { "solid": { "color": "#93A5B8" } },
+            "labelColor": {
+              "solid": {
+                "color": "#93A5B8"
+              }
+            },
             "fontSize": 9,
             "concatenateLabels": false
           }
@@ -82,9 +102,17 @@
             "show": true,
             "showAxisTitle": false,
             "gridlineShow": true,
-            "gridlineColor": { "solid": { "color": "#1A2738" } },
+            "gridlineColor": {
+              "solid": {
+                "color": "#1A2738"
+              }
+            },
             "gridlineThickness": 1,
-            "labelColor": { "solid": { "color": "#6F8299" } },
+            "labelColor": {
+              "solid": {
+                "color": "#6F8299"
+              }
+            },
             "fontSize": 9
           }
         ],
@@ -93,13 +121,21 @@
             "show": true,
             "position": "TopLeft",
             "showTitle": false,
-            "labelColor": { "solid": { "color": "#93A5B8" } },
+            "labelColor": {
+              "solid": {
+                "color": "#93A5B8"
+              }
+            },
             "fontSize": 9
           }
         ],
         "labels": [
           {
-            "color": { "solid": { "color": "#B9C7D4" } },
+            "color": {
+              "solid": {
+                "color": "#B9C7D4"
+              }
+            },
             "fontSize": 9
           }
         ]

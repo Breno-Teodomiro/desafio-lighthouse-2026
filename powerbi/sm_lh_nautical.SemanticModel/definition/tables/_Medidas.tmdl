@@ -173,18 +173,54 @@ table _Medidas
 		displayFolder: 6 Previsão
 		lineageTag: 0e9d279e-7744-ad69-c8a6-05aac859999a
 
-	/// FAIXA DE KPIs — para o visual "HTML Content (lite)".
+	/// O baseline que o enunciado pede. Constante em 38,67 no horizonte,
+	/// somando 116 no trimestre contra 207 realizados.
+	measure 'Previsão — Média Móvel 3m' = SUM(fct_previsao_bussola[prev_mm3])
+		formatString: #,##0.0
+		displayFolder: 6 Previsão
+		lineageTag: f27490c4-5179-471f-24b2-995bb702c10f
+
+	/// Repete o mesmo trimestre do ano anterior. MAE de 25,0 contra 30,33 da
+	/// média móvel — o baseline pedido perde para a regra mais simples que
+	/// existe.
+	measure 'Previsão — Seasonal Naive' = SUM(fct_previsao_bussola[prev_sazonal])
+		formatString: #,##0.0
+		displayFolder: 6 Previsão
+		lineageTag: 3543e96e-0097-7805-8899-510b8dbe32e8
+
+	/// Repete o último mês observado (dez/2025 = 22). MAE de 47,0.
+	measure 'Previsão — Naive' = SUM(fct_previsao_bussola[prev_naive])
+		formatString: #,##0.0
+		displayFolder: 6 Previsão
+		lineageTag: 740b8e8d-c904-dc02-47ac-0d3d7f029e86
+
+	/// Cosseno contra o 'Motor de Popa 1949'. Há uma linha por produto, então
+	/// a soma no grão de produto é o próprio valor.
+	measure 'Similaridade de Cosseno' = SUM(fct_similaridade_produto[similaridade])
+		formatString: 0.0000
+		displayFolder: 7 Recomendação
+		lineageTag: 915c1c8b-10ec-bc88-c402-b8887909fa94
+
+	/// Co-ocorrência no MESMO pedido — a formulação correta do problema que a
+	/// Marina descreveu, e que devolve outro campeão: Tinta Antifouling 3228.
+	measure 'Pedidos em Comum' = SUM(fct_similaridade_produto[pedidos_em_comum])
+		formatString: #,##0
+		displayFolder: 7 Recomendação
+		lineageTag: 60990c74-193c-909e-2224-536c87377f0a
+
+	/// FAIXA DE KPIs — visual "HTML Content (lite)", forma BLOCO.
 	///
-	/// Os cinco indicadores da capa num bloco HTML: número em peso 200,
-	/// rótulo em versalete espaçado, barra de proporção na receita efetivada e
-	/// uma linha de contexto por indicador, que o cartão nativo não comporta.
+	/// Os cinco indicadores da capa: número em peso 200, rótulo em versalete
+	/// espaçado, barra de proporção na receita efetivada e uma linha de contexto
+	/// por indicador, que o cartão nativo não comporta.
 	///
-	/// REAGE AOS FILTROS como qualquer medida: trocar o status no segmentador
-	/// reescreve os cinco números e a largura da barra.
+	/// RECEBE filtro como qualquer medida — mexer no segmentador de status
+	/// reescreve os cinco números e a largura da barra. NÃO EMITE filtro, e é
+	/// deliberado: uma faixa de KPIs é para ler, não para clicar.
 	///
-	/// CSS INLINE POR OBRIGAÇÃO, não por gosto — o visual roda num iframe com
-	/// apenas `allow-scripts`, que bloqueia toda tag <script> externa. Nenhum
-	/// CDN carrega ali: nem Tailwind, nem fonte do Google.
+	/// CSS INLINE POR OBRIGAÇÃO: o visual roda num iframe com apenas
+	/// `allow-scripts`, que bloqueia toda tag <script> externa. Nenhum CDN
+	/// carrega ali — nem Tailwind, nem fonte do Google.
 	measure 'HTML — Faixa de KPIs' =
 			VAR _Bruta     = [Receita Bruta]
 			VAR _Efetivada = [Receita Efetivada]
@@ -221,61 +257,103 @@ table _Medidas
 		displayFolder: 0 HTML
 		lineageTag: 1378e373-12a9-677e-5ca8-395682d3e749
 
-	/// TOP 10 PRODUTOS POR MARGEM — visual HTML.
+	/// TOP PRODUTOS POR MARGEM, uma linha por produto.
 	///
 	/// A barra é proporcional ao MAIOR DA LISTA, não a 100%: as margens vão
 	/// de 37% a 53%, e num eixo de 0 a 100 nada se distinguiria. O valor
-	/// absoluto vai no rótulo, então a escala relativa não engana ninguém.
-	measure 'HTML — Top Produtos por Margem' =
-			VAR _Top = TOPN(10, VALUES(dim_produto[produto]), [% Margem Líquida], DESC)
-			VAR _Max = MAXX(_Top, [% Margem Líquida])
-			VAR _Corpo =
-			    CONCATENATEX(
-			        _Top,
-			        VAR _V = [% Margem Líquida]
-			        VAR _P = RANKX(_Top, [% Margem Líquida],, DESC)
-			        VAR _L = DIVIDE(_V, _Max) * 100
-			        RETURN
-			            "<div style=""display:flex;align-items:center;gap:10px;padding:7px 2px;border-bottom:1px solid #1E2E42;"">"
-			          & "<div style=""width:18px;font-size:11px;color:#6F8299;text-align:right;flex:none;"">" & _P & "</div>"
-			          & "<div style=""width:148px;font-size:12px;color:#E8EEF4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:none;"">" & dim_produto[produto] & "</div>"
-			          & "<div style=""flex:1;height:8px;background:#16233A;border-radius:4px;overflow:hidden;min-width:30px;""><div style=""height:8px;border-radius:4px;background:linear-gradient(90deg,#D9772A,#D9772A66);width:" & FORMAT(_L, "0.0") & "%""></div></div>"
-			          & "<div style=""width:78px;text-align:right;font-size:12px;color:#93A5B8;flex:none;"">" & FORMAT(_V, "0.00%") & "</div>"
-			          & "</div>",
-			        "", [% Margem Líquida], DESC
-			    )
-			RETURN
-			    "<div style=""font-family:Segoe UI,-apple-system,Roboto,sans-serif;"">" & _Corpo & "<div style=""font-size:11px;color:#6F8299;margin-top:10px;"">Percentual sobre a receita de itens, líquido do desconto rateado.</div></div>"
-		displayFolder: 0 HTML
-		lineageTag: dd74a122-66f5-b0c8-af13-4cb0fb06bf5b
-
-	/// RANKING DA QUESTÃO 7 — visual HTML.
+	/// absoluto vai no rótulo, então a escala relativa não engana.
 	///
-	/// Quatro casas decimais de propósito: o 1º lugar ganha do 2º por
-	/// 0,0003, e arredondar para duas casas empataria os três primeiros —
-	/// que é exatamente o argumento da resposta.
-	measure 'HTML — Top Similares Q7' =
-			VAR _Top = TOPN(10, VALUES(fct_similaridade_produto[produto]), [Similaridade de Cosseno], DESC)
-			VAR _Max = MAXX(_Top, [Similaridade de Cosseno])
-			VAR _Corpo =
-			    CONCATENATEX(
-			        _Top,
-			        VAR _V = [Similaridade de Cosseno]
-			        VAR _P = RANKX(_Top, [Similaridade de Cosseno],, DESC)
-			        VAR _L = DIVIDE(_V, _Max) * 100
-			        RETURN
-			            "<div style=""display:flex;align-items:center;gap:10px;padding:7px 2px;border-bottom:1px solid #1E2E42;"">"
-			          & "<div style=""width:18px;font-size:11px;color:#6F8299;text-align:right;flex:none;"">" & _P & "</div>"
-			          & "<div style=""width:148px;font-size:12px;color:#E8EEF4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:none;"">" & fct_similaridade_produto[produto] & "</div>"
-			          & "<div style=""flex:1;height:8px;background:#16233A;border-radius:4px;overflow:hidden;min-width:30px;""><div style=""height:8px;border-radius:4px;background:linear-gradient(90deg,#2D9CDB,#2D9CDB66);width:" & FORMAT(_L, "0.0") & "%""></div></div>"
-			          & "<div style=""width:78px;text-align:right;font-size:12px;color:#93A5B8;flex:none;"">" & FORMAT(_V, "0.0000") & "</div>"
-			          & "</div>",
-			        "", [Similaridade de Cosseno], DESC
-			    )
+	/// FORMA LINHA — devolve UMA linha, e a coluna de granularidade entra no
+	/// papel `sampling` do visual. É isso que dá cross-filter: o visual cria um
+	/// selectionId por linha, e clicar filtra a página como um gráfico nativo.
+	/// Sem campo em `sampling`, a opção de cross-filter nem aparece.
+	///
+	/// O top N sai do BLANK: fora do corte a medida devolve vazio e o Power BI
+	/// descarta a linha, sem precisar de filtro de visual.
+	measure 'HTML — Linha de Produto' =
+			VAR _V   = [% Margem Líquida]
+			VAR _Pos = RANKX(ALLSELECTED(dim_produto[produto]), [% Margem Líquida],, DESC)
+			VAR _Max = MAXX(TOPN(10, ALLSELECTED(dim_produto[produto]), [% Margem Líquida], DESC), [% Margem Líquida])
 			RETURN
-			    "<div style=""font-family:Segoe UI,-apple-system,Roboto,sans-serif;"">" & _Corpo & "<div style=""font-size:11px;color:#6F8299;margin-top:10px;"">Cosseno sobre a matriz cliente x produto. O 1o ganha do 2o por 0,0003.</div></div>"
+			    IF(
+			        _Pos <= 10,
+			        "<div style=""display:flex;align-items:center;gap:10px;padding:2px 2px;font-family:Segoe UI,-apple-system,Roboto,sans-serif;"">"
+			      & "<div style=""width:18px;font-size:11px;color:#6F8299;text-align:right;flex:none;"">" & _Pos & "</div>"
+			      & "<div style=""width:150px;font-size:12px;color:#E8EEF4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:none;"">"
+			      & SELECTEDVALUE(dim_produto[produto]) & "</div>"
+			      & "<div style=""flex:1;height:8px;background:#16233A;border-radius:4px;overflow:hidden;min-width:30px;""><div style=""height:8px;border-radius:4px;background:linear-gradient(90deg,#D9772A,#D9772A66);width:"
+			      & FORMAT(DIVIDE(_V, _Max) * 100, "0.0")
+			      & "%""></div></div>"
+			      & "<div style=""width:78px;text-align:right;font-size:12px;color:#93A5B8;flex:none;"">" & FORMAT(_V, "0.00%")
+			      & "</div></div>"
+			    )
 		displayFolder: 0 HTML
-		lineageTag: 3612b27c-4976-6b06-47b1-e1d0f548b189
+		lineageTag: 05c25cd0-2bc7-e264-48e8-8eceb4decc6d
+
+	/// RANKING DA QUESTÃO 7, uma linha por produto.
+	///
+	/// Quatro casas decimais de propósito: o 1º ganha do 2º por 0,0003, e
+	/// arredondar para duas empataria os três primeiros — que é exatamente
+	/// o argumento da resposta.
+	///
+	/// FORMA LINHA — devolve UMA linha, e a coluna de granularidade entra no
+	/// papel `sampling` do visual. É isso que dá cross-filter: o visual cria um
+	/// selectionId por linha, e clicar filtra a página como um gráfico nativo.
+	/// Sem campo em `sampling`, a opção de cross-filter nem aparece.
+	///
+	/// O top N sai do BLANK: fora do corte a medida devolve vazio e o Power BI
+	/// descarta a linha, sem precisar de filtro de visual.
+	measure 'HTML — Linha de Similar' =
+			VAR _V   = [Similaridade de Cosseno]
+			VAR _Pos = RANKX(ALLSELECTED(fct_similaridade_produto[produto]), [Similaridade de Cosseno],, DESC)
+			VAR _Max = MAXX(TOPN(10, ALLSELECTED(fct_similaridade_produto[produto]), [Similaridade de Cosseno], DESC), [Similaridade de Cosseno])
+			RETURN
+			    IF(
+			        _Pos <= 10,
+			        "<div style=""display:flex;align-items:center;gap:10px;padding:2px 2px;font-family:Segoe UI,-apple-system,Roboto,sans-serif;"">"
+			      & "<div style=""width:18px;font-size:11px;color:#6F8299;text-align:right;flex:none;"">" & _Pos & "</div>"
+			      & "<div style=""width:150px;font-size:12px;color:#E8EEF4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:none;"">"
+			      & SELECTEDVALUE(fct_similaridade_produto[produto]) & "</div>"
+			      & "<div style=""flex:1;height:8px;background:#16233A;border-radius:4px;overflow:hidden;min-width:30px;""><div style=""height:8px;border-radius:4px;background:linear-gradient(90deg,#2D9CDB,#2D9CDB66);width:"
+			      & FORMAT(DIVIDE(_V, _Max) * 100, "0.0")
+			      & "%""></div></div>"
+			      & "<div style=""width:78px;text-align:right;font-size:12px;color:#93A5B8;flex:none;"">" & FORMAT(_V, "0.0000")
+			      & "</div></div>"
+			    )
+		displayFolder: 0 HTML
+		lineageTag: 2706a5bf-e428-0bd1-32c4-0d60f369763b
+
+	/// TOP CLIENTES POR TICKET MÉDIO, uma linha por cliente.
+	///
+	/// É o ranking literal da Questão 4 — ticket médio, sem RFM. Clicar num
+	/// cliente filtra a página e mostra o que o ranking premiou nele.
+	///
+	/// FORMA LINHA — devolve UMA linha, e a coluna de granularidade entra no
+	/// papel `sampling` do visual. É isso que dá cross-filter: o visual cria um
+	/// selectionId por linha, e clicar filtra a página como um gráfico nativo.
+	/// Sem campo em `sampling`, a opção de cross-filter nem aparece.
+	///
+	/// O top N sai do BLANK: fora do corte a medida devolve vazio e o Power BI
+	/// descarta a linha, sem precisar de filtro de visual.
+	measure 'HTML — Linha de Cliente' =
+			VAR _V   = [Ticket Médio]
+			VAR _Pos = RANKX(ALLSELECTED(dim_cliente[cliente]), [Ticket Médio],, DESC)
+			VAR _Max = MAXX(TOPN(10, ALLSELECTED(dim_cliente[cliente]), [Ticket Médio], DESC), [Ticket Médio])
+			RETURN
+			    IF(
+			        _Pos <= 10,
+			        "<div style=""display:flex;align-items:center;gap:10px;padding:2px 2px;font-family:Segoe UI,-apple-system,Roboto,sans-serif;"">"
+			      & "<div style=""width:18px;font-size:11px;color:#6F8299;text-align:right;flex:none;"">" & _Pos & "</div>"
+			      & "<div style=""width:150px;font-size:12px;color:#E8EEF4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:none;"">"
+			      & SELECTEDVALUE(dim_cliente[cliente]) & "</div>"
+			      & "<div style=""flex:1;height:8px;background:#16233A;border-radius:4px;overflow:hidden;min-width:30px;""><div style=""height:8px;border-radius:4px;background:linear-gradient(90deg,#8B7AE8,#8B7AE866);width:"
+			      & FORMAT(DIVIDE(_V, _Max) * 100, "0.0")
+			      & "%""></div></div>"
+			      & "<div style=""width:78px;text-align:right;font-size:12px;color:#93A5B8;flex:none;"">" & FORMAT(_V, "R$ #,##0")
+			      & "</div></div>"
+			    )
+		displayFolder: 0 HTML
+		lineageTag: f9ec154e-f3b6-8a6e-acb8-65a8c58562d2
 
 	/// As 207 unidades efetivamente vendidas no trimestre de teste
 	/// (jan–mar/2026). Recorta pela flag `eh_treino`, e não por datas
@@ -300,41 +378,6 @@ table _Medidas
 		formatString: 0.0%
 		displayFolder: 6 Previsão
 		lineageTag: a6851681-dca0-8567-91ed-cce47b1e119e
-
-	/// O baseline que o enunciado pede. Constante em 38,67 no horizonte,
-	/// somando 116 no trimestre contra 207 realizados.
-	measure 'Previsão — Média Móvel 3m' = SUM(fct_previsao_bussola[prev_mm3])
-		formatString: #,##0.0
-		displayFolder: 6 Previsão
-		lineageTag: f27490c4-5179-471f-24b2-995bb702c10f
-
-	/// Repete o mesmo trimestre do ano anterior. MAE de 25,0 contra 30,33 da
-	/// média móvel — o baseline pedido perde para a regra mais simples que
-	/// existe.
-	measure 'Previsão — Seasonal Naive' = SUM(fct_previsao_bussola[prev_sazonal])
-		formatString: #,##0.0
-		displayFolder: 6 Previsão
-		lineageTag: 3543e96e-0097-7805-8899-510b8dbe32e8
-
-	/// Repete o último mês observado (dez/2025 = 22). MAE de 47,0.
-	measure 'Previsão — Naive' = SUM(fct_previsao_bussola[prev_naive])
-		formatString: #,##0.0
-		displayFolder: 6 Previsão
-		lineageTag: 740b8e8d-c904-dc02-47ac-0d3d7f029e86
-
-	/// Cosseno contra o 'Motor de Popa 1949'. Há uma linha por produto, então
-	/// a soma no grão de produto é o próprio valor.
-	measure 'Similaridade de Cosseno' = SUM(fct_similaridade_produto[similaridade])
-		formatString: 0.0000
-		displayFolder: 7 Recomendação
-		lineageTag: 915c1c8b-10ec-bc88-c402-b8887909fa94
-
-	/// Co-ocorrência no MESMO pedido — a formulação correta do problema que a
-	/// Marina descreveu, e que devolve outro campeão: Tinta Antifouling 3228.
-	measure 'Pedidos em Comum' = SUM(fct_similaridade_produto[pedidos_em_comum])
-		formatString: #,##0
-		displayFolder: 7 Recomendação
-		lineageTag: 60990c74-193c-909e-2224-536c87377f0a
 
 	column Coluna
 		dataType: string
