@@ -10,10 +10,28 @@ Legenda de status: ⬜ não iniciada · 🟨 em andamento · ✅ concluída e co
 
 | | |
 |---|---|
-| **Status** | ⬜ |
+| **Status** | ✅ **concluída** (16/08) |
 | **Premissas literais** | Usar **apenas** a tabela `orders` · **Não** fazer limpeza ou tratamento · Apenas observar, agregar e descrever · Código **em SQL** |
 | **Entregável** | `entregaveis/Q1_eda/q1_eda_orders.sql` + `RESPOSTA.md` |
-| **Gate** | Nenhum JOIN com outra tabela. Nenhum filtro de `status`. Nenhum WHERE que descarte linha. |
+| **Gate** | ✅ Zero `JOIN` no arquivo. Zero filtro de `status`. Zero `WHERE` que descarte linha. Roda com `ON_ERROR_STOP=1` sem erro. |
+
+**Diagnósticos executados no banco** (7 consultas de apêndice, todas só em `orders`):
+
+| Evidência | Valor |
+|---|---|
+| Q1 · mediana · Q3 | 13.171,24 · 25.917,84 · 40.941,88 |
+| Razão média/mediana | **1,108** — distribuição quase simétrica |
+| Desvio padrão | 19.425,64 |
+| Cerca de Tukey · acima dela | 82.597,85 · **452 pedidos (0,92%), 2,94% da receita** |
+| `total` ≤ 0 | **0** |
+| Nulos | só `salesperson_id` (24.131), **100% em `ecommerce`**; `pos` tem 0 |
+| Aritmética `subtotal − discount = total` | **48.998/48.998** |
+| `id` e `order_number` distintos | 48.998 / 48.998 |
+| Carimbos colapsados | `placed_at = created_at = updated_at` em **100%** |
+| Pedidos futuros | **4.259 (8,69%)** em 15/08/2026 — o número se move com a data de referência, que sai na própria consulta |
+| GMV total | R$ 1.406.487.201,80 · `cancelled`+`draft` = R$ 207.120.122,26 (**14,73%**) |
+
+⚠️ Cerca de Tukey deu **82.597,85** no banco (o valor 82.598,99 anotado antes veio de método de quartil ligeiramente diferente no cálculo por CSV). Não muda nenhuma conclusão — os 452 pedidos são os mesmos.
 
 **Respostas esperadas** (pré-validadas nos CSVs):
 
