@@ -218,7 +218,7 @@ Dia sem venda é característica de operação em *ramp-up*. Uma análise restri
 
 | | |
 |---|---|
-| **Status** | ⬜ |
+| **Status** | ✅ **concluída** (16/08) |
 | **Premissas literais** | Treino até **31/12/2025** · Teste = **1º trimestre de 2026** · Base **mensal** · Produto **"Bússola de Bordo 702"** · Baseline = **média móvel de 3 meses** · Só dados anteriores à data prevista · Métrica **MAE** · Usar products, product_variants, orders, order_items |
 | **Entregável** | `entregaveis/Q6_previsao/q6_previsao_demanda.py` + `RESPOSTA.md` |
 | **Gate** | Nenhum dado de 2026 entra no cálculo da previsão. Dataset unificado explícito. MAE calculado sobre os 3 meses. |
@@ -253,8 +253,16 @@ Dia sem venda é característica de operação em *ramp-up*. Uma análise restri
 ⚠️ **Arredondamento:** `round(116,00) = 116`, mas `round(38,67) × 3 = 117`. O enunciado pede "a **soma total** da previsão arredondada" → arredondar a soma. **Resposta: 116**, com nota de rodapé sobre o 117.
 
 **Q6.3 / Q6.5 — o que responder:**
-- **O baseline não é adequado, e há prova dura disso:** o *seasonal naive* (repetir jan/fev/mar de 2025 — 57, 32, 77) dá **MAE 25,0**, melhor que os **30,33** da MM3. Ou seja, **o baseline pedido perde para simplesmente copiar o ano anterior**. A sazonalidade domina o sinal.
-- Prevê 116 contra 207 reais — subestima **44%**. A série tem pico no 1º trimestre todo ano (Q1/24: 43-52-66 · Q1/25: 57-32-77 · Q1/26: 79-68-60) e vale no meio do ano; usar meses de baixa (out–dez) para prever o pico do verão erra por construção.
+- **O baseline não é adequado, e há prova dura disso:** o *seasonal naive* (repetir jan/fev/mar de 2025 — 57, 32, 77) dá **MAE 25,0**, melhor que os **30,33** da MM3. Ou seja, **o baseline pedido perde para simplesmente copiar o ano anterior**.
+
+> 🔴 **CORREÇÃO (16/08) — a explicação anterior estava errada.** Estava escrito aqui que "usar meses de baixa (out–dez) para prever o pico do verão erra por construção". **Falso, e a própria tabela mensal desmente.** Perfil histórico: out–nov–dez = **39,6 un./mês**; jan–fev–mar = **35,9 un./mês**. A janela usada é a parte **ALTA** da série. A baixa é o meio do ano (jul = 8,5, o mínimo).
+>
+> **As causas reais da subestimação de 44%:**
+>
+> 1. **Tendência (principal).** Totais anuais: 239 → 255 → 345 → 308 → 385 → **434** (**+82%** de 2020 a 2025). Só o Q1: 64 → 79 → 90 → 86 → 161 → 166 → **207 em 2026**. Uma média é um número plano e não extrapola crescimento.
+> 2. **dez/2025 é ponto fora da curva.** Dezembros anteriores: 45, 45, 49, 51, 38 (média 45,6). **dez/2025 = 22**, menos da metade. Com janela de 3 meses ele carrega 1/3 do peso e sozinho derruba a previsão em **7,9 un./mês (24 no trimestre)**.
+>
+> Usar a explicação errada na resposta seria contradito pela própria tabela mensal que o script imprime.
 - **Leakage evitado** por: corte físico do dataset em 31/12/2025 antes de qualquer estatística; janela tocando só meses de treino; sem realimentação com o real; índice mensal denso construído a partir do range de **treino**, para que mês vazio de 2026 não entre; e uso de `orders.created_at`, não `payments.paid_at` (que embutiria informação posterior ao evento previsto).
 - **Limitações:** ignora tendência e sazonalidade; emite um único número para todo o horizonte, inútil para escalonar compra mês a mês; janela curta em série ruidosa (média 27,3 un./mês, desvio 18,0) — dezembro/25 = 22 puxa a média sozinho; sem intervalo de confiança; e o "produto" é mal definido (dois SKUs com o mesmo nome).
 - **Próximo passo:** seasonal naive como piso, depois SARIMA ou LightGBM com features de mês/lag, avaliados em *rolling origin* de 12 janelas em vez de um split único.
@@ -265,12 +273,14 @@ Dia sem venda é característica de operação em *ramp-up*. Uma análise restri
 
 | | |
 |---|---|
-| **Status** | ⬜ |
+| **Status** | ✅ **concluída** (16/08) |
 | **Premissas literais** | Matriz cliente × produto **binária** (1 se comprou, 0 se não) · **Ignorar quantidade** · **Similaridade de cosseno** produto × produto · Item de referência **"Motor de Popa 1949"** · Top 5, **excluindo o próprio** · Libs: pandas, numpy, sklearn (opcional) |
 | **Entregável** | `entregaveis/Q7_recomendacao/q7_recomendacao.py` + `RESPOSTA.md` |
 | **Gate** | Matriz só com 0 e 1. Similaridade em nível de **produto**, não de variante. Item de referência ausente do ranking final. |
 
 "Motor de Popa 1949" = **product_id 180** (único, sem homônimo).
+
+✅ **Confirmado (16/08).** Matriz 2.000×500, densidade 13,55%, item de referência comprado por 397 clientes. Similaridade confere com `sklearn.cosine_similarity` (`np.allclose` = True), simétrica, diagonal 1. Armadilha do agrupamento por nome reproduzida: `asdf` sobe a 1º com **0,278886** (4 produtos são fundidos, 500 → 496 colunas). Bônus de cesta: dos **435** pedidos com o motor, o item mais frequente junto é **Tinta Antifouling 3228 (11 pedidos)**.
 
 **Resposta pré-validada (literal, sem filtro de status):**
 
