@@ -55,10 +55,14 @@ Legenda de status: ⬜ não iniciada · 🟨 em andamento · ✅ concluída e co
 
 | | |
 |---|---|
-| **Status** | ⬜ |
+| **Status** | ✅ **concluída** (15/08) |
 | **Premissas literais** | Todos os CSVs como fonte · **Python 3 obrigatório** · **Somente biblioteca padrão** (pandas/dask/polars = **desconsiderado**) · Destino **PostgreSQL** |
-| **Entregável** | `entregaveis/Q2_schema/q2_gerar_schema.py` + `schema.sql` + `RESPOSTA.md` |
-| **Gate** | Scan por AST: zero `import` fora da stdlib. Script roda com `python3 q2_gerar_schema.py` sem instalar nada. |
+| **Entregável** | `entregaveis/Q2_schema/q2_gerar_schema.py` + `schema.sql` + `perfil.md` + `RESPOSTA.md` |
+| **Gate** | ✅ Scan por AST (`tests/gate_stdlib.py`) aprovado: 9 imports, todos stdlib, sem carregamento dinâmico. Roda com `/usr/bin/python3`, sem venv. |
+
+**Resultado obtido:** 24 tabelas · 212 colunas · 37 FKs · 24 PKs (3 compostas, inferidas **e validadas** por contagem de unicidade). Aplicado no banco sem erro; conferido no catálogo: 71 `VARCHAR` · 65 `INTEGER` · 37 `TIMESTAMP` · 25 `NUMERIC` · 10 `BOOLEAN` · 3 `DATE` · 1 `TEXT`.
+
+Gerador é **determinístico**: duas execuções produzem arquivos idênticos byte a byte, fora o carimbo de data do cabeçalho.
 
 **Deve produzir:** 24 `CREATE TABLE` para PostgreSQL, com tipos inferidos dos dados.
 
@@ -82,12 +86,12 @@ Legenda de status: ⬜ não iniciada · 🟨 em andamento · ✅ concluída e co
 
 | | |
 |---|---|
-| **Status** | ⬜ |
+| **Status** | ✅ **concluída** (15/08) |
 | **Premissas literais** | Carregar **todos** os CSVs · Python 3 · Qualquer biblioteca permitida · **Não** remover nulos nem corrigir caracteres especiais |
 | **Entregável** | `entregaveis/Q3_carga/q3_carregar_csvs.py` + `relatorio_carga.md` + `RESPOSTA.md` |
-| **Gate** | Contagem por tabela idêntica ao `wc -l` do CSV. Nenhuma transformação de valor. Lixo textual (`?`, `TBD`, `asdf`) preservado como está. |
+| **Gate** | ✅ Contagem por tabela idêntica em 3 caminhos independentes. Nenhuma transformação de valor. Lixo textual preservado (verificado no banco). |
 
-**Q3.2 — resposta:**
+**Q3.2 — resposta CONFIRMADA no banco:**
 
 | Tabela | Linhas |
 |---|---|
@@ -96,6 +100,14 @@ Legenda de status: ⬜ não iniciada · 🟨 em andamento · ✅ concluída e co
 | order_items | 147.320 |
 | payments | 53.546 |
 | **TOTAL** | **251.864** |
+
+**Carga executada:** 433.424 linhas em 24 tabelas, 17 s, transação única. Rodada 3× — idempotente.
+
+**As 37 FKs validaram no `COMMIT`**, o que prova de graça a integridade referencial perfeita (zero órfãos).
+
+**Fidelidade verificada por consulta ao banco pós-carga:** `TBD` e `Sem Nome` presentes em `customers.legal_name` · `tax_id = '00429721404'` com o zero · `series = '001'` · `nfe_access_key` com 44 dígitos · 103.577 `quantity` negativas em `stock_movements` · `reorder_point` com 0 de 6.054 preenchidas.
+
+**Q1 pré-conferida a partir do banco** (caminho independente do perfilamento por CSV): 48.998 linhas · `created_at` 2020-01-01 01:19:28 → 2026-12-31 23:43:09 · `total` 32,62 / 127.262,02 / **28704.992077227642**.
 
 **Cuidados:** 7 arquivos são CRLF (fiscal_invoices, order_items, orders, payments, return_items, returns, stock_movements) — o `\r` não pode vazar para o último campo. String vazia deve virar `NULL` ou `''` de forma **declarada e consistente**, sem "tratar" o dado.
 

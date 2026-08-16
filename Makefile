@@ -3,10 +3,20 @@ SHELL := /bin/bash
 CSV_DIR := 1-lh_nautical_csv
 PGDB := lh_nautical
 
-.PHONY: help setup db carga questoes pipeline check gate-q2 limpar
+# Credenciais de conexão (PGHOST, PGUSER, PGPASSWORD...). O arquivo é
+# gitignored; sem ele, psql e psycopg cairiam nos padrões do sistema — que
+# nesta máquina apontam para o banco de OUTRO projeto.
+ifneq (,$(wildcard .env))
+include .env
+export
+endif
+
+.PHONY: help setup schema db carga questoes pipeline check gate-q2 limpar
 
 help:  ## Mostra os alvos disponíveis
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
+	@# firstword: MAKEFILE_LIST inclui o .env por causa do include acima, e o
+	@# grep prefixaria cada linha com o nome do arquivo se recebesse os dois.
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(firstword $(MAKEFILE_LIST)) \
 		| awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-14s\033[0m %s\n", $$1, $$2}'
 
 setup:  ## Instala dependências (uv) e verifica o ambiente
@@ -16,14 +26,22 @@ setup:  ## Instala dependências (uv) e verifica o ambiente
 	@psql --version
 	@pg_isready && echo "PostgreSQL respondendo" || echo "ATENÇÃO: PostgreSQL não está no ar"
 
-db:  ## Cria o banco e aplica o schema gerado pela Q2
-	createdb $(PGDB) 2>/dev/null || echo "banco $(PGDB) já existe"
-	psql -d $(PGDB) -c "CREATE SCHEMA IF NOT EXISTS raw; CREATE SCHEMA IF NOT EXISTS silver; CREATE SCHEMA IF NOT EXISTS gold;"
-	psql -d $(PGDB) -v ON_ERROR_STOP=1 -f entregaveis/Q2_schema/schema.sql
-	@echo "schema aplicado"
+schema:  ## Q2 — gera schema.sql a partir dos CSVs (stdlib pura, sem venv)
+	python3 entregaveis/Q2_schema/q2_gerar_schema.py \
+		--entrada ./$(CSV_DIR) \
+		--saida entregaveis/Q2_schema/schema.sql \
+		--relatorio entregaveis/Q2_schema/perfil.md \
+		--indices
 
-carga:  ## Q3 — carrega os 24 CSVs em raw
-	uv run python entregaveis/Q3_carga/q3_carregar_csvs.py --csv-dir $(CSV_DIR) --db $(PGDB)
+db: schema  ## Aplica o schema da Q2 no banco (assume banco e schemas já criados)
+	@test "$$PGDATABASE" = "$(PGDB)" || { echo "ABORTADO: PGDATABASE='$$PGDATABASE', esperado '$(PGDB)'"; exit 1; }
+	psql -d $(PGDB) -v ON_ERROR_STOP=1 -q -f entregaveis/Q2_schema/schema.sql
+	@echo "schema aplicado em $(PGDB).raw"
+
+carga:  ## Q3 — carrega os 24 CSVs em raw (transação única, idempotente)
+	uv run python entregaveis/Q3_carga/q3_carregar_csvs.py \
+		--csv-dir ./$(CSV_DIR) \
+		--relatorio entregaveis/Q3_carga/relatorio_carga.md
 
 questoes:  ## Executa as 7 questões e confere os números
 	@echo "== Q1 =="; psql -d $(PGDB) -f entregaveis/Q1_eda/q1_eda_orders.sql
