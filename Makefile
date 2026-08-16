@@ -45,5 +45,8 @@ check: gate-q2  ## ruff + mypy + pytest + gates de conformidade
 	uv run mypy src/ || true
 	uv run pytest -q
 
-limpar:  ## Derruba o banco (destrutivo — pede confirmação)
-	@read -p "Apagar o banco $(PGDB)? [s/N] " r; [ "$$r" = "s" ] && dropdb $(PGDB) || echo "cancelado"
+limpar:  ## Derruba SOMENTE o banco lh_nautical (destrutivo — pede confirmação)
+	@if [ "$(PGDB)" != "lh_nautical" ]; then echo "ABORTADO: alvo inesperado '$(PGDB)'"; exit 1; fi
+	@echo "ATENÇÃO: esta instância é compartilhada com outros projetos."
+	@echo "Será apagado APENAS o banco '$(PGDB)'. Nenhum outro é tocado."
+	@read -p "Confirma? [s/N] " r; [ "$$r" = "s" ] && dropdb --if-exists $(PGDB) || echo "cancelado"

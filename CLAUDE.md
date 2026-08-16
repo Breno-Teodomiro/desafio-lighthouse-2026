@@ -61,6 +61,17 @@ Detalhe em `docs/adr/`.
 4. **Postura "literal + nota de senioridade"**: responder exatamente o que a premissa manda e, abaixo, o bloco *Leitura de engenharia* com o cenário corrigido.
 5. **Cada questão é autocontida** — um arquivo, roda sozinho, sem importar o pipeline. Duplicação aqui é proposital.
 
+## 🚫 Regras invioláveis (banco compartilhado)
+
+O PostgreSQL 18 usado neste projeto é o **do Windows, compartilhado com outros projetos do usuário**. Nunca é um banco descartável.
+
+1. **Este projeto usa exclusivamente o banco `lh_nautical`.** Criado por nós, nosso para gerenciar.
+2. **Jamais executar `DROP DATABASE`, `DROP SCHEMA`, `DROP TABLE`, `TRUNCATE` ou `ALTER` em qualquer objeto fora de `lh_nautical`.** Nem para "limpar", nem para testar.
+3. **Nunca rodar `psql` sem `-d lh_nautical` explícito.** Sem o `-d`, o psql conecta no banco padrão do usuário — que é de outro projeto.
+4. **Nunca alterar `postgresql.conf`, `pg_hba.conf` nem papéis globais** (`postgres`, `CREATE ROLE`, `ALTER ROLE`) sem pedir autorização — são compartilhados por todos os bancos da instância.
+5. `TRUNCATE` do loader (Q3) é permitido **apenas** nas 24 tabelas de `lh_nautical.raw`, listadas nominalmente. Nunca `TRUNCATE ... CASCADE` sem lista explícita.
+6. Antes de qualquer operação destrutiva, conferir `SELECT current_database()` e abortar se não for `lh_nautical`.
+
 ## ⛔ Armadilhas
 
 - **Q2 proíbe pandas/polars/dask.** Só stdlib. Violar = questão desconsiderada. Há gate por AST em `make check`.
