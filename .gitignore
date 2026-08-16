@@ -1,0 +1,39 @@
+# Dados brutos (36 MB — fornecidos pelo desafio, não redistribuir)
+1-lh_nautical_csv/
+dados/brutos/
+
+# Artefatos gerados
+dados/gold/*.parquet
+dados/perfilamento/*.json
+*.pbix
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.ipynb_checkpoints/
+
+# Segredos
+.env
+.env.*
+!.env.example
+
+# Power BI / PBIP
+**/.pbi/localSettings.json
+**/.pbi/cache.abf
+
+# SO
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Material do processo seletivo — NÃO publicar em repositório público
+# (questões da prova e edital; janela de correção 17/08 a 28/08/2026)
+Formulario_de_Questoes.md
+Desafio_Lighthouse.md
+*Edital*.pdf
