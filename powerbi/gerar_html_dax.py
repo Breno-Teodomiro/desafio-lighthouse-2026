@@ -265,14 +265,23 @@ def ranking(tabela: str, coluna: str, med: str, fmt: str, n: int, cor: str,
 
 
 # ═══════════════════════════════════════════════════════ tipo SÉRIE (bloco) ══
-def serie(tabela: str, coluna: str, series: list[tuple[str, str]],
+def serie(tabela: str, coluna: str, series: list[tuple[str, str, str]],
           altura: int = 96, base_zero: bool = True,
-          indice_numerico: bool = False) -> list[str]:
-    """Linha do tempo em SVG. `series` = [(expressão da medida, cor)].
+          indice_numerico: bool = False, fmt: str = '#,##0') -> list[str]:
+    """Linha do tempo em SVG. `series` = [(expressão, cor, rótulo)].
 
     O eixo X é o índice do período e o `preserveAspectRatio=none` estica o
     desenho para a largura do visual — 84 meses cabem sem barra de rolagem,
     que era o defeito do gráfico nativo nestes lugares.
+
+    LEGENDA E EIXO FICAM FORA DO SVG, em HTML. Lá dentro o texto sairia
+    esticado junto com o desenho, porque o `preserveAspectRatio=none`
+    deforma tudo que está no viewBox.
+
+    A legenda carrega o ÚLTIMO valor de cada série em vez de repetir o
+    nome seco: quem lê uma linha do tempo quer saber onde ela terminou, e
+    isso dispensa o eixo Y inteiro — que num painel deste tamanho custaria
+    mais espaço do que informa.
     """
     corpo = [
         f"VAR _Base = ALLSELECTED({tabela}[{coluna}])",
@@ -287,13 +296,15 @@ def serie(tabela: str, coluna: str, series: list[tuple[str, str]],
          f'        "@i", VALUE(LEFT({tabela}[{coluna}], 4)) * 12'
          f' + VALUE(MID({tabela}[{coluna}], 6, 2)),'),
     ]
-    for k, (med, _) in enumerate(series, 1):
+    for k, (med, _, _) in enumerate(series, 1):
         corpo.append(f'        "@v{k}", {med},')
     corpo[-1] = corpo[-1].rstrip(",")
     corpo += [
         "    )",
         "VAR _Ini = MINX(_T, [@i])",
         "VAR _N   = MAXX(_T, [@i]) - _Ini",
+        f'VAR _RotIni = MINX(_T, {tabela}[{coluna}]) & ""',
+        f'VAR _RotFim = MAXX(_T, {tabela}[{coluna}]) & ""',
     ]
     # o teto é o MAIOR VALOR de qualquer série, não a soma delas — somar
     # comprimia o desenho à metade da altura quando havia duas linhas
@@ -314,6 +325,10 @@ def serie(tabela: str, coluna: str, series: list[tuple[str, str]],
                   "VAR _Folga = (_Teto - _Piso) * 0.12",
                   "VAR _Max = _Teto + _Folga", "VAR _Min = _Piso - _Folga"]
     for k in range(1, len(series) + 1):
+        corpo.append(
+            f"VAR _Fim{k} = MAXX(TOPN(1, FILTER(_T, NOT ISBLANK([@v{k}])), "
+            f"[@i], DESC), [@v{k}])")
+    for k in range(1, len(series) + 1):
         corpo += [
             f"VAR _P{k} =",
             "    CONCATENATEX(",
@@ -329,9 +344,24 @@ def serie(tabela: str, coluna: str, series: list[tuple[str, str]],
             f"stop-opacity={A}.45{A}></stop>"
             f"<stop offset={A}100%{A} stop-color={A}{series[0][1]}{A} "
             f"stop-opacity={A}0{A}></stop></lineargradient></defs>")
+    legenda = ("display:flex;gap:14px;flex-wrap:wrap;font-size:11px;"
+               f"color:{SUAVE};margin-bottom:5px;align-items:center;")
+    eixo = ("display:flex;justify-content:space-between;font-size:10px;"
+            f"color:{FRACO};margin-top:4px;")
     corpo += [
         "RETURN",
         f'    {s(f"<div style={A}font-family:{FONTE};{A}>")}',
+        f'  & {s(f"<div style={A}{legenda}{A}>")}',
+    ]
+    for k, (_, cor, rotulo) in enumerate(series, 1):
+        marca = (f"width:8px;height:8px;border-radius:4px;background:{cor};"
+                 "display:inline-block;margin-right:5px;")
+        corpo.append(
+            f'  & {s(f"<span><span style={A}{marca}{A}></span>{rotulo} ")}'
+            f' & {s(f"<b style={A}color:{TEXTO};font-weight:600;{A}>")}'
+            f' & FORMAT(_Fim{k}, {s(fmt)}) & {s("</b></span>")}')
+    corpo += [
+        f'  & {s("</div>")}',
         f'  & {s(f"<svg viewBox={A}0 0 ")} & _N & {s(f" {altura}{A} "
                                                      f"preserveAspectRatio={A}none{A} "
                                                      f"style={A}width:100%;"
@@ -342,7 +372,7 @@ def serie(tabela: str, coluna: str, series: list[tuple[str, str]],
         corpo.append(
             f'  & {s(f"<polygon fill={A}url(#lhg){A} points={A}0,{altura} ")}'
             f' & _P1 & {s(" ")} & _N & {s(f",{altura}{A}></polygon>")}')
-    for k, (_, cor) in enumerate(series, 1):
+    for k, (_, cor, _) in enumerate(series, 1):
         corpo.append(
             f'  & {s(f"<polyline fill={A}none{A} stroke={A}{cor}{A} "
                      f"stroke-width={A}1.6{A} vector-effect={A}non-scaling-stroke{A} "
@@ -350,7 +380,11 @@ def serie(tabela: str, coluna: str, series: list[tuple[str, str]],
                      f"points={A}")}'
             f" & _P{k} & {s(f'{A}></polyline>')}"
         )
-    corpo.append(f'  & {s("</svg></div>")}')
+    corpo += [
+        f'  & {s("</svg>")}',
+        f'  & {s(f"<div style={A}{eixo}{A}><span>")} & _RotIni'
+        f' & {s("</span><span>")} & _RotFim & {s("</span></div></div>")}',
+    ]
     return corpo
 
 
@@ -418,7 +452,9 @@ add("HTML — Faixa de KPIs",
 
 add("HTML — Série de Receita",
     serie("dim_data", "ano_mes",
-          [("[Receita Bruta]", AZUL), ("[Receita Efetivada]", LARANJA)], 140),
+          [("[Receita Bruta]", AZUL, "Bruta"),
+           ("[Receita Efetivada]", LARANJA, "Efetivada")], 140,
+          fmt='R$ #,##0,, " Mi"'),
     ["RECEITA MENSAL, BRUTA E EFETIVADA, em SVG.",
      "",
      "A distância entre as duas linhas é o dinheiro que nunca virou receita —",
@@ -496,8 +532,8 @@ add("HTML — Linha de Produto",
     (705, 302, 560, 296), ("dim_produto", "produto"), [])
 
 add("HTML — Série de Margem",
-    serie("dim_data", "ano_mes", [("[% Margem Líquida]", AZUL)], 30,
-          base_zero=False),
+    serie("dim_data", "ano_mes", [("[% Margem Líquida]", AZUL, "Margem")], 30,
+          base_zero=False, fmt="0.00%"),
     ["MARGEM PERCENTUAL MÊS A MÊS, em SVG."] + DOC_BLOCO,
     P2, "A margem percentual é estável no tempo — o crescimento vem de volume",
     (705, 613, 560, 92), None, [])
@@ -586,8 +622,8 @@ add("HTML — Linha de Dia Vazio",
     (705, 302, 560, 221), ("dim_data", "dia_semana"), [])
 
 add("HTML — Série de Dias Vazios",
-    serie("dim_data", "ano", [("[Dias sem Venda]", ROXO)], 100,
-          indice_numerico=True),
+    serie("dim_data", "ano", [("[Dias sem Venda]", ROXO, "Dias sem venda")], 100,
+          indice_numerico=True, fmt='#,##0 " no último ano"'),
     ["DIAS SEM VENDA POR ANO, em SVG.",
      "",
      "Era uma lista, e virou série porque a lista só cabia com quatro anos —",
@@ -599,8 +635,9 @@ add("HTML — Série de Dias Vazios",
 # ── previsão e recomendação (Q6-Q7) ─────────────────────────────────────────
 add("HTML — Série da Bússola",
     serie("fct_previsao_bussola", "ano_mes",
-          [("[Unidades Realizadas]", AZUL),
-           ("[Previsão — Média Móvel 3m]", LARANJA)], 100),
+          [("[Unidades Realizadas]", AZUL, "Realizado"),
+           ("[Previsão — Média Móvel 3m]", LARANJA, "Previsto")], 100,
+          fmt="#,##0 \" un\""),
     ["A SÉRIE DA BÚSSOLA DE BORDO 702, em SVG.",
      "",
      "A linha laranja só existe nos três meses de teste — é ali que a previsão",
@@ -608,7 +645,7 @@ add("HTML — Série da Bússola",
      "do gráfico nativo aqui: a previsão ficava fora da janela visível."]
     + DOC_BLOCO,
     P5, "A série da Bússola: alta constante e um dez/2025 fora da curva",
-    (15, 302, 675, 130), None, [])
+    (15, 302, 675, 168), None, [])
 
 add("HTML — Faixa da Previsão",
     faixa([
@@ -616,8 +653,10 @@ add("HTML — Faixa da Previsão",
          s("jan a mar de 2026"), AZUL, None),
         ("Previsto (MM3)", 'FORMAT([Previsão — Média Móvel 3m], "#,##0") & " un"',
          s("o baseline do enunciado"), TEXTO, None),
-        ("Erro", 'FORMAT([Erro da Previsão], "0.0%")',
-         s("o baseline subestima"), LARANJA, None),
+        ("Erro do Baseline", 'FORMAT([Erro da Previsão], "0.0%")',
+         '"previu " & FORMAT([Realizado no Trimestre] '
+         '- [Previsão — Média Móvel 3m], "#,##0") & " unidades a menos"',
+         LARANJA, None),
     ], tam=26),
     ["O CONFRONTO DA QUESTÃO 6: 207 realizadas contra 116 previstas."]
     + DOC_BLOCO,
@@ -625,22 +664,22 @@ add("HTML — Faixa da Previsão",
 
 add("HTML — Linha de Similar",
     ranking("fct_similaridade_produto", "produto", "[Similaridade de Cosseno]",
-            "0.0000", 8, AZUL, 150),
+            "0.0000", 7, AZUL, 150),
     ["RANKING DA QUESTÃO 7.",
      "",
      "Quatro casas decimais de propósito: o 1º ganha do 2º por 0,0003, e",
      "arredondar para duas empataria os três primeiros — que é exatamente o",
      "argumento da resposta."] + DOC_CROSS,
     P5, "Mais similares ao Motor de Popa 1949 — clique para filtrar",
-    (15, 447, 480, 258), ("fct_similaridade_produto", "produto"), [])
+    (15, 485, 480, 220), ("fct_similaridade_produto", "produto"), [])
 
 add("HTML — Linha de Cesta",
     ranking("fct_similaridade_produto", "produto", "[Pedidos em Comum]", "#,##0",
-            8, ROXO, 150, larg_val=52),
+            7, ROXO, 150, larg_val=52),
     ["CO-OCORRÊNCIA NO MESMO PEDIDO — a formulação correta do problema da",
      "Marina, que devolve outro campeão: Tinta Antifouling."] + DOC_CROSS,
     P5, "Co-ocorrência no pedido — a pergunta que Marina fez",
-    (510, 447, 480, 258), ("fct_similaridade_produto", "produto"), [])
+    (510, 485, 480, 220), ("fct_similaridade_produto", "produto"), [])
 
 
 # ═══════════════════════════════════════════════════════════════ gravação ══
@@ -771,8 +810,8 @@ TEXTOS = {
     "c23191ed5a16409fc4c2": TITULO,                  # Q5, cabeçalho
     "7b7e3d65158fa6f871bb": (15, 657, 675, 48),      # Q5, rodapé
     "391e2a649b1f1d77900b": TITULO,                  # Q6-Q7, cabeçalho
-    "50ff396ca43983a9c8ef": (705, 302, 560, 130),    # Q6, nota lateral
-    "7abdf216958fcde92469": (1005, 447, 260, 258),   # Q7, nota lateral
+    "50ff396ca43983a9c8ef": (705, 302, 560, 168),    # Q6, nota lateral
+    "7abdf216958fcde92469": (1005, 485, 260, 220),   # Q7, nota lateral
 }
 
 SLICERS = {
@@ -798,7 +837,7 @@ def navegador(pagina: str) -> dict:
                 "visualType": "pageNavigator",
                 "objects": {
                     "layout": [{"properties": {"orientation": lit("0D"),
-                                               "cellPadding": lit("6D")}}],
+                                               "cellPadding": lit("15D")}}],
                     "shape": [{"properties": {"roundEdge": lit("6D")},
                                "selector": {"id": "default"}}],
                     "fill": [{"properties": {

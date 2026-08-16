@@ -25,7 +25,7 @@
             "cellPadding": {
               "expr": {
                 "Literal": {
-                  "Value": "6D"
+                  "Value": "15D"
                 }
               }
             }

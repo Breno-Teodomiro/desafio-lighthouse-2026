@@ -248,10 +248,10 @@ ALTURA_HTML = {
     "HTML — Linha de Cliente Dupla": 198,    # 4 duplas
     "HTML — Linha de Dia": 324,              # 7 duplas
     "HTML — Linha de Dia Vazio": 219,        # 7
-    "HTML — Linha de Similar": 246,          # 8
-    "HTML — Linha de Cesta": 246,            # 8
-    "HTML — Série de Receita": 100, "HTML — Série de Margem": 60,
-    "HTML — Série da Bússola": 100, "HTML — Série de Dias Vazios": 100,
+    # as séries somam 20 da legenda e 16 do eixo ao desenho
+    "HTML — Série de Receita": 176, "HTML — Série de Margem": 66,
+    "HTML — Série da Bússola": 136, "HTML — Série de Dias Vazios": 136,
+    "HTML — Linha de Similar": 195, "HTML — Linha de Cesta": 195,
 }
 
 
