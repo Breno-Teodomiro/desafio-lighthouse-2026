@@ -297,8 +297,11 @@ table _Medidas
 	/// papel `sampling` do visual. É isso que dá cross-filter: o visual cria um
 	/// selectionId por linha, e clicar filtra a página como um gráfico nativo.
 	measure 'HTML — Linha de Status' =
-			VAR _Escopo = CALCULATETABLE(VALUES(dim_status_pedido[status_exibicao]), ALLSELECTED(dim_status_pedido))
-			VAR _Tab = ADDCOLUMNS(_Escopo, "@m", [Receita Bruta] / 1000000)
+			VAR _Tab =
+			    CALCULATETABLE(
+			        ADDCOLUMNS(VALUES(dim_status_pedido[status_exibicao]), "@m", [Receita Bruta] / 1000000),
+			        ALLSELECTED(dim_status_pedido)
+			    )
 			VAR _V   = [Receita Bruta] / 1000000
 			VAR _Max = MAXX(TOPN(4, _Tab, [@m], DESC), [@m])
 			VAR _Pos = COUNTROWS(FILTER(_Tab, [@m] > _V)) + 1
@@ -325,8 +328,11 @@ table _Medidas
 	/// papel `sampling` do visual. É isso que dá cross-filter: o visual cria um
 	/// selectionId por linha, e clicar filtra a página como um gráfico nativo.
 	measure 'HTML — Linha de Canal' =
-			VAR _Escopo = CALCULATETABLE(VALUES(dim_canal[canal_exibicao]), ALLSELECTED(dim_canal))
-			VAR _Tab = ADDCOLUMNS(_Escopo, "@m", [Nº Pedidos])
+			VAR _Tab =
+			    CALCULATETABLE(
+			        ADDCOLUMNS(VALUES(dim_canal[canal_exibicao]), "@m", [Nº Pedidos]),
+			        ALLSELECTED(dim_canal)
+			    )
 			VAR _V   = [Nº Pedidos]
 			VAR _Max = MAXX(TOPN(2, _Tab, [@m], DESC), [@m])
 			VAR _Pos = COUNTROWS(FILTER(_Tab, [@m] > _V)) + 1
@@ -353,8 +359,11 @@ table _Medidas
 	/// papel `sampling` do visual. É isso que dá cross-filter: o visual cria um
 	/// selectionId por linha, e clicar filtra a página como um gráfico nativo.
 	measure 'HTML — Linha de Categoria' =
-			VAR _Escopo = CALCULATETABLE(VALUES(dim_produto[categoria]), ALLSELECTED(dim_produto))
-			VAR _Tab = ADDCOLUMNS(_Escopo, "@m", [Margem Líquida R$] / 1000000)
+			VAR _Tab =
+			    CALCULATETABLE(
+			        ADDCOLUMNS(VALUES(dim_produto[categoria]), "@m", [Margem Líquida R$] / 1000000),
+			        ALLSELECTED(dim_produto)
+			    )
 			VAR _V   = [Margem Líquida R$] / 1000000
 			VAR _Max = MAXX(TOPN(5, _Tab, [@m], DESC), [@m])
 			VAR _Pos = COUNTROWS(FILTER(_Tab, [@m] > _V)) + 1
@@ -424,14 +433,17 @@ table _Medidas
 	/// papel `sampling` do visual. É isso que dá cross-filter: o visual cria um
 	/// selectionId por linha, e clicar filtra a página como um gráfico nativo.
 	measure 'HTML — Linha de Categoria Dupla' =
-			VAR _Escopo = CALCULATETABLE(VALUES(dim_produto[categoria]), ALLSELECTED(dim_produto))
-			VAR _Tab = ADDCOLUMNS(_Escopo, "@m", [Receita de Itens] / 1000000, "@m2", [Margem Líquida R$] / 1000000)
+			VAR _Tab =
+			    CALCULATETABLE(
+			        ADDCOLUMNS(VALUES(dim_produto[categoria]), "@m", [Receita de Itens] / 1000000, "@m2", [Margem Líquida R$] / 1000000),
+			        ALLSELECTED(dim_produto)
+			    )
 			VAR _V   = [Receita de Itens] / 1000000
 			VAR _V2  = [Margem Líquida R$] / 1000000
-			VAR _Max = MAXX(TOPN(8, _Tab, [@m], DESC), [@m])
-			VAR _Max2 = MAXX(TOPN(8, _Tab, [@m2], DESC), [@m2])
+			VAR _Max = MAXX(TOPN(7, _Tab, [@m], DESC), [@m])
+			VAR _Max2 = MAXX(TOPN(7, _Tab, [@m2], DESC), [@m2])
 			VAR _Pos = COUNTROWS(FILTER(_Tab, [@m] > _V)) + 1
-			VAR _Dentro = _Pos <= 8
+			VAR _Dentro = _Pos <= 7
 			RETURN
 			    IF(
 			        _Dentro,
@@ -463,8 +475,11 @@ table _Medidas
 	/// papel `sampling` do visual. É isso que dá cross-filter: o visual cria um
 	/// selectionId por linha, e clicar filtra a página como um gráfico nativo.
 	measure 'HTML — Linha de Produto' =
-			VAR _Escopo = CALCULATETABLE(VALUES(dim_produto[produto]), ALLSELECTED(dim_produto))
-			VAR _Tab = ADDCOLUMNS(_Escopo, "@m", [% Margem Líquida])
+			VAR _Tab =
+			    CALCULATETABLE(
+			        ADDCOLUMNS(VALUES(dim_produto[produto]), "@m", [% Margem Líquida]),
+			        ALLSELECTED(dim_produto)
+			    )
 			VAR _V   = [% Margem Líquida]
 			VAR _Max = MAXX(TOPN(10, _Tab, [@m], DESC), [@m])
 			VAR _Pos = COUNTROWS(FILTER(_Tab, [@m] > _V)) + 1
@@ -560,12 +575,15 @@ table _Medidas
 	/// papel `sampling` do visual. É isso que dá cross-filter: o visual cria um
 	/// selectionId por linha, e clicar filtra a página como um gráfico nativo.
 	measure 'HTML — Linha de Cliente' =
-			VAR _Escopo = CALCULATETABLE(VALUES(dim_cliente[cliente]), ALLSELECTED(dim_cliente))
-			VAR _Tab = ADDCOLUMNS(_Escopo, "@m", [Ticket Médio])
+			VAR _Tab =
+			    CALCULATETABLE(
+			        ADDCOLUMNS(VALUES(dim_cliente[cliente]), "@m", [Ticket Médio]),
+			        ALLSELECTED(dim_cliente)
+			    )
 			VAR _V   = [Ticket Médio]
-			VAR _Max = MAXX(TOPN(9, _Tab, [@m], DESC), [@m])
+			VAR _Max = MAXX(TOPN(8, _Tab, [@m], DESC), [@m])
 			VAR _Pos = COUNTROWS(FILTER(_Tab, [@m] > _V)) + 1
-			VAR _Dentro = _Pos <= 9
+			VAR _Dentro = _Pos <= 8
 			RETURN
 			    IF(
 			        _Dentro,
@@ -591,14 +609,17 @@ table _Medidas
 	/// papel `sampling` do visual. É isso que dá cross-filter: o visual cria um
 	/// selectionId por linha, e clicar filtra a página como um gráfico nativo.
 	measure 'HTML — Linha de Cliente Dupla' =
-			VAR _Escopo = CALCULATETABLE(VALUES(dim_cliente[cliente]), ALLSELECTED(dim_cliente))
-			VAR _Tab = ADDCOLUMNS(_Escopo, "@m", [Ticket Médio], "@m2", [Receita Bruta] / 1000000)
+			VAR _Tab =
+			    CALCULATETABLE(
+			        ADDCOLUMNS(VALUES(dim_cliente[cliente]), "@m", [Ticket Médio], "@m2", [Receita Bruta] / 1000000),
+			        ALLSELECTED(dim_cliente)
+			    )
 			VAR _V   = [Ticket Médio]
 			VAR _V2  = [Receita Bruta] / 1000000
-			VAR _Max = MAXX(TOPN(5, _Tab, [@m], DESC), [@m])
-			VAR _Max2 = MAXX(TOPN(5, _Tab, [@m2], DESC), [@m2])
+			VAR _Max = MAXX(TOPN(4, _Tab, [@m], DESC), [@m])
+			VAR _Max2 = MAXX(TOPN(4, _Tab, [@m2], DESC), [@m2])
 			VAR _Pos = COUNTROWS(FILTER(_Tab, [@m] > _V)) + 1
-			VAR _Dentro = _Pos <= 5
+			VAR _Dentro = _Pos <= 4
 			RETURN
 			    IF(
 			        _Dentro,
@@ -626,8 +647,11 @@ table _Medidas
 	/// papel `sampling` do visual. É isso que dá cross-filter: o visual cria um
 	/// selectionId por linha, e clicar filtra a página como um gráfico nativo.
 	measure 'HTML — Linha de Categoria Itens' =
-			VAR _Escopo = CALCULATETABLE(VALUES(dim_produto[categoria]), ALLSELECTED(dim_produto))
-			VAR _Tab = ADDCOLUMNS(_Escopo, "@m", [Itens Vendidos])
+			VAR _Tab =
+			    CALCULATETABLE(
+			        ADDCOLUMNS(VALUES(dim_produto[categoria]), "@m", [Itens Vendidos]),
+			        ALLSELECTED(dim_produto)
+			    )
 			VAR _V   = [Itens Vendidos]
 			VAR _Max = MAXX(TOPN(8, _Tab, [@m], DESC), [@m])
 			VAR _Pos = COUNTROWS(FILTER(_Tab, [@m] > _V)) + 1
@@ -689,8 +713,11 @@ table _Medidas
 	/// papel `sampling` do visual. É isso que dá cross-filter: o visual cria um
 	/// selectionId por linha, e clicar filtra a página como um gráfico nativo.
 	measure 'HTML — Linha de Dia' =
-			VAR _Escopo = CALCULATETABLE(VALUES(dim_data[dia_semana]), ALLSELECTED(dim_data))
-			VAR _Tab = ADDCOLUMNS(_Escopo, "@m", [Média de Venda por Dia POS], "@m2", [Média por Dia (só dias com venda)])
+			VAR _Tab =
+			    CALCULATETABLE(
+			        ADDCOLUMNS(VALUES(dim_data[dia_semana]), "@m", [Média de Venda por Dia POS], "@m2", [Média por Dia (só dias com venda)]),
+			        ALLSELECTED(dim_data)
+			    )
 			VAR _V   = [Média de Venda por Dia POS]
 			VAR _V2  = [Média por Dia (só dias com venda)]
 			VAR _Max = MAXX(TOPN(7, _Tab, [@m], DESC), [@m])
@@ -725,8 +752,11 @@ table _Medidas
 	/// papel `sampling` do visual. É isso que dá cross-filter: o visual cria um
 	/// selectionId por linha, e clicar filtra a página como um gráfico nativo.
 	measure 'HTML — Linha de Dia Vazio' =
-			VAR _Escopo = CALCULATETABLE(VALUES(dim_data[dia_semana]), ALLSELECTED(dim_data))
-			VAR _Tab = ADDCOLUMNS(_Escopo, "@m", [Dias sem Venda])
+			VAR _Tab =
+			    CALCULATETABLE(
+			        ADDCOLUMNS(VALUES(dim_data[dia_semana]), "@m", [Dias sem Venda]),
+			        ALLSELECTED(dim_data)
+			    )
 			VAR _V   = [Dias sem Venda]
 			VAR _Max = MAXX(TOPN(7, _Tab, [@m], DESC), [@m])
 			VAR _Dentro = NOT ISBLANK(_V)
@@ -754,10 +784,13 @@ table _Medidas
 	/// papel `sampling` do visual. É isso que dá cross-filter: o visual cria um
 	/// selectionId por linha, e clicar filtra a página como um gráfico nativo.
 	measure 'HTML — Linha de Ano' =
-			VAR _Escopo = CALCULATETABLE(VALUES(dim_data[ano]), ALLSELECTED(dim_data))
-			VAR _Tab = ADDCOLUMNS(_Escopo, "@m", [Dias sem Venda])
+			VAR _Tab =
+			    CALCULATETABLE(
+			        ADDCOLUMNS(VALUES(dim_data[ano]), "@m", [Dias sem Venda]),
+			        ALLSELECTED(dim_data)
+			    )
 			VAR _V   = [Dias sem Venda]
-			VAR _Max = MAXX(TOPN(8, _Tab, [@m], DESC), [@m])
+			VAR _Max = MAXX(TOPN(6, _Tab, [@m], DESC), [@m])
 			VAR _Dentro = NOT ISBLANK(_V)
 			RETURN
 			    IF(
@@ -853,8 +886,11 @@ table _Medidas
 	/// papel `sampling` do visual. É isso que dá cross-filter: o visual cria um
 	/// selectionId por linha, e clicar filtra a página como um gráfico nativo.
 	measure 'HTML — Linha de Similar' =
-			VAR _Escopo = CALCULATETABLE(VALUES(fct_similaridade_produto[produto]), ALLSELECTED(fct_similaridade_produto))
-			VAR _Tab = ADDCOLUMNS(_Escopo, "@m", [Similaridade de Cosseno])
+			VAR _Tab =
+			    CALCULATETABLE(
+			        ADDCOLUMNS(VALUES(fct_similaridade_produto[produto]), "@m", [Similaridade de Cosseno]),
+			        ALLSELECTED(fct_similaridade_produto)
+			    )
 			VAR _V   = [Similaridade de Cosseno]
 			VAR _Max = MAXX(TOPN(10, _Tab, [@m], DESC), [@m])
 			VAR _Pos = COUNTROWS(FILTER(_Tab, [@m] > _V)) + 1
@@ -882,8 +918,11 @@ table _Medidas
 	/// papel `sampling` do visual. É isso que dá cross-filter: o visual cria um
 	/// selectionId por linha, e clicar filtra a página como um gráfico nativo.
 	measure 'HTML — Linha de Cesta' =
-			VAR _Escopo = CALCULATETABLE(VALUES(fct_similaridade_produto[produto]), ALLSELECTED(fct_similaridade_produto))
-			VAR _Tab = ADDCOLUMNS(_Escopo, "@m", [Pedidos em Comum])
+			VAR _Tab =
+			    CALCULATETABLE(
+			        ADDCOLUMNS(VALUES(fct_similaridade_produto[produto]), "@m", [Pedidos em Comum]),
+			        ALLSELECTED(fct_similaridade_produto)
+			    )
 			VAR _V   = [Pedidos em Comum]
 			VAR _Max = MAXX(TOPN(10, _Tab, [@m], DESC), [@m])
 			VAR _Pos = COUNTROWS(FILTER(_Tab, [@m] > _V)) + 1

@@ -204,11 +204,18 @@ def ranking(tabela: str, coluna: str, med: str, fmt: str, n: int, cor: str,
     # próprio valor da linha e TODA barra ia a 100%. Era por isso que os dias
     # da semana saíam todos do mesmo tamanho e os anos, que não têm coluna de
     # ordenação, saíam certos.
+    # O CALCULATETABLE precisa envolver o ADDCOLUMNS INTEIRO, não só o VALUES.
+    # Envolvendo só o VALUES, a medida dentro do ADDCOLUMNS é avaliada no
+    # contexto de filtro da linha atual: a transição de contexto adiciona o
+    # item iterado, que intersecta com o item da linha, e todos os outros
+    # voltam BLANK. `_Max` virava o próprio valor e a barra ia a 100% de novo.
+    colunas_extra = f'"@m", {med}' + (f', "@m2", {med2}' if med2 else "")
     corpo = [
-        f"VAR _Escopo = CALCULATETABLE(VALUES({tabela}[{coluna}]), "
-        f"ALLSELECTED({tabela}))",
-        f"VAR _Tab = ADDCOLUMNS(_Escopo, \"@m\", {med}"
-        + (f", \"@m2\", {med2})" if med2 else ")"),
+        "VAR _Tab =",
+        "    CALCULATETABLE(",
+        f"        ADDCOLUMNS(VALUES({tabela}[{coluna}]), {colunas_extra}),",
+        f"        ALLSELECTED({tabela})",
+        "    )",
         f"VAR _V   = {med}",
     ]
     if med2:
@@ -404,7 +411,7 @@ add("HTML — Faixa de KPIs",
          s("já líquida de desconto"), LARANJA, None),
     ]),
     ["OS CINCO INDICADORES DA CAPA."] + DOC_BLOCO,
-    P1, None, (32, 196, 1216, 100), None, [])
+    P1, None, (32, 196, 1216, 132), None, [])
 
 add("HTML — Série de Receita",
     serie("dim_data", "ano_mes",
@@ -414,27 +421,27 @@ add("HTML — Série de Receita",
      "A distância entre as duas linhas é o dinheiro que nunca virou receita —",
      "R$ 207,1 milhões no período inteiro."] + DOC_BLOCO,
     P1, "A receita cresce todo ano — e a faixa entre as linhas é o que se perde",
-    (32, 302, 780, 200), None, [])
+    (32, 334, 780, 170), None, [])
 
 add("HTML — Linha de Status",
     ranking("dim_status_pedido", "status_exibicao",
             "[Receita Bruta] / 1000000", 'R$ #,##0" Mi"', 4, AZUL, 104),
     ["RECEITA POR STATUS DO PEDIDO."] + DOC_CROSS,
     P1, "Um em cada sete reais nunca virou receita",
-    (826, 302, 422, 146), ("dim_status_pedido", "status_exibicao"), [])
+    (826, 334, 422, 146), ("dim_status_pedido", "status_exibicao"), [])
 
 add("HTML — Linha de Canal",
     ranking("dim_canal", "canal_exibicao", "[Nº Pedidos]", "#,##0", 2, ROXO, 92),
     ["PEDIDOS POR CANAL."] + DOC_CROSS,
     P1, "E-commerce responde por 70% dos pedidos",
-    (32, 508, 592, 96), ("dim_canal", "canal_exibicao"), [])
+    (32, 510, 592, 96), ("dim_canal", "canal_exibicao"), [])
 
 add("HTML — Linha de Categoria",
     ranking("dim_produto", "categoria", "[Margem Líquida R$] / 1000000",
             'R$ #,##0" Mi"', 5, LARANJA, 120),
     ["AS CINCO MAIORES CATEGORIAS POR MARGEM LÍQUIDA."] + DOC_CROSS,
     P1, "Margem líquida por categoria — as cinco maiores",
-    (656, 508, 592, 171), ("dim_produto", "categoria"), [])
+    (656, 510, 592, 171), ("dim_produto", "categoria"), [])
 
 # ── vendas e margem ─────────────────────────────────────────────────────────
 add("HTML — Faixa de Margem",
@@ -459,11 +466,11 @@ add("HTML — Faixa de Margem",
      "O terceiro cartão troca o `% Margem Bruta` do desenho antigo pelo",
      "DESCONTO em reais — a diferença entre as duas margens, que é o número",
      "que ninguém olha e explica o resto da página."] + DOC_BLOCO,
-    P2, None, (32, 136, 1216, 100), None, [])
+    P2, None, (32, 136, 1216, 124), None, [])
 
 add("HTML — Linha de Categoria Dupla",
     ranking("dim_produto", "categoria", "[Receita de Itens] / 1000000",
-            'R$ #,##0" Mi"', 8, AZUL, 116, larg_val=68,
+            'R$ #,##0" Mi"', 7, AZUL, 116, larg_val=68,
             med2="[Margem Líquida R$] / 1000000", fmt2='R$ #,##0" Mi"',
             cor2=LARANJA),
     ["RECEITA E MARGEM POR CATEGORIA, as duas barras empilhadas.",
@@ -472,7 +479,7 @@ add("HTML — Linha de Categoria Dupla",
      "mesma categoria, não entre categorias — e é a proporção constante entre",
      "elas que sustenta o título da página."] + DOC_CROSS,
     P2, "Margem homogênea (37,8% a 41,5%): o lucro repete o ranking de receita",
-    (32, 242, 608, 382), ("dim_produto", "categoria"), [])
+    (32, 266, 608, 340), ("dim_produto", "categoria"), [])
 
 add("HTML — Linha de Produto",
     ranking("dim_produto", "produto", "[% Margem Líquida]", "0.00%", 10, LARANJA,
@@ -483,14 +490,14 @@ add("HTML — Linha de Produto",
      "37% a 53%, e num eixo de 0 a 100 nada se distinguiria. O valor absoluto",
      "vai no rótulo, então a escala relativa não engana."] + DOC_CROSS,
     P2, "Produtos por margem — clique para filtrar a página",
-    (654, 242, 594, 296), ("dim_produto", "produto"), [])
+    (654, 266, 594, 296), ("dim_produto", "produto"), [])
 
 add("HTML — Série de Margem",
     serie("dim_data", "ano_mes", [("[% Margem Líquida]", AZUL)], 30,
           base_zero=False),
     ["MARGEM PERCENTUAL MÊS A MÊS, em SVG."] + DOC_BLOCO,
     P2, "A margem percentual é estável no tempo — o crescimento vem de volume",
-    (32, 630, 1216, 62), None, [])
+    (32, 612, 1216, 80), None, [])
 
 # ── clientes (Q4) ───────────────────────────────────────────────────────────
 add("HTML — Faixa de Clientes",
@@ -506,17 +513,17 @@ add("HTML — Faixa de Clientes",
          s("sobre itens vendidos"), LARANJA, None),
     ]),
     ["INDICADORES DE CLIENTE."] + DOC_BLOCO,
-    P3, None, (32, 196, 1216, 100), None, [])
+    P3, None, (32, 196, 1216, 124), None, [])
 
 add("HTML — Linha de Cliente",
-    ranking("dim_cliente", "cliente", "[Ticket Médio]", "R$ #,##0", 9, ROXO, 168),
+    ranking("dim_cliente", "cliente", "[Ticket Médio]", "R$ #,##0", 8, ROXO, 168),
     ["TOP 10 CLIENTES POR TICKET MÉDIO — o ranking literal da Questão 4."]
     + DOC_CROSS,
     P3, "Os 10 de maior ticket — clique para filtrar a página",
-    (32, 302, 640, 276), ("dim_cliente", "cliente"), [])
+    (32, 326, 640, 254), ("dim_cliente", "cliente"), [])
 
 add("HTML — Linha de Cliente Dupla",
-    ranking("dim_cliente", "cliente", "[Ticket Médio]", "R$ #,##0", 5, AZUL, 96,
+    ranking("dim_cliente", "cliente", "[Ticket Médio]", "R$ #,##0", 4, AZUL, 96,
             larg_val=62, med2="[Receita Bruta] / 1000000",
             fmt2='R$ #,##0.0" Mi"', cor2=LARANJA),
     ["TICKET × FATURAMENTO, no mesmo cliente.",
@@ -524,14 +531,14 @@ add("HTML — Linha de Cliente Dupla",
      "As duas barras raramente acompanham uma à outra, e é esse descompasso",
      "que mostra que ticket alto não é o mesmo que cliente valioso."] + DOC_CROSS,
     P3, "Ticket alto não é cliente valioso",
-    (960, 302, 288, 276), ("dim_cliente", "cliente"), [])
+    (960, 326, 288, 254), ("dim_cliente", "cliente"), [])
 
 add("HTML — Linha de Categoria Itens",
     ranking("dim_produto", "categoria", "[Itens Vendidos]", "#,##0", 8, AZUL, 88,
             larg_val=62),
     ["CATEGORIAS POR ITENS VENDIDOS."] + DOC_CROSS,
     P3, "Hélices lidera o grupo",
-    (686, 302, 260, 246), ("dim_produto", "categoria"), [])
+    (686, 326, 260, 254), ("dim_produto", "categoria"), [])
 
 # ── sazonalidade (Q5) ───────────────────────────────────────────────────────
 add("HTML — Faixa de Sazonalidade",
@@ -548,7 +555,7 @@ add("HTML — Faixa de Sazonalidade",
          s("e não é uniforme entre os dias"), LARANJA, None),
     ]),
     ["OS QUATRO NÚMEROS DA QUESTÃO 5."] + DOC_BLOCO,
-    P4, None, (32, 136, 1216, 100), None, [])
+    P4, None, (32, 136, 1216, 124), None, [])
 
 add("HTML — Linha de Dia",
     ranking("dim_data", "dia_semana", "[Média de Venda por Dia POS]",
@@ -562,7 +569,7 @@ add("HTML — Linha de Dia",
      "a laranja se estica mais, o erro é maior — e ele é maior justamente na",
      "quinta-feira, que é o que inverte o ranking."] + DOC_CROSS,
     P4, "As duas médias lado a lado: a correta (azul) põe a quinta em último",
-    (32, 242, 760, 342), ("dim_data", "dia_semana"), [])
+    (32, 266, 760, 342), ("dim_data", "dia_semana"), [])
 
 add("HTML — Linha de Dia Vazio",
     ranking("dim_data", "dia_semana", "[Dias sem Venda]", "#,##0", 7, LARANJA,
@@ -573,17 +580,17 @@ add("HTML — Linha de Dia Vazio",
      "ingênua inflar mais um dia que outro e trocar o pior dia da semana."]
     + DOC_CROSS,
     P4, "20 dias vazios na quinta contra 7 na segunda",
-    (806, 242, 442, 221), ("dim_data", "dia_semana"), [])
+    (806, 266, 442, 221), ("dim_data", "dia_semana"), [])
 
 add("HTML — Linha de Ano",
-    ranking("dim_data", "ano", "[Dias sem Venda]", "#,##0", 8, ROXO, 52,
+    ranking("dim_data", "ano", "[Dias sem Venda]", "#,##0", 6, ROXO, 52,
             ordem="natural", larg_val=44),
     ["DIAS SEM VENDA POR ANO — a curva de ramp-up.",
      "",
      "25 em 2020 e 1 em 2025: dia sem venda é característica de operação",
      "nova, não de sazonalidade."] + DOC_CROSS,
     P4, "Dia sem venda é de operação nova: 25 em 2020, 1 em 2025",
-    (806, 471, 442, 221), ("dim_data", "ano"), [])
+    (806, 493, 442, 196), ("dim_data", "ano"), [])
 
 # ── previsão e recomendação (Q6-Q7) ─────────────────────────────────────────
 add("HTML — Série da Bússola",
@@ -597,7 +604,7 @@ add("HTML — Série da Bússola",
      "do gráfico nativo aqui: a previsão ficava fora da janela visível."]
     + DOC_BLOCO,
     P5, "A série da Bússola: alta constante e um dez/2025 fora da curva",
-    (32, 238, 528, 152), None, [])
+    (32, 252, 528, 132), None, [])
 
 add("HTML — Faixa da Previsão",
     faixa([
@@ -610,7 +617,7 @@ add("HTML — Faixa da Previsão",
     ], tam=26),
     ["O CONFRONTO DA QUESTÃO 6: 207 realizadas contra 116 previstas."]
     + DOC_BLOCO,
-    P5, None, (32, 136, 1216, 96), None, [])
+    P5, None, (32, 136, 1216, 110), None, [])
 
 add("HTML — Linha de Similar",
     ranking("fct_similaridade_produto", "produto", "[Similaridade de Cosseno]",
@@ -621,7 +628,7 @@ add("HTML — Linha de Similar",
      "arredondar para duas empataria os três primeiros — que é exatamente o",
      "argumento da resposta."] + DOC_CROSS,
     P5, "Mais similares ao Motor de Popa 1949 — clique para filtrar",
-    (32, 396, 500, 296), ("fct_similaridade_produto", "produto"), [])
+    (32, 390, 500, 302), ("fct_similaridade_produto", "produto"), [])
 
 add("HTML — Linha de Cesta",
     ranking("fct_similaridade_produto", "produto", "[Pedidos em Comum]", "#,##0",
@@ -629,7 +636,7 @@ add("HTML — Linha de Cesta",
     ["CO-OCORRÊNCIA NO MESMO PEDIDO — a formulação correta do problema da",
      "Marina, que devolve outro campeão: Tinta Antifouling."] + DOC_CROSS,
     P5, "Co-ocorrência no pedido — a pergunta que Marina fez",
-    (546, 396, 500, 296), ("fct_similaridade_produto", "produto"), [])
+    (546, 390, 500, 302), ("fct_similaridade_produto", "produto"), [])
 
 
 # ═══════════════════════════════════════════════════════════════ gravação ══
@@ -729,15 +736,15 @@ def json_visual(nome_visual: str, medida: str, caixa: tuple,
 # descontada.
 TEXTOS = {
     "391e2a649b1f1d77900b": (32, 12, 900, 80),      # Q6-Q7, cabeçalho
-    "50ff396ca43983a9c8ef": (572, 238, 676, 152),   # Q6, nota lateral
-    "7abdf216958fcde92469": (1060, 396, 188, 296),  # Q7, nota lateral
-    "216ffc47830f5a89c2e0": (32, 584, 1216, 108),   # Q4, rodapé
+    "50ff396ca43983a9c8ef": (572, 252, 676, 132),   # Q6, nota lateral
+    "7abdf216958fcde92469": (1060, 390, 188, 302),  # Q7, nota lateral
+    "216ffc47830f5a89c2e0": (32, 586, 1216, 106),   # Q4, rodapé
     "a84e3eee58ded52dd438": (32, 136, 1216, 54),    # Q4, tarja
     "bd7aaef7f0bfcc1ef7d9": (32, 12, 900, 80),      # Q4, cabeçalho
     "da871194ce722756e472": (32, 12, 900, 80),      # Vendas, cabeçalho
     "2889264c822a6a350236": (32, 136, 1216, 54),    # Capa, tarja
     "b7207488563d8e774de8": (32, 12, 900, 84),      # Capa, cabeçalho
-    "7b7e3d65158fa6f871bb": (32, 590, 760, 102),    # Q5, rodapé
+    "7b7e3d65158fa6f871bb": (32, 614, 760, 78),     # Q5, rodapé
     "c23191ed5a16409fc4c2": (32, 12, 900, 80),      # Q5, cabeçalho
 }
 

@@ -223,6 +223,27 @@ def validar_report_json(erros: list[str]) -> None:
             )
 
 
+# Altura que cada componente HTML precisa, medida no CSS que a medida emite:
+# título 30 + respiro 16 + n linhas. Linha simples 25px, linha dupla 42px
+# (duas barras empilhadas mais dois valores). Cartão de KPI: 124px, ou 132
+# quando tem barra de proporção.
+#
+# Componente menor que isso ganha barra de rolagem dentro do visual — o
+# Desktop não avisa, e a última linha da lista simplesmente some.
+ALTURA_HTML = {
+    "HTML — Faixa de KPIs": 132, "HTML — Faixa de Margem": 124,
+    "HTML — Faixa de Clientes": 124, "HTML — Faixa de Sazonalidade": 124,
+    "HTML — Faixa da Previsão": 110,
+    "HTML — Linha de Status": 146, "HTML — Linha de Canal": 96,
+    "HTML — Linha de Categoria": 171, "HTML — Linha de Categoria Dupla": 340,
+    "HTML — Linha de Produto": 296, "HTML — Linha de Cliente": 246,
+    "HTML — Linha de Categoria Itens": 246, "HTML — Linha de Cliente Dupla": 214,
+    "HTML — Linha de Dia": 340, "HTML — Linha de Dia Vazio": 221,
+    "HTML — Linha de Ano": 196, "HTML — Linha de Similar": 296,
+    "HTML — Linha de Cesta": 296,
+}
+
+
 def validar_visuais(erros: list[str], avisos: list[str]) -> None:
     """Tipo de visual e combinação papel→tipo-de-campo, contra o comprovado."""
     # Visual do AppSource: o código não vive no projeto, é resolvido na
@@ -252,6 +273,21 @@ def validar_visuais(erros: list[str], avisos: list[str]) -> None:
 
         if "tabOrder" not in dados.get("position", {}):
             avisos.append(f"{rotulo}: position sem 'tabOrder'")
+
+        # --- 20. componente HTML menor que o conteúdo -----------------------
+        if tipo == HTML_CONTENT:
+            projs = (v.get("query", {}).get("queryState", {})
+                     .get("content", {}).get("projections", []))
+            if projs:
+                med = projs[0].get("field", {}).get("Measure", {}).get("Property")
+                minimo = ALTURA_HTML.get(med)
+                altura = dados.get("position", {}).get("height", 0)
+                if minimo and altura < minimo:
+                    erros.append(
+                        f"{rotulo}: '{med}' tem {altura}px e o conteúdo pede "
+                        f"{minimo} — o visual ganha barra de rolagem e a última "
+                        f"linha some"
+                    )
 
         # --- 16. cross-filter do HTML Content coerente com a granularidade --
         # O visual só cross-filtra se houver campo em `sampling` — é dali que
