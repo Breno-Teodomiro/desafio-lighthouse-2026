@@ -411,7 +411,7 @@ add("HTML — Faixa de KPIs",
          s("já líquida de desconto"), LARANJA, None),
     ]),
     ["OS CINCO INDICADORES DA CAPA."] + DOC_BLOCO,
-    P1, None, (32, 196, 1216, 132), None, [])
+    P1, None, (15, 150, 1250, 137), None, [])
 
 add("HTML — Série de Receita",
     serie("dim_data", "ano_mes",
@@ -421,27 +421,27 @@ add("HTML — Série de Receita",
      "A distância entre as duas linhas é o dinheiro que nunca virou receita —",
      "R$ 207,1 milhões no período inteiro."] + DOC_BLOCO,
     P1, "A receita cresce todo ano — e a faixa entre as linhas é o que se perde",
-    (32, 334, 780, 170), None, [])
+    (15, 465, 675, 240), None, [])
 
 add("HTML — Linha de Status",
     ranking("dim_status_pedido", "status_exibicao",
             "[Receita Bruta] / 1000000", 'R$ #,##0" Mi"', 4, AZUL, 104),
     ["RECEITA POR STATUS DO PEDIDO."] + DOC_CROSS,
     P1, "Um em cada sete reais nunca virou receita",
-    (826, 334, 422, 146), ("dim_status_pedido", "status_exibicao"), [])
+    (705, 365, 560, 140), ("dim_status_pedido", "status_exibicao"), [])
 
 add("HTML — Linha de Canal",
     ranking("dim_canal", "canal_exibicao", "[Nº Pedidos]", "#,##0", 2, ROXO, 92),
     ["PEDIDOS POR CANAL."] + DOC_CROSS,
     P1, "E-commerce responde por 70% dos pedidos",
-    (32, 510, 592, 96), ("dim_canal", "canal_exibicao"), [])
+    (15, 365, 675, 85), ("dim_canal", "canal_exibicao"), [])
 
 add("HTML — Linha de Categoria",
     ranking("dim_produto", "categoria", "[Margem Líquida R$] / 1000000",
             'R$ #,##0" Mi"', 5, LARANJA, 120),
     ["AS CINCO MAIORES CATEGORIAS POR MARGEM LÍQUIDA."] + DOC_CROSS,
     P1, "Margem líquida por categoria — as cinco maiores",
-    (656, 510, 592, 171), ("dim_produto", "categoria"), [])
+    (705, 520, 560, 185), ("dim_produto", "categoria"), [])
 
 # ── vendas e margem ─────────────────────────────────────────────────────────
 add("HTML — Faixa de Margem",
@@ -466,7 +466,7 @@ add("HTML — Faixa de Margem",
      "O terceiro cartão troca o `% Margem Bruta` do desenho antigo pelo",
      "DESCONTO em reais — a diferença entre as duas margens, que é o número",
      "que ninguém olha e explica o resto da página."] + DOC_BLOCO,
-    P2, None, (32, 136, 1216, 124), None, [])
+    P2, None, (15, 150, 1250, 137), None, [])
 
 add("HTML — Linha de Categoria Dupla",
     ranking("dim_produto", "categoria", "[Receita de Itens] / 1000000",
@@ -479,10 +479,10 @@ add("HTML — Linha de Categoria Dupla",
      "mesma categoria, não entre categorias — e é a proporção constante entre",
      "elas que sustenta o título da página."] + DOC_CROSS,
     P2, "Margem homogênea (37,8% a 41,5%): o lucro repete o ranking de receita",
-    (32, 266, 608, 340), ("dim_produto", "categoria"), [])
+    (15, 302, 675, 403), ("dim_produto", "categoria"), [])
 
 add("HTML — Linha de Produto",
-    ranking("dim_produto", "produto", "[% Margem Líquida]", "0.00%", 10, LARANJA,
+    ranking("dim_produto", "produto", "[% Margem Líquida]", "0.00%", 9, LARANJA,
             168),
     ["TOP 10 PRODUTOS POR MARGEM.",
      "",
@@ -490,14 +490,14 @@ add("HTML — Linha de Produto",
      "37% a 53%, e num eixo de 0 a 100 nada se distinguiria. O valor absoluto",
      "vai no rótulo, então a escala relativa não engana."] + DOC_CROSS,
     P2, "Produtos por margem — clique para filtrar a página",
-    (654, 266, 594, 296), ("dim_produto", "produto"), [])
+    (705, 302, 560, 296), ("dim_produto", "produto"), [])
 
 add("HTML — Série de Margem",
     serie("dim_data", "ano_mes", [("[% Margem Líquida]", AZUL)], 30,
           base_zero=False),
     ["MARGEM PERCENTUAL MÊS A MÊS, em SVG."] + DOC_BLOCO,
     P2, "A margem percentual é estável no tempo — o crescimento vem de volume",
-    (32, 612, 1216, 80), None, [])
+    (705, 613, 560, 92), None, [])
 
 # ── clientes (Q4) ───────────────────────────────────────────────────────────
 add("HTML — Faixa de Clientes",
@@ -513,14 +513,14 @@ add("HTML — Faixa de Clientes",
          s("sobre itens vendidos"), LARANJA, None),
     ]),
     ["INDICADORES DE CLIENTE."] + DOC_BLOCO,
-    P3, None, (32, 196, 1216, 124), None, [])
+    P3, None, (15, 150, 1250, 137), None, [])
 
 add("HTML — Linha de Cliente",
     ranking("dim_cliente", "cliente", "[Ticket Médio]", "R$ #,##0", 8, ROXO, 168),
     ["TOP 10 CLIENTES POR TICKET MÉDIO — o ranking literal da Questão 4."]
     + DOC_CROSS,
     P3, "Os 10 de maior ticket — clique para filtrar a página",
-    (32, 326, 640, 254), ("dim_cliente", "cliente"), [])
+    (15, 365, 675, 246), ("dim_cliente", "cliente"), [])
 
 add("HTML — Linha de Cliente Dupla",
     ranking("dim_cliente", "cliente", "[Ticket Médio]", "R$ #,##0", 4, AZUL, 96,
@@ -531,14 +531,14 @@ add("HTML — Linha de Cliente Dupla",
      "As duas barras raramente acompanham uma à outra, e é esse descompasso",
      "que mostra que ticket alto não é o mesmo que cliente valioso."] + DOC_CROSS,
     P3, "Ticket alto não é cliente valioso",
-    (960, 326, 288, 254), ("dim_cliente", "cliente"), [])
+    (990, 365, 275, 246), ("dim_cliente", "cliente"), [])
 
 add("HTML — Linha de Categoria Itens",
     ranking("dim_produto", "categoria", "[Itens Vendidos]", "#,##0", 8, AZUL, 88,
             larg_val=62),
     ["CATEGORIAS POR ITENS VENDIDOS."] + DOC_CROSS,
     P3, "Hélices lidera o grupo",
-    (686, 326, 260, 254), ("dim_produto", "categoria"), [])
+    (705, 365, 270, 246), ("dim_produto", "categoria"), [])
 
 # ── sazonalidade (Q5) ───────────────────────────────────────────────────────
 add("HTML — Faixa de Sazonalidade",
@@ -555,7 +555,7 @@ add("HTML — Faixa de Sazonalidade",
          s("e não é uniforme entre os dias"), LARANJA, None),
     ]),
     ["OS QUATRO NÚMEROS DA QUESTÃO 5."] + DOC_BLOCO,
-    P4, None, (32, 136, 1216, 124), None, [])
+    P4, None, (15, 150, 1250, 137), None, [])
 
 add("HTML — Linha de Dia",
     ranking("dim_data", "dia_semana", "[Média de Venda por Dia POS]",
@@ -569,7 +569,7 @@ add("HTML — Linha de Dia",
      "a laranja se estica mais, o erro é maior — e ele é maior justamente na",
      "quinta-feira, que é o que inverte o ranking."] + DOC_CROSS,
     P4, "As duas médias lado a lado: a correta (azul) põe a quinta em último",
-    (32, 266, 760, 342), ("dim_data", "dia_semana"), [])
+    (15, 302, 675, 340), ("dim_data", "dia_semana"), [])
 
 add("HTML — Linha de Dia Vazio",
     ranking("dim_data", "dia_semana", "[Dias sem Venda]", "#,##0", 7, LARANJA,
@@ -580,17 +580,17 @@ add("HTML — Linha de Dia Vazio",
      "ingênua inflar mais um dia que outro e trocar o pior dia da semana."]
     + DOC_CROSS,
     P4, "20 dias vazios na quinta contra 7 na segunda",
-    (806, 266, 442, 221), ("dim_data", "dia_semana"), [])
+    (705, 302, 560, 221), ("dim_data", "dia_semana"), [])
 
-add("HTML — Linha de Ano",
-    ranking("dim_data", "ano", "[Dias sem Venda]", "#,##0", 6, ROXO, 52,
-            ordem="natural", larg_val=44),
-    ["DIAS SEM VENDA POR ANO — a curva de ramp-up.",
+add("HTML — Série de Dias Vazios",
+    serie("dim_data", "ano", [("[Dias sem Venda]", ROXO)], 100),
+    ["DIAS SEM VENDA POR ANO, em SVG.",
      "",
-     "25 em 2020 e 1 em 2025: dia sem venda é característica de operação",
-     "nova, não de sazonalidade."] + DOC_CROSS,
+     "Era uma lista, e virou série porque a lista só cabia com quatro anos —",
+     "e a queda de 25 em 2020 para 1 em 2025 é justamente o que a página",
+     "quer mostrar. A curva mostra os sete de uma vez."] + DOC_BLOCO,
     P4, "Dia sem venda é de operação nova: 25 em 2020, 1 em 2025",
-    (806, 493, 442, 196), ("dim_data", "ano"), [])
+    (705, 538, 560, 167), None, [])
 
 # ── previsão e recomendação (Q6-Q7) ─────────────────────────────────────────
 add("HTML — Série da Bússola",
@@ -604,7 +604,7 @@ add("HTML — Série da Bússola",
      "do gráfico nativo aqui: a previsão ficava fora da janela visível."]
     + DOC_BLOCO,
     P5, "A série da Bússola: alta constante e um dez/2025 fora da curva",
-    (32, 252, 528, 132), None, [])
+    (15, 302, 675, 130), None, [])
 
 add("HTML — Faixa da Previsão",
     faixa([
@@ -617,26 +617,26 @@ add("HTML — Faixa da Previsão",
     ], tam=26),
     ["O CONFRONTO DA QUESTÃO 6: 207 realizadas contra 116 previstas."]
     + DOC_BLOCO,
-    P5, None, (32, 136, 1216, 110), None, [])
+    P5, None, (15, 150, 1250, 137), None, [])
 
 add("HTML — Linha de Similar",
     ranking("fct_similaridade_produto", "produto", "[Similaridade de Cosseno]",
-            "0.0000", 10, AZUL, 150),
+            "0.0000", 8, AZUL, 150),
     ["RANKING DA QUESTÃO 7.",
      "",
      "Quatro casas decimais de propósito: o 1º ganha do 2º por 0,0003, e",
      "arredondar para duas empataria os três primeiros — que é exatamente o",
      "argumento da resposta."] + DOC_CROSS,
     P5, "Mais similares ao Motor de Popa 1949 — clique para filtrar",
-    (32, 390, 500, 302), ("fct_similaridade_produto", "produto"), [])
+    (15, 447, 480, 258), ("fct_similaridade_produto", "produto"), [])
 
 add("HTML — Linha de Cesta",
     ranking("fct_similaridade_produto", "produto", "[Pedidos em Comum]", "#,##0",
-            10, ROXO, 150, larg_val=52),
+            8, ROXO, 150, larg_val=52),
     ["CO-OCORRÊNCIA NO MESMO PEDIDO — a formulação correta do problema da",
      "Marina, que devolve outro campeão: Tinta Antifouling."] + DOC_CROSS,
     P5, "Co-ocorrência no pedido — a pergunta que Marina fez",
-    (546, 390, 500, 302), ("fct_similaridade_produto", "produto"), [])
+    (510, 447, 480, 258), ("fct_similaridade_produto", "produto"), [])
 
 
 # ═══════════════════════════════════════════════════════════════ gravação ══
@@ -664,6 +664,7 @@ def json_visual(nome_visual: str, medida: str, caixa: tuple,
                 titulo: str | None, gran: tuple | None,
                 ordenar_por: str | None = None) -> dict:
     x, y, w, h = caixa
+    e_faixa = medida.startswith("HTML — Faixa")
     estado = {"content": {"projections": [campo_medida(medida)]}}
     if gran:
         estado["sampling"] = {"projections": [campo_coluna(*gran)]}
@@ -703,11 +704,15 @@ def json_visual(nome_visual: str, medida: str, caixa: tuple,
             }}],
         },
         "visualContainerObjects": {
-            "background": [{"properties": {"show": lit("true"),
-                                           "color": cor_json(CARTAO)}}],
-            "border": [{"properties": {"show": lit("true"),
-                                       "color": cor_json(BORDA),
-                                       "radius": lit("10D")}}],
+            # Faixa de indicador entra SEM moldura: cada cartão dentro dela já
+            # tem a sua, e a caixa em volta virava uma segunda borda em torno
+            # de cinco bordas. Foi o ajuste que o Breno fez à mão na capa.
+            "background": [{"properties": {
+                "show": lit("false" if e_faixa else "true"),
+                "color": cor_json(CARTAO)}}],
+            "border": [{"properties": {
+                "show": lit("false" if e_faixa else "true"),
+                "color": cor_json(BORDA), "radius": lit("10D")}}],
             "visualHeader": [{"properties": {"show": lit("false")}}],
         },
     }
@@ -725,48 +730,61 @@ def json_visual(nome_visual: str, medida: str, caixa: tuple,
 
 
 
-# ══════════════════════════════════════════════════ navegação e filtros ════
-# POSIÇÕES ABSOLUTAS, não deslocamento. A primeira versão somava +34 ao Y a
-# cada execução do gerador, e como ele roda várias vezes durante o
-# desenvolvimento os títulos foram parar no meio da página — oito execuções,
-# 272px. Posição absoluta é idempotente por construção.
-#
-# Os textbox não são gerados aqui (o conteúdo deles é narrativa escrita à
-# mão), então as caixas ficam nesta tabela, já com a faixa de navegação
-# descontada.
+# ═══════════════════════════════════════════════════════ grade do layout ════
+# A grade saiu da página 1, ajustada à mão no Desktop pelo Breno e lida de
+# volta daqui. Margem de 15 e respiro de 15 entre tudo; as caixas de topo com
+# tamanho fixo, para as cinco páginas baterem quando ele passa de uma para a
+# outra.
+MARGEM, RESPIRO = 15, 15
+X0, X1 = 15, 1265          # faixa útil na horizontal (1250 de largura)
+Y_FIM = 705                # 720 do canvas menos a margem de baixo
+
+TITULO = (15, 15, 900, 75)
+SLICER = (930, 15, 335, 75)
+NAVEGACAO = (15, 105, 1250, 35)
+CARDS = (15, 150, 1250, 137)
+TARJA = (15, 296, 1250, 54)      # a faixa laranja de alerta, onde existe
+Y_CONTEUDO_COM_TARJA = 365
+Y_CONTEUDO_SEM_TARJA = 302
+
+# Duas colunas, na proporção que ele usou: a esquerda mais larga.
+COL_ESQ_L, COL_DIR_X, COL_DIR_L = 675, 705, 560
+
+# Caixas de texto que não são geradas aqui (o conteúdo é narrativa escrita à
+# mão), posicionadas na mesma grade.
 TEXTOS = {
-    "391e2a649b1f1d77900b": (32, 12, 900, 80),      # Q6-Q7, cabeçalho
-    "50ff396ca43983a9c8ef": (572, 252, 676, 132),   # Q6, nota lateral
-    "7abdf216958fcde92469": (1060, 390, 188, 302),  # Q7, nota lateral
-    "216ffc47830f5a89c2e0": (32, 586, 1216, 106),   # Q4, rodapé
-    "a84e3eee58ded52dd438": (32, 136, 1216, 54),    # Q4, tarja
-    "bd7aaef7f0bfcc1ef7d9": (32, 12, 900, 80),      # Q4, cabeçalho
-    "da871194ce722756e472": (32, 12, 900, 80),      # Vendas, cabeçalho
-    "2889264c822a6a350236": (32, 136, 1216, 54),    # Capa, tarja
-    "b7207488563d8e774de8": (32, 12, 900, 84),      # Capa, cabeçalho
-    "7b7e3d65158fa6f871bb": (32, 614, 760, 78),     # Q5, rodapé
-    "c23191ed5a16409fc4c2": (32, 12, 900, 80),      # Q5, cabeçalho
+    "b7207488563d8e774de8": TITULO,                  # capa, cabeçalho
+    "2889264c822a6a350236": TARJA,                   # capa, tarja
+    "da871194ce722756e472": TITULO,                  # vendas, cabeçalho
+    "bd7aaef7f0bfcc1ef7d9": TITULO,                  # Q4, cabeçalho
+    "a84e3eee58ded52dd438": TARJA,                   # Q4, tarja
+    "216ffc47830f5a89c2e0": (15, 626, 1250, 79),     # Q4, rodapé
+    "c23191ed5a16409fc4c2": TITULO,                  # Q5, cabeçalho
+    "7b7e3d65158fa6f871bb": (15, 657, 675, 48),      # Q5, rodapé
+    "391e2a649b1f1d77900b": TITULO,                  # Q6-Q7, cabeçalho
+    "50ff396ca43983a9c8ef": (705, 302, 560, 130),    # Q6, nota lateral
+    "7abdf216958fcde92469": (1005, 447, 260, 258),   # Q7, nota lateral
 }
 
-# Onde ficam os segmentadores. Filtro no rodapé, abaixo dos gráficos, era o
-# que estava errado: quem usa procura o controle antes de ler, não depois.
 SLICERS = {
-    "9b59c383596f4321410c": (948, 12, 300, 62),
-    "7063cddba223efdc191f": (948, 12, 300, 62),
+    "9b59c383596f4321410c": SLICER,   # status do pedido
+    "7063cddba223efdc191f": SLICER,   # clientes de elite
 }
 
 
-def navegador(pagina: str, largura: int) -> dict:
+def navegador(pagina: str) -> dict:
     """Botões de página. `pageNavigator` monta a lista sozinho — nada de
-    manter cinco botões e cinco ações sincronizados à mão."""
+    manter cinco botões e cinco ações sincronizados à mão.
+
+    Sem borda e sem fundo: os botões já têm forma própria, e a moldura em
+    volta deles só somava ruído."""
     nome = id_curto(f"visual:nav:{pagina}")
+    x, y, w, h = NAVEGACAO
     return {"$schema": "https://developer.microsoft.com/json-schemas/fabric/item/"
                        "report/definition/visualContainer/2.9.0/schema.json",
             "name": nome,
-            # abaixo do cabeçalho: o leitor identifica a página antes de
-            # decidir para onde ir
-            "position": {"x": 32, "y": 100, "z": 900, "height": 30,
-                         "width": largura, "tabOrder": 1},
+            "position": {"x": x, "y": y, "z": 900, "height": h, "width": w,
+                         "tabOrder": 1},
             "visual": {
                 "visualType": "pageNavigator",
                 "objects": {
@@ -786,13 +804,15 @@ def navegador(pagina: str, largura: int) -> dict:
                 },
                 "visualContainerObjects": {
                     "background": [{"properties": {"show": lit("false")}}],
+                    "border": [{"properties": {"show": lit("false")}}],
                     "visualHeader": [{"properties": {"show": lit("false")}}],
                 },
             }}
 
 
 def reposicionar() -> None:
-    """Aplica as posições absolutas e cria a faixa de navegação."""
+    """Aplica a grade e cria a faixa de navegação. Posições absolutas, nunca
+    deslocamento: o gerador roda várias vezes e um `+=` acumularia."""
     for pagina in (P1, P2, P3, P4, P5):
         base = PAGES / pagina / "visuals"
         for caminho in sorted(base.glob("*/visual.json")):
@@ -807,7 +827,7 @@ def reposicionar() -> None:
             caminho.write_text(json.dumps(dados, ensure_ascii=False, indent=2)
                                + "\n", encoding="utf-8", newline="\r\n")
 
-        nav = navegador(pagina, 1216)
+        nav = navegador(pagina)
         os.makedirs(base / nav["name"], exist_ok=True)
         (base / nav["name"] / "visual.json").write_text(
             json.dumps(nav, ensure_ascii=False, indent=2) + "\n",

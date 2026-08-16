@@ -481,9 +481,9 @@ table _Medidas
 			        ALLSELECTED(dim_produto)
 			    )
 			VAR _V   = [% Margem Líquida]
-			VAR _Max = MAXX(TOPN(10, _Tab, [@m], DESC), [@m])
+			VAR _Max = MAXX(TOPN(9, _Tab, [@m], DESC), [@m])
 			VAR _Pos = COUNTROWS(FILTER(_Tab, [@m] > _V)) + 1
-			VAR _Dentro = _Pos <= 10
+			VAR _Dentro = _Pos <= 9
 			RETURN
 			    IF(
 			        _Dentro,
@@ -775,37 +775,41 @@ table _Medidas
 		displayFolder: 0 HTML
 		lineageTag: 6e82700b-dd5e-7590-4a56-c25a18587fa4
 
-	/// DIAS SEM VENDA POR ANO — a curva de ramp-up.
+	/// DIAS SEM VENDA POR ANO, em SVG.
 	///
-	/// 25 em 2020 e 1 em 2025: dia sem venda é característica de operação
-	/// nova, não de sazonalidade.
+	/// Era uma lista, e virou série porque a lista só cabia com quatro anos —
+	/// e a queda de 25 em 2020 para 1 em 2025 é justamente o que a página
+	/// quer mostrar. A curva mostra os sete de uma vez.
 	///
-	/// FORMA LINHA — devolve UMA linha, e a coluna de granularidade entra no
-	/// papel `sampling` do visual. É isso que dá cross-filter: o visual cria um
-	/// selectionId por linha, e clicar filtra a página como um gráfico nativo.
-	measure 'HTML — Linha de Ano' =
-			VAR _Tab =
-			    CALCULATETABLE(
-			        ADDCOLUMNS(VALUES(dim_data[ano]), "@m", [Dias sem Venda]),
-			        ALLSELECTED(dim_data)
+	/// FORMA BLOCO — devolve o componente inteiro, então o visual recebe uma
+	/// linha só e não emite filtro. Recebe filtro normalmente.
+	measure 'HTML — Série de Dias Vazios' =
+			VAR _Base = ALLSELECTED(dim_data[ano])
+			VAR _T =
+			    ADDCOLUMNS(
+			        _Base,
+			        "@i", VALUE(LEFT(dim_data[ano], 4)) * 12 + VALUE(MID(dim_data[ano], 6, 2)),
+			        "@v1", [Dias sem Venda]
 			    )
-			VAR _V   = [Dias sem Venda]
-			VAR _Max = MAXX(TOPN(6, _Tab, [@m], DESC), [@m])
-			VAR _Dentro = NOT ISBLANK(_V)
+			VAR _Ini = MINX(_T, [@i])
+			VAR _N   = MAXX(_T, [@i]) - _Ini
+			VAR _Max = MAXX(_T, [@v1])
+			VAR _Min = 0
+			VAR _P1 =
+			    CONCATENATEX(
+			        FILTER(_T, NOT ISBLANK([@v1])),
+			        SUBSTITUTE(FORMAT([@i] - _Ini, "0"), ",", ".") & "," & SUBSTITUTE(FORMAT(100 - DIVIDE([@v1] - _Min, _Max - _Min) * 94, "0.00"), ",", "."),
+			        " ", [@i], ASC
+			    )
 			RETURN
-			    IF(
-			        _Dentro,
-			        "<div style=""display:flex;align-items:center;gap:9px;padding:2px 2px;font-family:Segoe UI,-apple-system,Roboto,sans-serif;"">"
-			      & "<div style=""width:52px;font-size:12px;color:#E8EEF4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:none;"">"
-			      & SELECTEDVALUE(dim_data[ano]) & "</div>"
-			      & "<div style=""flex:1;height:8px;background:#16233A;border-radius:4px;overflow:hidden;min-width:26px;""><div style=""height:8px;border-radius:4px;background:linear-gradient(90deg,#8B7AE8,#8B7AE866);width:"
-			      & SUBSTITUTE(FORMAT(DIVIDE(_V, _Max) * 100, "0.0"), ",", ".")
-			      & "%""></div></div>"
-			      & "<div style=""width:44px;text-align:right;font-size:12px;color:#93A5B8;flex:none;line-height:1.35;"">" & FORMAT(_V, "#,##0") & "</div>"
-			      & "</div>"
-			    )
+			    "<div style=""font-family:Segoe UI,-apple-system,Roboto,sans-serif;"">"
+			  & "<svg viewBox=""0 0 " & _N & " 100"" preserveAspectRatio=""none"" style=""width:100%;height:100px;display:block;"">"
+			  & "<defs><lineargradient id=""lhg"" x1=""0"" y1=""0"" x2=""0"" y2=""1""><stop offset=""0%"" stop-color=""#8B7AE8"" stop-opacity="".45""></stop><stop offset=""100%"" stop-color=""#8B7AE8"" stop-opacity=""0""></stop></lineargradient></defs>"
+			  & "<polygon fill=""url(#lhg)"" points=""0,100 " & _P1 & " " & _N & ",100""></polygon>"
+			  & "<polyline fill=""none"" stroke=""#8B7AE8"" stroke-width=""1.6"" vector-effect=""non-scaling-stroke"" stroke-linejoin=""round"" stroke-linecap=""round"" points=""" & _P1 & """></polyline>"
+			  & "</svg></div>"
 		displayFolder: 0 HTML
-		lineageTag: c58e353e-18c3-7c24-9d7e-dc5ae434a09e
+		lineageTag: 612c4980-0a05-f75e-ba0f-d7cb7bc51abf
 
 	/// A SÉRIE DA BÚSSOLA DE BORDO 702, em SVG.
 	///
@@ -892,9 +896,9 @@ table _Medidas
 			        ALLSELECTED(fct_similaridade_produto)
 			    )
 			VAR _V   = [Similaridade de Cosseno]
-			VAR _Max = MAXX(TOPN(10, _Tab, [@m], DESC), [@m])
+			VAR _Max = MAXX(TOPN(8, _Tab, [@m], DESC), [@m])
 			VAR _Pos = COUNTROWS(FILTER(_Tab, [@m] > _V)) + 1
-			VAR _Dentro = _Pos <= 10
+			VAR _Dentro = _Pos <= 8
 			RETURN
 			    IF(
 			        _Dentro,
@@ -924,9 +928,9 @@ table _Medidas
 			        ALLSELECTED(fct_similaridade_produto)
 			    )
 			VAR _V   = [Pedidos em Comum]
-			VAR _Max = MAXX(TOPN(10, _Tab, [@m], DESC), [@m])
+			VAR _Max = MAXX(TOPN(8, _Tab, [@m], DESC), [@m])
 			VAR _Pos = COUNTROWS(FILTER(_Tab, [@m] > _V)) + 1
-			VAR _Dentro = _Pos <= 10
+			VAR _Dentro = _Pos <= 8
 			RETURN
 			    IF(
 			        _Dentro,

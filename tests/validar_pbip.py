@@ -231,16 +231,27 @@ def validar_report_json(erros: list[str]) -> None:
 # Componente menor que isso ganha barra de rolagem dentro do visual — o
 # Desktop não avisa, e a última linha da lista simplesmente some.
 ALTURA_HTML = {
-    "HTML — Faixa de KPIs": 132, "HTML — Faixa de Margem": 124,
-    "HTML — Faixa de Clientes": 124, "HTML — Faixa de Sazonalidade": 124,
-    "HTML — Faixa da Previsão": 110,
-    "HTML — Linha de Status": 146, "HTML — Linha de Canal": 96,
-    "HTML — Linha de Categoria": 171, "HTML — Linha de Categoria Dupla": 340,
-    "HTML — Linha de Produto": 296, "HTML — Linha de Cliente": 246,
-    "HTML — Linha de Categoria Itens": 246, "HTML — Linha de Cliente Dupla": 214,
-    "HTML — Linha de Dia": 340, "HTML — Linha de Dia Vazio": 221,
-    "HTML — Linha de Ano": 196, "HTML — Linha de Similar": 296,
-    "HTML — Linha de Cesta": 296,
+    # Calibrado pelas caixas da página 1, que o Breno ajustou à mão no Desktop
+    # e aprovou: 2 linhas em 85px, 4 em 140, 5 em 185. Dá 30px de título mais
+    # 27 por linha simples; a linha dupla, com duas barras e dois valores,
+    # ocupa 42.
+    "HTML — Faixa de KPIs": 137, "HTML — Faixa de Margem": 137,
+    "HTML — Faixa de Clientes": 137, "HTML — Faixa de Sazonalidade": 137,
+    "HTML — Faixa da Previsão": 137,
+    "HTML — Linha de Canal": 84,             # 2 linhas
+    "HTML — Linha de Status": 138,           # 4
+    "HTML — Linha de Categoria": 165,        # 5
+    "HTML — Linha de Categoria Dupla": 324,  # 7 duplas
+    "HTML — Linha de Produto": 273,          # 9
+    "HTML — Linha de Cliente": 246,          # 8
+    "HTML — Linha de Categoria Itens": 246,  # 8
+    "HTML — Linha de Cliente Dupla": 198,    # 4 duplas
+    "HTML — Linha de Dia": 324,              # 7 duplas
+    "HTML — Linha de Dia Vazio": 219,        # 7
+    "HTML — Linha de Similar": 246,          # 8
+    "HTML — Linha de Cesta": 246,            # 8
+    "HTML — Série de Receita": 100, "HTML — Série de Margem": 60,
+    "HTML — Série da Bússola": 100, "HTML — Série de Dias Vazios": 100,
 }
 
 

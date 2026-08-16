@@ -1,11 +1,11 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.11.0/schema.json",
   "name": "b7207488563d8e774de8",
   "position": {
-    "x": 32,
-    "y": 12,
+    "x": 15,
+    "y": 15,
     "z": 100,
-    "height": 84,
+    "height": 75,
     "width": 900,
     "tabOrder": 100
   },
@@ -21,10 +21,10 @@
                   {
                     "value": "LH Nautical — visão executiva",
                     "textStyle": {
-                      "fontSize": "22pt",
-                      "color": "#E8EEF4",
                       "fontWeight": "bold",
-                      "fontFamily": "Segoe UI"
+                      "fontFamily": "Segoe UI",
+                      "fontSize": "22pt",
+                      "color": "#e8eef4"
                     }
                   }
                 ]
@@ -34,10 +34,9 @@
                   {
                     "value": "48.998 pedidos · 2020 a 2026 · R$ 1,41 bi de GMV",
                     "textStyle": {
+                      "fontFamily": "Segoe UI",
                       "fontSize": "11pt",
-                      "color": "#93A5B8",
-                      "fontWeight": "normal",
-                      "fontFamily": "Segoe UI"
+                      "color": "#93a5b8"
                     }
                   }
                 ]
