@@ -11,7 +11,7 @@ include .env
 export
 endif
 
-.PHONY: help setup schema db carga questoes pipeline powerbi check gate-q2 limpar
+.PHONY: help setup schema db carga questoes pipeline powerbi check verificar gate-q2 limpar
 
 help:  ## Mostra os alvos disponíveis
 	@# firstword: MAKEFILE_LIST inclui o .env por causa do include acima, e o
@@ -64,10 +64,13 @@ powerbi: pipeline  ## Gera o projeto PBIP (modelo TMDL + 5 páginas) a partir do
 gate-q2:  ## Prova que a Q2 usa SOMENTE a stdlib (premissa eliminatória)
 	@uv run python tests/gate_stdlib.py entregaveis/Q2_schema/q2_gerar_schema.py
 
-check: gate-q2  ## ruff + mypy + gates de conformidade
+check: gate-q2  ## ruff + mypy + gates de conformidade + validação do PBIP
 	uv run ruff check entregaveis/ tests/ src/ powerbi/
 	uv run mypy entregaveis/ tests/ src/
 	uv run python tests/validar_pbip.py
+
+verificar:  ## Recalcula as 7 respostas por caminho INDEPENDENTE (46 conferências)
+	uv run python tests/verificar_respostas.py
 
 limpar:  ## Derruba SOMENTE o banco lh_nautical (destrutivo — pede confirmação)
 	@if [ "$(PGDB)" != "lh_nautical" ]; then echo "ABORTADO: alvo inesperado '$(PGDB)'"; exit 1; fi
